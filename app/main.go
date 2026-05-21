@@ -2,117 +2,55 @@ package main
 
 import (
 	"fmt"
-	"os"
-	"strings"
-
-	"charm.land/bubbles/v2/cursor"
-	"charm.land/bubbles/v2/textarea"
-	"charm.land/bubbles/v2/viewport"
-	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
+	"time"
+	// "charm.land/bubbles/v2/textarea"
+	// tea "charm.land/bubbletea/v2"
 )
 
 func main() {
-	p := tea.NewProgram(initialModel())
-	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Oof: %v\n", err)
-	}
-}
+	//in order to create chess i think we can use 2d array?
+	//first array is for rows
+	//second array is for column
 
-type model struct {
-	viewport    viewport.Model
-	message     []string
-	textarea    textarea.Model
-	senderStyle lipgloss.Style
-	err         error
-}
+	//task 1. print i j i j i j i j for every row (done)
+	//task 2. print the array in a chess board square form, 
+	//after each row then println/escape sequence ("\n") (done)
+	//task 3. 
+	board := [8][8]string{}
 
-func initialModel() model {
-	ta := textarea.New()
-	ta.Placeholder = "Send a message..."
-	ta.SetVirtualCursor(false)
-	ta.Focus()
+	/*
+		(task 1)
+		in outer loop we do nothing, just jump straight to inner loop
+		which is the column, so after each outer loop done (for the row we 
+		jump to the column and fill it with either i or j)
 
-	ta.Prompt = "| "
-	ta.CharLimit = 280
+		because outer loop done after first loop, meanwhile inner loop  
+		done after it reach the condition (j < len(board))
+	*/
+	/*
+		(task 2)
+		because  j represent the column, and i is row, then after 
+		the last index of j it is the start of the new row, just add 
+		"\n" or escape sequence so it add new line, and to print it without
+		"[ ]", simply just print board[i][j] at the end of inner loop finnished 
+	*/
 
-	ta.SetWidth(30)
-	ta.SetHeight(3)
-
-	//remove cursor
-	s := ta.Styles()
-	s.Focused.CursorLine = lipgloss.NewStyle()
-	ta.SetStyles(s)
-
-	ta.ShowLineNumbers = false
-
-	vp := viewport.New(viewport.WithWidth(30), viewport.WithHeight(5))
-	vp.SetContent(`Welcome to the chat room!
-Type a message and press Enter to send.`)
-
-	vp.KeyMap.Left.SetEnabled(false)
-	vp.KeyMap.Right.SetEnabled(false)
-
-	ta.KeyMap.InsertNewline.SetEnabled(false)
-	
-	return model{
-		textarea:    ta,
-		message:     []string{},
-		viewport:    vp,
-		senderStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("5")),
-		err:         nil,
-	}
-}
-
-func (m model) Init() tea.Cmd {
-	return textarea.Blink
-}
-
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg := msg.(type) {
-	case tea.WindowSizeMsg:
-		m.viewport.SetWidth(msg.Width)
-		m.textarea.SetWidth(msg.Width)
-		m.viewport.SetHeight(msg.Height - m.textarea.Height())
-
-		if len(m.message) > 0 {
-			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width()).Render(strings.Join(m.message, "\n")))
+	/*
+		(task 3)
+		.		
+	*/
+	for i := 0; i < len(board); i++ {
+		for j := 0; j < len(board); j++ {
+			if j % 2 == 0 {
+				board[i][j] = "i"
+			} else {
+				board[i][j] = "j"
+			}
+			if j == 7 {
+				board[i][j] += "\n"
+			}
+			fmt.Print(board[i][j])
+			// time.Sleep(2 * time.Second)
 		}
-		m.viewport.GotoBottom()
-	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "ctrl+c", "esc":
-			fmt.Println(m.textarea.Value())
-			return m, tea.Quit
-		case "enter":
-			m.message = append(m.message, m.senderStyle.Render("You: ")+m.textarea.Value())
-			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width()).Render(strings.Join(m.message, "\n")))
-			m.textarea.Reset()
-			m.viewport.GotoBottom()
-			return m, nil
-		default:
-			var cmd tea.Cmd
-			m.textarea, cmd = m.textarea.Update(msg)
-			return m, cmd
-		}
-
-	case cursor.BlinkMsg:
-		var cmd tea.Cmd
-		m.textarea, cmd = m.textarea.Update(msg)
-		return m, cmd
 	}
-
-	return m, nil
-}
-
-func (m model) View() tea.View {
-	viewportView := m.viewport.View()
-	v := tea.NewView(viewportView + "\n" + m.textarea.View())
-	c := m.textarea.Cursor()
-	if c != nil {
-		c.Y += lipgloss.Height(viewportView)
-	}
-	v.Cursor = c
-	v.AltScreen = true
-	return v
 }
