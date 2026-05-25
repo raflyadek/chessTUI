@@ -17,7 +17,6 @@ func main() {
 	//task 3. change i and j to white and black like a board representation
 	//the board representation is complete with the notation aswell (a - h) & (1-8) (done)
 	//task 4. put the pieces in the right square
-	board := [8][8]string{}
 
 	/*
 		(task 1)
@@ -53,8 +52,17 @@ func main() {
 		(task 4)
 		pieces representation is kinda tricky, i think we need to hardcode it first in the right notation,
 		and after it whenever its move render it again, not render it in the game first start
+
+		not that tricky tho, just create a function with a board is prefilled with pieces, and then
+		loop the array again if the element is equal to "" <- because we use string, then its cannot be null
+		then we check if element equal to empty string / "", then if its empty then, print the board representation
+		(,) as black and (.) as white
 	*/
 
+	//init the board
+	board := initBoard()
+
+	fmt.Println("test", string(board[5][0]))
 	notation := "  abcdefgh"
 	numberNotation := 8
 	for i := 0; i < len(board); i++ {
@@ -64,10 +72,20 @@ func main() {
 		}
 		fmt.Printf("%d ", numberNotation)
 		for j := 0; j < len(board); j++ {
-			if j%2 == 0 {
-				board[i][j] = "."
-			} else {
-				board[i][j] = ","
+			if string(board[i][j]) == "" {
+				if i%2 == 0 {
+					if j%2 == 0 {
+						board[i][j] = "."
+					} else {
+						board[i][j] = ","
+					}
+				} else {
+					if j%2 == 0 {
+						board[i][j] = ","
+					} else {
+						board[i][j] = "."
+					}
+				}
 			}
 			fmt.Print(board[i][j])
 			//add number notation at the end of loop
@@ -83,4 +101,18 @@ func main() {
 			fmt.Println(notation)
 		}
 	}
+}
+
+func initBoard() [8][8]string {
+	board := [8][8]string{}
+
+	//white
+	board[7] = [8]string{"R", "N", "B", "Q", "K", "B", "N", "R"}
+	board[6] = [8]string{"P", "P", "P", "P", "P", "P", "P", "P"}
+
+	//black
+	board[1] = [8]string{"p", "p", "p", "p", "p", "p", "p", "p"}
+	board[0] = [8]string{"r", "n", "b", "q", "k", "b", "n", "r"}
+
+	return board
 }
