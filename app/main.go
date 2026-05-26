@@ -16,7 +16,8 @@ func main() {
 	//after each row then println/escape sequence ("\n") (done)
 	//task 3. change i and j to white and black like a board representation
 	//the board representation is complete with the notation aswell (a - h) & (1-8) (done)
-	//task 4. put the pieces in the right square
+	//task 4. put the pieces in the right square (done)
+	//task 5. make the pieces can move, ignoring all the rules first
 
 	/*
 		(task 1)
@@ -57,6 +58,16 @@ func main() {
 		loop the array again if the element is equal to "" <- because we use string, then its cannot be null
 		then we check if element equal to empty string / "", then if its empty then, print the board representation
 		(,) as black and (.) as white
+	*/
+
+	/*
+		(task 5)
+		maybe create a function to check if the move is legal/not? like func legalMove() [8][8]string
+		and if we take that route with the function returning the board, then we can show whats is legal,
+		like if i put e4 and enter then it will show the dot to mark the legal move of the pieces,
+		OR
+		we can legalMove() bool <- then we can just check if the move is legal or not, so when the user want to move
+		e4 to e6, its immediately return false and show the message "the move is not legal"
 	*/
 
 	//init the board
