@@ -1,7 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
+	"os"
 	// "charm.land/bubbles/v2/textarea"
 	// tea "charm.land/bubbletea/v2"
 )
@@ -73,44 +75,47 @@ func main() {
 	//init the board
 	board := initBoard()
 
-	fmt.Println("test", string(board[5][0]))
+	// fmt.Println("test", string(board[5][0]))
 	notation := "  abcdefgh"
-	numberNotation := 8
-	for i := 0; i < len(board); i++ {
-		//print notatin at the top before the loop begin
-		if i == 0 {
-			fmt.Println(notation)
-		}
-		fmt.Printf("%d ", numberNotation)
-		for j := 0; j < len(board); j++ {
-			if string(board[i][j]) == "" {
-				if i%2 == 0 {
-					if j%2 == 0 {
-						board[i][j] = "."
+	//loop until checkmate or resign
+	for {
+		numberNotation := 8
+
+		for i := 0; i < len(board); i++ {
+			//print notatin at the top before the loop begin
+			if i == 0 {
+				fmt.Println(notation)
+			}
+			fmt.Printf("%d ", numberNotation)
+			for j := 0; j < len(board); j++ {
+				if board[i][j] == "" {
+					if (i+j)%2 == 0 {
+						fmt.Print(".")
 					} else {
-						board[i][j] = ","
+						fmt.Print(",")
 					}
 				} else {
-					if j%2 == 0 {
-						board[i][j] = ","
-					} else {
-						board[i][j] = "."
-					}
+					fmt.Print(board[i][j])
+				}
+				//add number notation at the end of loop
+				if j == 7 {
+					fmt.Printf(" %d", numberNotation)
+					numberNotation--
 				}
 			}
-			fmt.Print(board[i][j])
-			//add number notation at the end of loop
-			if j == 7 {
-				fmt.Printf(" %d", numberNotation)
-				numberNotation--
+			//add new line after every row
+			fmt.Println()
+			//print notatin at the top after the loop for row end
+			if i == 7 {
+				fmt.Println(notation)
 			}
 		}
-		//add new line after every row
-		fmt.Println()
-		//print notatin at the top after the loop for row end
-		if i == 7 {
-			fmt.Println(notation)
-		}
+		/*
+			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
+			board representation is above this, how do i use this variable?
+		*/
+		from, to := piecesMove()
+		board = applyMove(board, from, to)
 	}
 }
 
@@ -127,3 +132,35 @@ func initBoard() [8][8]string {
 
 	return board
 }
+
+// ignore all legal just pieces can move first
+func piecesMove() (from, to string) {
+	fmt.Println("\n(Insert the notation)")
+	fmt.Print("What piece you want to move? ")
+	reader := bufio.NewScanner(os.Stdin)
+	reader.Scan()
+	from = reader.Text()
+	fmt.Print("To what square? ")
+	reader.Scan()
+	to = reader.Text()
+	fmt.Println()
+
+	return from, to
+}
+
+func applyMove(board [8][8]string, from, to string) [8][8]string {
+	//from e2 to e3
+	fromCol := int(from[0] - 'a')
+	fromRow := 8 - int(from[1]-'0')
+	toCol := int(to[0] - 'a')
+	toRow := 8 - int(to[1]-'0')
+
+	fmt.Println(fromCol, fromRow, toCol, toRow)
+	//copy piece to (to) and delete it from (from)
+	board[toRow][toCol] = board[fromRow][fromCol]
+	board[fromRow][fromCol] = ""
+
+	return board
+}
+
+func legalMove()
