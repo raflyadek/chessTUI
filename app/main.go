@@ -64,12 +64,19 @@ func main() {
 
 	/*
 		(task 5)
+		create a function to take an input move from user (piecesMove function) and pass it as a return
+		then create a function to apply that move (applyMove) that takes an input from piecesMove function return 
+
 		maybe create a function to check if the move is legal/not? like func legalMove() [8][8]string
 		and if we take that route with the function returning the board, then we can show whats is legal,
 		like if i put e4 and enter then it will show the dot to mark the legal move of the pieces,
 		OR
 		we can legalMove() bool <- then we can just check if the move is legal or not, so when the user want to move
 		e4 to e6, its immediately return false and show the message "the move is not legal"
+	*/
+
+	/*
+		
 	*/
 
 	//init the board
@@ -115,6 +122,16 @@ func main() {
 			board representation is above this, how do i use this variable?
 		*/
 		from, to := piecesMove()
+		flag := legalMove(from, to, board)
+		if flag == false {
+			fmt.Println("ilegal move")
+			return
+		}
+		fmt.Println("flag: ", flag)
+		fmt.Println("from: ", from)
+		fmt.Println("to: ", to)
+		fmt.Println("from[1]: ", string(from[1]))
+		fmt.Println("to[1]: ", string(to[1]))
 		board = applyMove(board, from, to)
 	}
 }
@@ -144,7 +161,7 @@ func piecesMove() (from, to string) {
 	reader.Scan()
 	to = reader.Text()
 	fmt.Println()
-
+	
 	return from, to
 }
 
@@ -163,4 +180,15 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	return board
 }
 
-func legalMove()
+//when input with the right notation, it still return false
+func legalMove(from, to string, board [8][8]string) bool {
+	if from == "" || to == "" {
+		return false
+	}
+
+	if from[1] > 8 {
+		return false
+	}
+
+	return true
+}

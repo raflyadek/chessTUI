@@ -17,6 +17,10 @@ func main() {
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Oof: %v\n", err)
 	}
+	b := 2
+	if b > 2 {
+		return 
+	}
 }
 
 type model struct {
