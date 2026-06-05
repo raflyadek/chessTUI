@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"strconv"
 	// "charm.land/bubbles/v2/textarea"
 	// tea "charm.land/bubbletea/v2"
 )
@@ -22,7 +23,7 @@ func main() {
 	//task 5. make the pieces can move, ignoring all the rules first
 
 	/*
-		(task 1)
+		(task 1) (done)
 		in outer loop we do nothing, just jump straight to inner loop
 		which is the column, so after each outer loop done (for the row we
 		jump to the column and fill it with either i or j)
@@ -30,8 +31,9 @@ func main() {
 		because outer loop done after first loop, meanwhile inner loop
 		done after it reach the condition (j < len(board))
 	*/
+
 	/*
-		(task 2)
+		(task 2) (done)
 		because  j represent the column, and i is row, then after
 		the last index of j it is the start of the new row, just add
 		"\n" or escape sequence so it add new line, and to print it without
@@ -39,7 +41,7 @@ func main() {
 	*/
 
 	/*
-		(task 3)
+		(task 3) (done)
 		for board representation with black and white and pure using golang
 		i dont think it achieveable? i think it can be achieveable when we already
 		implement a bubbletea? we can ahieve it with (.) for white and (,) for black
@@ -52,7 +54,7 @@ func main() {
 	*/
 
 	/*
-		(task 4)
+		(task 4) (done)
 		pieces representation is kinda tricky, i think we need to hardcode it first in the right notation,
 		and after it whenever its move render it again, not render it in the game first start
 
@@ -70,13 +72,15 @@ func main() {
 		maybe create a function to check if the move is legal/not? like func legalMove() [8][8]string
 		and if we take that route with the function returning the board, then we can show whats is legal,
 		like if i put e4 and enter then it will show the dot to mark the legal move of the pieces,
+			(done still simple only if the notation is out of bounds)
 		OR
 		we can legalMove() bool <- then we can just check if the move is legal or not, so when the user want to move
-		e4 to e6, its immediately return false and show the message "the move is not legal"
+		e4 to e16, its immediately return false and show the message "the move is not legal"
 	*/
 
 	/*
-		
+		(task 6)
+		create a move rules for each pieces
 	*/
 
 	//init the board
@@ -119,19 +123,20 @@ func main() {
 		}
 		/*
 			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
-			board representation is above this, how do i use this variable?
+			board representation is above this, how do i use this variable? (done) 
+				just create another function that return [8][8]string and use that as a new board
 		*/
 		from, to := piecesMove()
 		flag := legalMove(from, to, board)
+		// fmt.Println("flag: ", flag)
+		// fmt.Println("from: ", from)
+		// fmt.Println("to: ", to)
+		// fmt.Println("from[1]: ", string(from[1:]))
+		// fmt.Println("to[1]: ", string(to[1:]))
 		if flag == false {
-			fmt.Println("ilegal move")
+			fmt.Println("illegal move")
 			return
 		}
-		fmt.Println("flag: ", flag)
-		fmt.Println("from: ", from)
-		fmt.Println("to: ", to)
-		fmt.Println("from[1]: ", string(from[1]))
-		fmt.Println("to[1]: ", string(to[1]))
 		board = applyMove(board, from, to)
 	}
 }
@@ -151,6 +156,7 @@ func initBoard() [8][8]string {
 }
 
 // ignore all legal just pieces can move first
+// already have a function to make sure its legal (check only the notation out of bounds or not)
 func piecesMove() (from, to string) {
 	fmt.Println("\n(Insert the notation)")
 	fmt.Print("What piece you want to move? ")
@@ -183,12 +189,29 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 //when input with the right notation, it still return false
 func legalMove(from, to string, board [8][8]string) bool {
 	if from == "" || to == "" {
+		fmt.Println("masuk disini")
 		return false
 	}
 
-	if from[1] > 8 {
+	//get input from and to index 1 to int and if its out of bound just throw false
+	fromInt, err := strconv.Atoi(string(from[1:]))
+	if err != nil {
+		fmt.Printf("error parse to int %w", err)
+		return false
+	}
+	if  fromInt > 8 {
+		return false
+	}
+
+	toInt, err := strconv.Atoi(string(to[1:]))
+	if err != nil {
+		fmt.Printf("error parse to int %w", err)
+		return false
+	}
+	if toInt > 8 {
 		return false
 	}
 
 	return true
 }
+
