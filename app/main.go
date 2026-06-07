@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	// "charm.land/bubbles/v2/textarea"
 	// tea "charm.land/bubbletea/v2"
 )
@@ -21,6 +22,7 @@ func main() {
 	//the board representation is complete with the notation aswell (a - h) & (1-8) (done)
 	//task 4. put the pieces in the right square (done)
 	//task 5. make the pieces can move, ignoring all the rules first
+	//task 6. make each player move white/black
 
 	/*
 		(task 1) (done)
@@ -67,7 +69,7 @@ func main() {
 	/*
 		(task 5)
 		create a function to take an input move from user (piecesMove function) and pass it as a return
-		then create a function to apply that move (applyMove) that takes an input from piecesMove function return 
+		then create a function to apply that move (applyMove) that takes an input from piecesMove function return
 
 		maybe create a function to check if the move is legal/not? like func legalMove() [8][8]string
 		and if we take that route with the function returning the board, then we can show whats is legal,
@@ -80,7 +82,9 @@ func main() {
 
 	/*
 		(task 6)
-		create a move rules for each pieces
+		each player move, start with white and then black and repeat until it checkmate.
+
+
 	*/
 
 	//init the board
@@ -123,7 +127,7 @@ func main() {
 		}
 		/*
 			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
-			board representation is above this, how do i use this variable? (done) 
+			board representation is above this, how do i use this variable? (done)
 				just create another function that return [8][8]string and use that as a new board
 		*/
 		from, to := piecesMove()
@@ -133,11 +137,15 @@ func main() {
 		// fmt.Println("to: ", to)
 		// fmt.Println("from[1]: ", string(from[1:]))
 		// fmt.Println("to[1]: ", string(to[1:]))
-		if flag == false {
-			fmt.Println("illegal move")
-			return
+
+		//check if the move is from ""
+
+		if flag == true {
+			board = applyMove(board, from, to)
+		} else {
+			fmt.Println("Illegal move")
+			fmt.Println()
 		}
-		board = applyMove(board, from, to)
 	}
 }
 
@@ -167,12 +175,12 @@ func piecesMove() (from, to string) {
 	reader.Scan()
 	to = reader.Text()
 	fmt.Println()
-	
+
 	return from, to
 }
 
 func applyMove(board [8][8]string, from, to string) [8][8]string {
-	//from e2 to e3
+	//from e2 to e3'
 	fromCol := int(from[0] - 'a')
 	fromRow := 8 - int(from[1]-'0')
 	toCol := int(to[0] - 'a')
@@ -186,10 +194,28 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	return board
 }
 
-//when input with the right notation, it still return false
+// when input with the right notation, it still return false
 func legalMove(from, to string, board [8][8]string) bool {
+	notation := "abcdefgh"
+	//check if from/to is within the notation
+	if fromCheck := strings.Contains(notation, string(from[0])); !fromCheck {
+		return false
+	}
+
+	if toCheck := strings.Contains(notation, string(to[0])); !toCheck {
+		return false
+	}
+
+	//check if the from is empty or not
+	fromCol := int(from[0] - 'a')
+	fromRow := 8 - int(from[1]-'0')
+
+	if board[fromRow][fromCol] == "" {
+		return false
+	}
+
+	//check if the input is empty string
 	if from == "" || to == "" {
-		fmt.Println("masuk disini")
 		return false
 	}
 
@@ -199,7 +225,7 @@ func legalMove(from, to string, board [8][8]string) bool {
 		fmt.Printf("error parse to int %w", err)
 		return false
 	}
-	if  fromInt > 8 {
+	if fromInt > 8 {
 		return false
 	}
 
@@ -212,6 +238,11 @@ func legalMove(from, to string, board [8][8]string) bool {
 		return false
 	}
 
+	// after all all condition pased then return true
 	return true
 }
 
+// take turns white/black white =
+func playerMove(from, to string, board [8][8]string) bool {
+
+}
