@@ -67,7 +67,7 @@ func main() {
 	*/
 
 	/*
-		(task 5)
+		(task 5) (partial? will definitely add more logic to this function)
 		create a function to take an input move from user (piecesMove function) and pass it as a return
 		then create a function to apply that move (applyMove) that takes an input from piecesMove function return
 
@@ -84,11 +84,12 @@ func main() {
 		(task 6)
 		each player move, start with white and then black and repeat until it checkmate.
 
-
+		we ccan create a function that return the 
 	*/
 
 	//init the board
 	board := initBoard()
+	moveCounter := 0
 
 	// fmt.Println("test", string(board[5][0]))
 	notation := "  abcdefgh"
@@ -123,25 +124,25 @@ func main() {
 			//print notatin at the top after the loop for row end
 			if i == 7 {
 				fmt.Println(notation)
+				fmt.Println()
 			}
 		}
+		player := playerMove(moveCounter)
+		
 		/*
-			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
-			board representation is above this, how do i use this variable? (done)
-				just create another function that return [8][8]string and use that as a new board
+		blocker: if we put piecesMove here, the variable cannot be used to generate a move because
+		board representation is above this, how do i use this variable? (done)
+		just create another function that return [8][8]string and use that as a new board
 		*/
-		from, to := piecesMove()
-		flag := legalMove(from, to, board)
-		// fmt.Println("flag: ", flag)
-		// fmt.Println("from: ", from)
-		// fmt.Println("to: ", to)
-		// fmt.Println("from[1]: ", string(from[1:]))
-		// fmt.Println("to[1]: ", string(to[1:]))
 
-		//check if the move is from ""
+		fmt.Print(player)
+		from, to := piecesMove()
+		flag := legalMove(from, to, board, moveCounter)
 
 		if flag == true {
 			board = applyMove(board, from, to)
+			// add counter if only the move is legal counter for move 
+			moveCounter++
 		} else {
 			fmt.Println("Illegal move")
 			fmt.Println()
@@ -149,6 +150,9 @@ func main() {
 	}
 }
 
+/*
+	initial board when play
+*/
 func initBoard() [8][8]string {
 	board := [8][8]string{}
 
@@ -163,8 +167,10 @@ func initBoard() [8][8]string {
 	return board
 }
 
-// ignore all legal just pieces can move first
-// already have a function to make sure its legal (check only the notation out of bounds or not)
+/* 
+	ignore all legal just pieces can move first
+	already have a function to make sure its legal (check only the notation out of bounds or not)
+*/ 
 func piecesMove() (from, to string) {
 	fmt.Println("\n(Insert the notation)")
 	fmt.Print("What piece you want to move? ")
@@ -179,6 +185,9 @@ func piecesMove() (from, to string) {
 	return from, to
 }
 
+/*
+	apply move from input piecesMove()
+*/
 func applyMove(board [8][8]string, from, to string) [8][8]string {
 	//from e2 to e3'
 	fromCol := int(from[0] - 'a')
@@ -194,9 +203,15 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	return board
 }
 
-// when input with the right notation, it still return false
-func legalMove(from, to string, board [8][8]string) bool {
+/* 	when input with the right notation, it still return false
+
+	TODO: we can change the return to err and change the return in each logic to 
+	fmt.ErrorF and send the message to err, so we can show the err message 
+	to the output instead of just "illegal move"
+*/ 
+func legalMove(from, to string, board [8][8]string, moveCounter int) bool {
 	notation := "abcdefgh"
+	pieces := "prnbqkbnr"
 	//check if from/to is within the notation
 	if fromCheck := strings.Contains(notation, string(from[0])); !fromCheck {
 		return false
@@ -210,7 +225,10 @@ func legalMove(from, to string, board [8][8]string) bool {
 	fromCol := int(from[0] - 'a')
 	fromRow := 8 - int(from[1]-'0')
 
-	if board[fromRow][fromCol] == "" {
+	//get what piece it want to move
+	pieceLocation := board[fromRow][fromCol]
+
+	if pieceLocation == "" {
 		return false
 	}
 
@@ -238,11 +256,28 @@ func legalMove(from, to string, board [8][8]string) bool {
 		return false
 	}
 
+	// if its white turn then its only can move the upper case pieces 
+	player := playerMove(moveCounter)
+	if strings.Contains(player, "white") {
+		if !strings.Contains(strings.ToUpper(pieces), pieceLocation) {
+			return false
+		}
+	} else {
+		if !strings.Contains(strings.ToLower(pieces), pieceLocation) {
+			return false
+		}
+	}
 	// after all all condition pased then return true
 	return true
 }
 
-// take turns white/black white =
-func playerMove(from, to string, board [8][8]string) bool {
-
+/*
+	take turns white/black
+*/
+func playerMove(moveCounter int) string {
+	if moveCounter % 2 == 0 {
+		return "Its white turn"
+	} else {
+		return "Its black turn"
+	}
 }
