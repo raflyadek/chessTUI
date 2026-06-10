@@ -84,7 +84,9 @@ func main() {
 		(task 6)
 		each player move, start with white and then black and repeat until it checkmate.
 
-		we ccan create a function that return the 
+		we ccan create a function that receive a parameter of counter
+		that return the the string if its a white or black 
+		by using the counter if the counter % 2 == 0 then its white else black
 	*/
 
 	//init the board
