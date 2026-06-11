@@ -151,7 +151,7 @@ func main() {
 			// add counter if only the move is legal counter for move 
 			moveCounter++
 		} else {
-			fmt.Printf("error: %s", err)
+			fmt.Printf("error: %s\n", err)
 			fmt.Println()
 		}
 	}
@@ -202,7 +202,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
 
-	fmt.Println(fromCol, fromRow, toCol, toRow)
+	// fmt.Println(fromCol, fromRow, toCol, toRow)
 	//copy piece to (to) and delete it from (from)
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
@@ -237,8 +237,8 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//get what piece it want to move
 	pieceLocation := board[fromRow][fromCol]
 	pieceDestination := board[toRow][toCol]
-	fmt.Println("[oece location: ", pieceLocation)
-	fmt.Println("[oece destination: ", pieceDestination)
+	// fmt.Println("[oece location: ", pieceLocation)
+	// fmt.Println("[oece destination: ", pieceDestination)
 
 	if pieceLocation == "" {
 		return false, fmt.Errorf("you cant move piece from empty square")
