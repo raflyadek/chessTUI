@@ -60,7 +60,7 @@ func main() {
 		pieces representation is kinda tricky, i think we need to hardcode it first in the right notation,
 		and after it whenever its move render it again, not render it in the game first start
 
-		not that tricky tho, just create a function with a board is prefilled with pieces, and then
+		not that tricky tho, just create a function (initBoard) with a board is prefilled with pieces, and then
 		loop the array again if the element is equal to "" <- because we use string, then its cannot be null
 		then we check if element equal to empty string / "", then if its empty then, print the board representation
 		(,) as black and (.) as white
@@ -81,12 +81,17 @@ func main() {
 	*/
 
 	/*
-		(task 6)
+		(task 6) (done)
 		each player move, start with white and then black and repeat until it checkmate.
 
-		we ccan create a function that receive a parameter of counter
+		we ccan create a function (playerMove) that receive a parameter of counter
 		that return the the string if its a white or black 
 		by using the counter if the counter % 2 == 0 then its white else black
+	*/
+
+	/*
+		(task 7)
+
 	*/
 
 	//init the board
@@ -139,14 +144,14 @@ func main() {
 
 		fmt.Print(player)
 		from, to := piecesMove()
-		flag := legalMove(from, to, board, moveCounter)
+		flag, err := legalMove(from, to, board, moveCounter)
 
 		if flag == true {
 			board = applyMove(board, from, to)
 			// add counter if only the move is legal counter for move 
 			moveCounter++
 		} else {
-			fmt.Println("Illegal move")
+			fmt.Printf("error: %s", err)
 			fmt.Println()
 		}
 	}
@@ -211,66 +216,91 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	fmt.ErrorF and send the message to err, so we can show the err message 
 	to the output instead of just "illegal move"
 */ 
-func legalMove(from, to string, board [8][8]string, moveCounter int) bool {
+func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, error) {
 	notation := "abcdefgh"
 	pieces := "prnbqkbnr"
 	//check if from/to is within the notation
 	if fromCheck := strings.Contains(notation, string(from[0])); !fromCheck {
-		return false
+		return false, fmt.Errorf("the from notation is invalid")
 	}
 
 	if toCheck := strings.Contains(notation, string(to[0])); !toCheck {
-		return false
+		return false, fmt.Errorf("the to notation is invalid ")
 	}
 
 	//check if the from is empty or not
 	fromCol := int(from[0] - 'a')
 	fromRow := 8 - int(from[1]-'0')
+	toCol := int(to[0] - 'a')
+	toRow := 8 - int(to[1]-'0')
 
 	//get what piece it want to move
 	pieceLocation := board[fromRow][fromCol]
+	pieceDestination := board[toRow][toCol]
+	fmt.Println("[oece location: ", pieceLocation)
+	fmt.Println("[oece destination: ", pieceDestination)
 
 	if pieceLocation == "" {
-		return false
+		return false, fmt.Errorf("you cant move piece from empty square")
 	}
 
 	//check if the input is empty string
 	if from == "" || to == "" {
-		return false
+		return false, fmt.Errorf("enter the right notation")
 	}
 
 	//get input from and to index 1 to int and if its out of bound just throw false
 	fromInt, err := strconv.Atoi(string(from[1:]))
 	if err != nil {
-		fmt.Printf("error parse to int %w", err)
-		return false
+		return false, err
 	}
 	if fromInt > 8 {
-		return false
+		return false, fmt.Errorf("number notation is out of bounds")
 	}
 
 	toInt, err := strconv.Atoi(string(to[1:]))
 	if err != nil {
 		fmt.Printf("error parse to int %w", err)
-		return false
+		return false, err
 	}
 	if toInt > 8 {
-		return false
+		return false, fmt.Errorf("number notation is out of bound")
 	}
 
 	// if its white turn then its only can move the upper case pieces 
 	player := playerMove(moveCounter)
 	if strings.Contains(player, "white") {
 		if !strings.Contains(strings.ToUpper(pieces), pieceLocation) {
-			return false
+			return false, fmt.Errorf("cant move black piece when its white turn")
 		}
 	} else {
 		if !strings.Contains(strings.ToLower(pieces), pieceLocation) {
-			return false
+			return false, fmt.Errorf("cant move white piece when its black turn")
+		} 
+	}
+
+	/* 
+		cant eat piece with the same color
+
+		the guard pieceDestination != "" is because every string contains empty string,
+		so when there is no guard, the actual logic condition always return true 
+	*/ 
+	if strings.Contains(player, "white") {
+		if pieceDestination != "" {
+			if strings.Contains(strings.ToUpper(pieces), pieceLocation) == strings.Contains(strings.ToUpper(pieces), pieceDestination) {
+				return false, fmt.Errorf("white piece cant eat white piece")
+			} 
+		}
+	} else {
+		if pieceDestination != "" {
+			if strings.Contains(strings.ToLower(pieces), pieceLocation) == strings.Contains(strings.ToLower(pieces), pieceDestination) {
+				return false, fmt.Errorf("black piece cant eat black piece")
+			}
 		}
 	}
-	// after all all condition pased then return true
-	return true
+	
+	// after all condition pased then return true
+	return true, nil
 }
 
 /*
@@ -283,3 +313,11 @@ func playerMove(moveCounter int) string {
 		return "Its black turn"
 	}
 }
+
+/*
+	rules for every pieces
+
+	is it better to make a different function for different piece
+	or 
+	is it better to make a single function that validate every piece
+*/
