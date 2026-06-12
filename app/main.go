@@ -23,6 +23,7 @@ func main() {
 	//task 4. put the pieces in the right square (done)
 	//task 5. make the pieces can move, ignoring all the rules first
 	//task 6. make each player move white/black
+	//task 7. make pieces move rule
 
 	/*
 		(task 1) (done)
@@ -90,15 +91,22 @@ func main() {
 	*/
 
 	/*
-		(task 7)
+		(task 7) (progress)
+		piece move rule
+
+		its either create one function for all the pieces
+		or
+		create a separate function for every piece
+		-> its better to create a separate function for every piece because
+		if there are adjustment its not clunky on the function, we can achieve 
+		separate of concern, rather than one function, the code will be messy
 
 	*/
 
 	//init the board
 	board := initBoard()
+	
 	moveCounter := 0
-
-	// fmt.Println("test", string(board[5][0]))
 	notation := "  abcdefgh"
 	//loop until checkmate or resign
 	for {
