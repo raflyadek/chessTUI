@@ -310,7 +310,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	}
 
 	//pieces rules?
-	pErr := piecesRules(from, to, board)
+	pErr := piecesRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
 	if pErr != nil {
 		return false, fmt.Errorf(pErr.Error())
 	}
@@ -340,34 +340,28 @@ is it better to make a single function that validate every piece
 ok, make a different function for different piece and later maybe we create one function
 to validate the from pieces, and if p then it goes to pawnRules() function, etc.
 */
-func piecesRules(from, to string, board [8][8]string) error {
-	//check if the from is empty or not
-	fromCol := int(from[0] - 'a')
-	fromRow := 8 - int(from[1]-'0')
-	// toCol := int(to[0] - 'a')
-	// toRow := 8 - int(to[1]-'0')
-
-	//get what piece it want to move
-	//to lower for the rules to apply to either white or black pieces
-	//but the black pawn cant move at all????
-	pieceLocation := board[fromRow][fromCol]
-	// pieceDestination := strings.ToLower(board[toRow][toCol])
-
+func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol,toCol, toRow int) error {
+	fmt.Println("fromrow: ", fromRow)
+	fmt.Println("fromCol", fromCol)
+	fmt.Println("from: ", from)
+	fmt.Println("to: ", to)
+	fmt.Println("piece location: ", pieceLocation)
+	fmt.Println("piece destination: ", pieceDestination)
 	switch pieceLocation {
-	case "P":
-		err := pawnRules(from, to)
+	case "p", "P":
+		err := pawnRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
 		if err != nil {
 			return err
 		}
-	case "r":
+	case "r", "R":
 		fmt.Println("this is rook")
-	case "n":
+	case "n", "N":
 		fmt.Println("this is knight")
-	case "b":
+	case "b", "B":
 		fmt.Println("this is bishop")
-	case "q":
+	case "q", "Q":
 		fmt.Println("this is queen")
-	case "k":
+	case "k", "K":
 		fmt.Println("this is king")
 		// default:
 		// 	return fmt.Errorf("what piece is this? lol")
@@ -375,19 +369,52 @@ func piecesRules(from, to string, board [8][8]string) error {
 
 	return nil
 }
-func pawnRules(from, to string) error {
-	//cant move 2 square if already move before
-	if from[1] != 2 {
-		if to[1] != from[1]+1 {
-			return fmt.Errorf("pawn cant move 2 square if already move before")
+
+func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	//if there are pieces in the destination location 
+	//and in the same notation, cant move forward
+	if pieceDestination != "" && from[0] == to[0] {
+		return fmt.Errorf("there is a piece, pawn cant move forward")
+	}
+
+	//can only move 1 or 2 square when never move before
+	if pieceLocation == "P" && fromRow == 6 {
+		if to[1] != from[1]+1 && to[1] != from[1]+2 {
+			return fmt.Errorf("pawn white can only move 1 or 2 square in its starting position")
 		}
 	}
 
-	if from[1] != 7 {
-		if to[1] != from[1]+1 {
-			return fmt.Errorf("pawn cant move 2 square if already move before")
+	if pieceLocation == "p" && fromRow == 1 {
+		if to[1] != from[1]-1 && to[1] != from[1]-2 {
+			return fmt.Errorf("pawn can only move 1 or 2 square in its starting position")
 		}
 	}
+
+	//can only move 1 square if already move before
+	if pieceLocation == "P" && fromRow != 6 {
+		if to[1] != from[1]+1 {
+			return fmt.Errorf("pawn only move 1 square if already move before")
+		}
+	}
+
+	if pieceLocation == "p" && fromRow != 1 {
+		if to[1] != from[1]-1 {
+			return fmt.Errorf("pawn only move 1 square if already move before")
+		}
+	}
+	fmt.Println("lewat")
+	//can only eat diagonal/column +1/-1 from its position
+	if from[0] != to[0] { 
+		if pieceDestination != "" {
+			if fromCol - toCol != 1 && fromCol - toCol != -1 {
+				return fmt.Errorf("can only move 1 square to diagonal")
+			}
+		} else {
+			return fmt.Errorf("move diagonal when there is a piece to eat")
+		}
+	}
+
+	//en passant (this shit hard)
 
 	return nil
 }

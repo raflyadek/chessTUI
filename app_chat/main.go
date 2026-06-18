@@ -20,7 +20,7 @@ func main() {
 	b := 2
 	if b > 2 {
 		return 
-	}
+	} 
 }
 
 type model struct {
