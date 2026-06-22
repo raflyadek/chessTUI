@@ -309,6 +309,8 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 		}
 	}
 
+	//pieces cant move past if there are piece in the middle destination
+
 	//pieces rules?
 	pErr := piecesRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
 	if pErr != nil {
@@ -402,7 +404,7 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 			return fmt.Errorf("pawn only move 1 square if already move before")
 		}
 	}
-	fmt.Println("lewat")
+
 	//can only eat diagonal/column +1/-1 from its position
 	if from[0] != to[0] { 
 		if pieceDestination != "" {
