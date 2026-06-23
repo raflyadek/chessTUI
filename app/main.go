@@ -417,6 +417,9 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	}
 
 	//en passant (this shit hard)
+	if pieceLocation == "p" && fromRow > 4 {
+		
+	}
 
 	return nil
 }
