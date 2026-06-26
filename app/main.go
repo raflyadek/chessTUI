@@ -101,6 +101,9 @@ func main() {
 		if there are adjustment its not clunky on the function, we can achieve
 		separate of concern, rather than one function, the code will be messy
 
+		(pawn)
+		all the other i forgot to document it, but rn i got confused for the en passant
+		how do we know if this move is available for en passant and which square/pawn?
 	*/
 
 	//init the board
