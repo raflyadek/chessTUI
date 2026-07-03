@@ -232,6 +232,10 @@ to the output instead of just "illegal move"
 func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, error) {
 	notation := "abcdefgh"
 	pieces := "prnbqk"
+	//check if the from or to is > 2 character
+	if len(from) > 2 || len(to) > 2 {
+		return false, fmt.Errorf("invalid notation")
+	}
 	//check if from/to is within the notation
 	if fromCheck := strings.Contains(notation, string(from[0])); !fromCheck {
 		return false, fmt.Errorf("the from notation is invalid")
@@ -240,13 +244,31 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	if toCheck := strings.Contains(notation, string(to[0])); !toCheck {
 		return false, fmt.Errorf("the to notation is invalid ")
 	}
+	
+	//get input from and to index 1 to int and if its out of bound just throw false
+	fromInt, err := strconv.Atoi(string(from[1:]))
+	if err != nil {
+		return false, err
+	}
+	if fromInt > 8 || fromInt < 1 {
+		return false, fmt.Errorf("number notation is out of bounds")
+	}
+	
+	toInt, err := strconv.Atoi(string(to[1:]))
+	if err != nil {
+		fmt.Printf("error parse to int %w", err)
+		return false, err
+	}
+	if toInt > 8 || toInt < 1 {
+		return false, fmt.Errorf("number notation is out of bound")
+	}
 
 	//check if the from is empty or not
 	fromCol := int(from[0] - 'a')
 	fromRow := 8 - int(from[1]-'0')
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
-
+	
 	//get what piece it want to move
 	pieceLocation := board[fromRow][fromCol]
 	pieceDestination := board[toRow][toCol]
@@ -260,24 +282,6 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//check if the input is empty string
 	if from == "" || to == "" {
 		return false, fmt.Errorf("enter the right notation")
-	}
-
-	//get input from and to index 1 to int and if its out of bound just throw false
-	fromInt, err := strconv.Atoi(string(from[1:]))
-	if err != nil {
-		return false, err
-	}
-	if fromInt > 8 {
-		return false, fmt.Errorf("number notation is out of bounds")
-	}
-
-	toInt, err := strconv.Atoi(string(to[1:]))
-	if err != nil {
-		fmt.Printf("error parse to int %w", err)
-		return false, err
-	}
-	if toInt > 8 {
-		return false, fmt.Errorf("number notation is out of bound")
 	}
 
 	// if its white turn then its only can move the upper case pieces
@@ -312,6 +316,9 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 		}
 	}
 
+	//piece cant move to row more than 7 or below than 0
+	// if (pieceDestination)
+
 	//pieces cant move past if there are piece in the middle destination
 
 	//pieces rules?
@@ -345,11 +352,13 @@ is it better to make a single function that validate every piece
 ok, make a different function for different piece and later maybe we create one function
 to validate the from pieces, and if p then it goes to pawnRules() function, etc.
 */
-func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol,toCol, toRow int) error {
+func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
 	fmt.Println("fromrow: ", fromRow)
 	fmt.Println("fromCol", fromCol)
 	fmt.Println("from: ", from)
 	fmt.Println("to: ", to)
+	fmt.Println("toRow: ", toRow)
+	fmt.Println("toCol: ", toCol)
 	fmt.Println("piece location: ", pieceLocation)
 	fmt.Println("piece destination: ", pieceDestination)
 	switch pieceLocation {
@@ -375,12 +384,14 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	return nil
 }
 
+/*
+	pawn rules, its exactly what it sounds
+
+	TODO:
+	en passant (half done)
+	promote 
+*/
 func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
-	//if there are pieces in the destination location 
-	//and in the same notation, cant move forward
-	if pieceDestination != "" && from[0] == to[0] {
-		return fmt.Errorf("there is a piece, pawn cant move forward")
-	}
 
 	//can only move 1 or 2 square when never move before
 	if pieceLocation == "P" && fromRow == 6 {
@@ -393,6 +404,12 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 		if to[1] != from[1]-1 && to[1] != from[1]-2 {
 			return fmt.Errorf("pawn can only move 1 or 2 square in its starting position")
 		}
+	}
+
+	//if there are pieces in the destination location
+	//and in the same notation, cant move forward
+	if pieceDestination != "" && from[0] == to[0] {
+		return fmt.Errorf("there is a piece, pawn cant move forward")
 	}
 
 	//can only move 1 square if already move before
@@ -409,9 +426,9 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	}
 
 	//can only eat diagonal/column +1/-1 from its position
-	if from[0] != to[0] { 
+	if from[0] != to[0] {
 		if pieceDestination != "" {
-			if fromCol - toCol != 1 && fromCol - toCol != -1 {
+			if fromCol-toCol != 1 && fromCol-toCol != -1 {
 				return fmt.Errorf("can only move 1 square to diagonal")
 			}
 		} else {
@@ -420,9 +437,19 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	}
 
 	//en passant (this shit hard)
-	if pieceLocation == "p" && fromRow > 4 {
-		
-	}
+	// if pieceLocation == "p" && fromRow > 4 {
 
+	// }
+	// var promote string
+	//promote
+	if toRow == 0 || toRow == 7 {
+		reader := bufio.NewScanner(os.Stdin)
+		fmt.Printf("You are promote the pawn, what piece you want (r/n/b/q)? ")
+		reader.Scan()		
+		pieceDestination = reader.Text()
+		// fmt.Println("piece promote: ", pieceDestination)
+		fmt.Println("piece location: ", pieceDestination)
+		fmt.Println("piece destination: ", pieceLocation)
+	}
 	return nil
 }
