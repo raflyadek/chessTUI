@@ -10,6 +10,7 @@ import (
 	// tea "charm.land/bubbletea/v2"
 )
 
+var moveCounter int = 0
 func main() {
 	//in order to create chess i think we can use 2d array?
 	//first array is for rows
@@ -109,7 +110,7 @@ func main() {
 	//init the board
 	board := initBoard()
 
-	moveCounter := 0
+	
 	notation := "  abcdefgh"
 	//loop until checkmate or resign
 	for {
@@ -153,7 +154,7 @@ func main() {
 			just create another function that return [8][8]string and use that as a new board
 		*/
 
-		fmt.Print(player)
+		fmt.Printf("Its %s move", player)
 		from, to := piecesMove()
 		flag, err := legalMove(from, to, board, moveCounter)
 
@@ -286,7 +287,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 
 	// if its white turn then its only can move the upper case pieces
 	player := playerMove(moveCounter)
-	if strings.Contains(player, "white") {
+	if player == "White" {
 		if !strings.Contains(strings.ToUpper(pieces), pieceLocation) {
 			return false, fmt.Errorf("cant move black piece when its white turn")
 		}
@@ -336,9 +337,9 @@ take turns white/black
 */
 func playerMove(moveCounter int) string {
 	if moveCounter%2 == 0 {
-		return "Its white turn"
+		return "White"
 	} else {
-		return "Its black turn"
+		return "Black"
 	}
 }
 
@@ -440,13 +441,20 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	// if pieceLocation == "p" && fromRow > 4 {
 
 	// }
-	// var promote string
+
 	//promote
+	var piecesPromote string 
+	if playerMove(moveCounter) == "White" {
+		piecesPromote = "(R/N/B/Q)"
+	} else {
+		piecesPromote = "(r/n/b/q)"
+	}
 	if toRow == 0 || toRow == 7 {
 		reader := bufio.NewScanner(os.Stdin)
-		fmt.Printf("You are promote the pawn, what piece you want (r/n/b/q)? ")
+		fmt.Printf("You are promote the pawn, what piece you want %s? ", piecesPromote)
 		reader.Scan()		
 		pieceDestination = reader.Text()
+		pieceLocation = reader.Text()
 		// fmt.Println("piece promote: ", pieceDestination)
 		fmt.Println("piece location: ", pieceDestination)
 		fmt.Println("piece destination: ", pieceLocation)
