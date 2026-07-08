@@ -159,7 +159,6 @@ func main() {
 		flag, err := legalMove(from, to, board, moveCounter)
 
 		if flag == true {
-
 			board = applyMove(board, from, to)
 			// add counter if only the move is legal counter for move
 			moveCounter++
@@ -214,11 +213,19 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	fromRow := 8 - int(from[1]-'0')
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
-
+	
+	pieceLocation := board[fromRow][fromCol]
 	// fmt.Println(fromCol, fromRow, toCol, toRow)
 	//copy piece to (to) and delete it from (from)
+	// fmt.Printf("from: %s \n", board[fromRow][fromCol])
+	// fmt.Printf("to: %s \n", board[toRow][toCol])
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
+	
+	//PROMOTE PAWN
+	// piece := promotePawn(pieceLocation, toRow)
+	// board[toRow][toCol] = piece
+
 
 	return board
 }
@@ -233,10 +240,14 @@ to the output instead of just "illegal move"
 func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, error) {
 	notation := "abcdefgh"
 	pieces := "prnbqk"
+
 	//check if the from or to is > 2 character
 	if len(from) > 2 || len(to) > 2 {
 		return false, fmt.Errorf("invalid notation")
+	} else if len(from) == 0 || len(to) == 0{
+		return false, fmt.Errorf("invalid notation")
 	}
+
 	//check if from/to is within the notation
 	if fromCheck := strings.Contains(notation, string(from[0])); !fromCheck {
 		return false, fmt.Errorf("the from notation is invalid")
@@ -336,7 +347,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 take turns white/black
 */
 func playerMove(moveCounter int) string {
-	if moveCounter%2 == 0 {
+	if moveCounter % 2 == 0 {
 		return "White"
 	} else {
 		return "Black"
@@ -354,14 +365,14 @@ ok, make a different function for different piece and later maybe we create one 
 to validate the from pieces, and if p then it goes to pawnRules() function, etc.
 */
 func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
-	fmt.Println("fromrow: ", fromRow)
-	fmt.Println("fromCol", fromCol)
-	fmt.Println("from: ", from)
-	fmt.Println("to: ", to)
-	fmt.Println("toRow: ", toRow)
-	fmt.Println("toCol: ", toCol)
-	fmt.Println("piece location: ", pieceLocation)
-	fmt.Println("piece destination: ", pieceDestination)
+	// fmt.Println("fromrow: ", fromRow)
+	// fmt.Println("fromCol", fromCol)
+	// fmt.Println("from: ", from)
+	// fmt.Println("to: ", to)
+	// fmt.Println("toRow: ", toRow)
+	// fmt.Println("toCol: ", toCol)
+	// fmt.Println("piece location: ", pieceLocation)
+	// fmt.Println("piece destination: ", pieceDestination)
 	switch pieceLocation {
 	case "p", "P":
 		err := pawnRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
@@ -441,7 +452,10 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	// if pieceLocation == "p" && fromRow > 4 {
 
 	// }
+	return nil
+}
 
+func promotePawn(isPawn string, toRow int) (promotePiece string) {
 	//promote
 	var piecesPromote string 
 	if playerMove(moveCounter) == "White" {
@@ -452,12 +466,14 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	if toRow == 0 || toRow == 7 {
 		reader := bufio.NewScanner(os.Stdin)
 		fmt.Printf("You are promote the pawn, what piece you want %s? ", piecesPromote)
-		reader.Scan()		
-		pieceDestination = reader.Text()
-		pieceLocation = reader.Text()
+		reader.Scan()
+		piecesPromote = reader.Text()		
+		// pieceDestination = reader.Text()
+		// pieceLocation = reader.Text()
 		// fmt.Println("piece promote: ", pieceDestination)
-		fmt.Println("piece location: ", pieceDestination)
-		fmt.Println("piece destination: ", pieceLocation)
+		// fmt.Println("piece location: ", pieceDestination)
+		// fmt.Println("piece destination: ", pieceLocation)
 	}
-	return nil
+
+	return piecesPromote
 }
