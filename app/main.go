@@ -218,11 +218,15 @@ func applyMove(board [8][8]string, from, to string) ([8][8]string, error) {
 	board[fromRow][fromCol] = ""
 	
 	pieceLocation := board[fromRow][fromCol]
-
+	// pieceDestination := board[toRow][toCol]
 	//pawn promote
+	
+	//why board[toRow][toCol] works but if i put that into a variable
+	//and used it, its not work??
 	isPromote, piece, err := promotePawn(pieceLocation, toRow)
 	if isPromote {
 		board[toRow][toCol] = piece
+
 	}
 	if err != nil {
 		return board, fmt.Errorf(err.Error())	
@@ -406,48 +410,48 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 */
 func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
 
-	// //can only move 1 or 2 square when never move before
-	// if pieceLocation == "P" && fromRow == 6 {
-	// 	if to[1] != from[1]+1 && to[1] != from[1]+2 {
-	// 		return fmt.Errorf("pawn white can only move 1 or 2 square in its starting position")
-	// 	}
-	// }
+	//can only move 1 or 2 square when never move before
+	if pieceLocation == "P" && fromRow == 6 {
+		if to[1] != from[1]+1 && to[1] != from[1]+2 {
+			return fmt.Errorf("pawn white can only move 1 or 2 square in its starting position")
+		}
+	}
 
-	// if pieceLocation == "p" && fromRow == 1 {
-	// 	if to[1] != from[1]-1 && to[1] != from[1]-2 {
-	// 		return fmt.Errorf("pawn can only move 1 or 2 square in its starting position")
-	// 	}
-	// }
+	if pieceLocation == "p" && fromRow == 1 {
+		if to[1] != from[1]-1 && to[1] != from[1]-2 {
+			return fmt.Errorf("pawn can only move 1 or 2 square in its starting position")
+		}
+	}
 
-	// //if there are pieces in the destination location
-	// //and in the same notation, cant move forward
-	// if pieceDestination != "" && from[0] == to[0] {
-	// 	return fmt.Errorf("there is a piece, pawn cant move forward")
-	// }
+	//if there are pieces in the destination location
+	//and in the same notation, cant move forward
+	if pieceDestination != "" && from[0] == to[0] {
+		return fmt.Errorf("there is a piece, pawn cant move forward")
+	}
 
-	// //can only move 1 square if already move before
-	// if pieceLocation == "P" && fromRow != 6 {
-	// 	if to[1] != from[1]+1 {
-	// 		return fmt.Errorf("pawn only move 1 square if already move before")
-	// 	}
-	// }
+	//can only move 1 square if already move before
+	if pieceLocation == "P" && fromRow != 6 {
+		if to[1] != from[1]+1 {
+			return fmt.Errorf("pawn only move 1 square if already move before")
+		}
+	}
 
-	// if pieceLocation == "p" && fromRow != 1 {
-	// 	if to[1] != from[1]-1 {
-	// 		return fmt.Errorf("pawn only move 1 square if already move before")
-	// 	}
-	// }
+	if pieceLocation == "p" && fromRow != 1 {
+		if to[1] != from[1]-1 {
+			return fmt.Errorf("pawn only move 1 square if already move before")
+		}
+	}
 
-	// //can only eat diagonal/column +1/-1 from its position
-	// if from[0] != to[0] {
-	// 	if pieceDestination != "" {
-	// 		if fromCol-toCol != 1 && fromCol-toCol != -1 {
-	// 			return fmt.Errorf("can only move 1 square to diagonal")
-	// 		}
-	// 	} else {
-	// 		return fmt.Errorf("move diagonal when there is a piece to eat")
-	// 	}
-	// }
+	//can only eat diagonal/column +1/-1 from its position
+	if from[0] != to[0] {
+		if pieceDestination != "" {
+			if fromCol-toCol != 1 && fromCol-toCol != -1 {
+				return fmt.Errorf("can only move 1 square to diagonal")
+			}
+		} else {
+			return fmt.Errorf("move diagonal when there is a piece to eat")
+		}
+	}
 
 	//en passant (this shit hard)
 	// if pieceLocation == "p" && fromRow > 4 {
