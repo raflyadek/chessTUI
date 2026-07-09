@@ -159,7 +159,7 @@ func main() {
 		flag, err := legalMove(from, to, board, moveCounter)
 
 		if flag == true {
-			board = applyMove(board, from, to)
+			board, err = applyMove(board, from, to)
 			// add counter if only the move is legal counter for move
 			moveCounter++
 		} else {
@@ -207,27 +207,28 @@ func piecesMove() (from, to string) {
 /*
 apply move from input piecesMove()
 */
-func applyMove(board [8][8]string, from, to string) [8][8]string {
+func applyMove(board [8][8]string, from, to string) ([8][8]string, error) {
 	//from e2 to e3'
 	fromCol := int(from[0] - 'a')
 	fromRow := 8 - int(from[1]-'0')
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
 	
-	pieceLocation := board[fromRow][fromCol]
-	// fmt.Println(fromCol, fromRow, toCol, toRow)
-	//copy piece to (to) and delete it from (from)
-	// fmt.Printf("from: %s \n", board[fromRow][fromCol])
-	// fmt.Printf("to: %s \n", board[toRow][toCol])
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
 	
-	//PROMOTE PAWN
-	// piece := promotePawn(pieceLocation, toRow)
-	// board[toRow][toCol] = piece
+	pieceLocation := board[fromRow][fromCol]
 
+	//pawn promote
+	isPromote, piece, err := promotePawn(pieceLocation, toRow)
+	if isPromote {
+		board[toRow][toCol] = piece
+	}
+	if err != nil {
+		return board, fmt.Errorf(err.Error())	
+	}
 
-	return board
+	return board, nil
 }
 
 /*
@@ -405,48 +406,48 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 */
 func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
 
-	//can only move 1 or 2 square when never move before
-	if pieceLocation == "P" && fromRow == 6 {
-		if to[1] != from[1]+1 && to[1] != from[1]+2 {
-			return fmt.Errorf("pawn white can only move 1 or 2 square in its starting position")
-		}
-	}
+	// //can only move 1 or 2 square when never move before
+	// if pieceLocation == "P" && fromRow == 6 {
+	// 	if to[1] != from[1]+1 && to[1] != from[1]+2 {
+	// 		return fmt.Errorf("pawn white can only move 1 or 2 square in its starting position")
+	// 	}
+	// }
 
-	if pieceLocation == "p" && fromRow == 1 {
-		if to[1] != from[1]-1 && to[1] != from[1]-2 {
-			return fmt.Errorf("pawn can only move 1 or 2 square in its starting position")
-		}
-	}
+	// if pieceLocation == "p" && fromRow == 1 {
+	// 	if to[1] != from[1]-1 && to[1] != from[1]-2 {
+	// 		return fmt.Errorf("pawn can only move 1 or 2 square in its starting position")
+	// 	}
+	// }
 
-	//if there are pieces in the destination location
-	//and in the same notation, cant move forward
-	if pieceDestination != "" && from[0] == to[0] {
-		return fmt.Errorf("there is a piece, pawn cant move forward")
-	}
+	// //if there are pieces in the destination location
+	// //and in the same notation, cant move forward
+	// if pieceDestination != "" && from[0] == to[0] {
+	// 	return fmt.Errorf("there is a piece, pawn cant move forward")
+	// }
 
-	//can only move 1 square if already move before
-	if pieceLocation == "P" && fromRow != 6 {
-		if to[1] != from[1]+1 {
-			return fmt.Errorf("pawn only move 1 square if already move before")
-		}
-	}
+	// //can only move 1 square if already move before
+	// if pieceLocation == "P" && fromRow != 6 {
+	// 	if to[1] != from[1]+1 {
+	// 		return fmt.Errorf("pawn only move 1 square if already move before")
+	// 	}
+	// }
 
-	if pieceLocation == "p" && fromRow != 1 {
-		if to[1] != from[1]-1 {
-			return fmt.Errorf("pawn only move 1 square if already move before")
-		}
-	}
+	// if pieceLocation == "p" && fromRow != 1 {
+	// 	if to[1] != from[1]-1 {
+	// 		return fmt.Errorf("pawn only move 1 square if already move before")
+	// 	}
+	// }
 
-	//can only eat diagonal/column +1/-1 from its position
-	if from[0] != to[0] {
-		if pieceDestination != "" {
-			if fromCol-toCol != 1 && fromCol-toCol != -1 {
-				return fmt.Errorf("can only move 1 square to diagonal")
-			}
-		} else {
-			return fmt.Errorf("move diagonal when there is a piece to eat")
-		}
-	}
+	// //can only eat diagonal/column +1/-1 from its position
+	// if from[0] != to[0] {
+	// 	if pieceDestination != "" {
+	// 		if fromCol-toCol != 1 && fromCol-toCol != -1 {
+	// 			return fmt.Errorf("can only move 1 square to diagonal")
+	// 		}
+	// 	} else {
+	// 		return fmt.Errorf("move diagonal when there is a piece to eat")
+	// 	}
+	// }
 
 	//en passant (this shit hard)
 	// if pieceLocation == "p" && fromRow > 4 {
@@ -455,8 +456,10 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	return nil
 }
 
-func promotePawn(isPawn string, toRow int) (promotePiece string) {
+func promotePawn(isPawn string, toRow int) (bool, string, error) {
 	//promote
+	// pieces := "rnbq"
+
 	var piecesPromote string 
 	if playerMove(moveCounter) == "White" {
 		piecesPromote = "(R/N/B/Q)"
@@ -467,13 +470,25 @@ func promotePawn(isPawn string, toRow int) (promotePiece string) {
 		reader := bufio.NewScanner(os.Stdin)
 		fmt.Printf("You are promote the pawn, what piece you want %s? ", piecesPromote)
 		reader.Scan()
+		// if toRow == 7 {
+		// 	if !strings.Contains(reader.Text(), strings.ToUpper(pieces)) {
+		// 		return false, "", fmt.Errorf("choose one of the pieces")
+		// 	}
+		// }
+		// if toRow == 0 {
+		// 	if !strings.Contains(reader.Text(), pieces) {
+		// 		return false, "", fmt.Errorf("choose one of the pieces")
+		// 	}
+		// } 
+
 		piecesPromote = reader.Text()		
 		// pieceDestination = reader.Text()
 		// pieceLocation = reader.Text()
 		// fmt.Println("piece promote: ", pieceDestination)
 		// fmt.Println("piece location: ", pieceDestination)
 		// fmt.Println("piece destination: ", pieceLocation)
+		return true, piecesPromote, nil
 	}
 
-	return piecesPromote
+	return false, "", nil
 }
