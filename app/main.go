@@ -11,6 +11,7 @@ import (
 )
 
 var moveCounter int = 0
+
 func main() {
 	//in order to create chess i think we can use 2d array?
 	//first array is for rows
@@ -110,7 +111,6 @@ func main() {
 	//init the board
 	board := initBoard()
 
-	
 	notation := "  abcdefgh"
 	//loop until checkmate or resign
 	for {
@@ -159,7 +159,7 @@ func main() {
 		flag, err := legalMove(from, to, board, moveCounter)
 
 		if flag == true {
-			board, err = applyMove(board, from, to)
+			board = applyMove(board, from, to)
 			// add counter if only the move is legal counter for move
 			moveCounter++
 		} else {
@@ -207,32 +207,33 @@ func piecesMove() (from, to string) {
 /*
 apply move from input piecesMove()
 */
-func applyMove(board [8][8]string, from, to string) ([8][8]string, error) {
+func applyMove(board [8][8]string, from, to string) ([8][8]string) {
 	//from e2 to e3'
 	fromCol := int(from[0] - 'a')
 	fromRow := 8 - int(from[1]-'0')
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
 	
+	pieceLocation := board[fromRow][fromCol]
+	fmt.Println("piece location: ", pieceLocation)
+
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
-	
-	pieceLocation := board[fromRow][fromCol]
+
 	// pieceDestination := board[toRow][toCol]
 	//pawn promote
-	
+
 	//why board[toRow][toCol] works but if i put that into a variable
 	//and used it, its not work??
-	isPromote, piece, err := promotePawn(pieceLocation, toRow)
-	if isPromote {
-		board[toRow][toCol] = piece
-
+	//promote pawn
+	if pieceLocation == "P" || pieceLocation == "p" {
+		if toRow == 7 || toRow == 0 {
+			promote := promotePawn()
+			board[toRow][toCol] = promote
+		}
 	}
-	if err != nil {
-		return board, fmt.Errorf(err.Error())	
-	}
 
-	return board, nil
+	return board
 }
 
 /*
@@ -249,7 +250,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//check if the from or to is > 2 character
 	if len(from) > 2 || len(to) > 2 {
 		return false, fmt.Errorf("invalid notation")
-	} else if len(from) == 0 || len(to) == 0{
+	} else if len(from) == 0 || len(to) == 0 {
 		return false, fmt.Errorf("invalid notation")
 	}
 
@@ -261,7 +262,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	if toCheck := strings.Contains(notation, string(to[0])); !toCheck {
 		return false, fmt.Errorf("the to notation is invalid ")
 	}
-	
+
 	//get input from and to index 1 to int and if its out of bound just throw false
 	fromInt, err := strconv.Atoi(string(from[1:]))
 	if err != nil {
@@ -270,7 +271,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	if fromInt > 8 || fromInt < 1 {
 		return false, fmt.Errorf("number notation is out of bounds")
 	}
-	
+
 	toInt, err := strconv.Atoi(string(to[1:]))
 	if err != nil {
 		fmt.Printf("error parse to int %w", err)
@@ -285,7 +286,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	fromRow := 8 - int(from[1]-'0')
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
-	
+
 	//get what piece it want to move
 	pieceLocation := board[fromRow][fromCol]
 	pieceDestination := board[toRow][toCol]
@@ -352,7 +353,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 take turns white/black
 */
 func playerMove(moveCounter int) string {
-	if moveCounter % 2 == 0 {
+	if moveCounter%2 == 0 {
 		return "White"
 	} else {
 		return "Black"
@@ -402,14 +403,13 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 }
 
 /*
-	pawn rules, its exactly what it sounds
+pawn rules, its exactly what it sounds
 
-	TODO:
-	en passant (half done)
-	promote 
+TODO:
+en passant (half done)
+promote
 */
 func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
-
 	//can only move 1 or 2 square when never move before
 	if pieceLocation == "P" && fromRow == 6 {
 		if to[1] != from[1]+1 && to[1] != from[1]+2 {
@@ -454,45 +454,47 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	}
 
 	//en passant (this shit hard)
+	/*
+		i think its should be have their own function just like promotePawn()
+		there is just too much to do, keeping a counter, etc
+	*/
 	// if pieceLocation == "p" && fromRow > 4 {
 
 	// }
 	return nil
 }
 
-func promotePawn(isPawn string, toRow int) (bool, string, error) {
+func promotePawn() (string) {
 	//promote
-	// pieces := "rnbq"
+	pieces := "rnbq"
 
-	var piecesPromote string 
+	var piecesPromote string
+	
 	if playerMove(moveCounter) == "White" {
 		piecesPromote = "(R/N/B/Q)"
-	} else {
+		} else {
 		piecesPromote = "(r/n/b/q)"
 	}
-	if toRow == 0 || toRow == 7 {
+
+	var promote string
+	for {
+		fmt.Printf("select pieces you want to promote %s: ", piecesPromote)
 		reader := bufio.NewScanner(os.Stdin)
-		fmt.Printf("You are promote the pawn, what piece you want %s? ", piecesPromote)
 		reader.Scan()
-		// if toRow == 7 {
-		// 	if !strings.Contains(reader.Text(), strings.ToUpper(pieces)) {
-		// 		return false, "", fmt.Errorf("choose one of the pieces")
-		// 	}
-		// }
-		// if toRow == 0 {
-		// 	if !strings.Contains(reader.Text(), pieces) {
-		// 		return false, "", fmt.Errorf("choose one of the pieces")
-		// 	}
-		// } 
-
-		piecesPromote = reader.Text()		
-		// pieceDestination = reader.Text()
-		// pieceLocation = reader.Text()
-		// fmt.Println("piece promote: ", pieceDestination)
-		// fmt.Println("piece location: ", pieceDestination)
-		// fmt.Println("piece destination: ", pieceLocation)
-		return true, piecesPromote, nil
-	}
-
-	return false, "", nil
+		promote = reader.Text()
+		
+		if playerMove(moveCounter) == "White" {
+			if !strings.Contains(strings.ToUpper(pieces), promote) {
+				fmt.Println("select the right pieces")
+			} else {
+				return promote
+			}
+		} else {
+			if !strings.Contains(strings.ToLower(pieces), promote) {
+				fmt.Println("select the right piece")
+			} else {
+				return promote
+			}
+		}
+	}	
 }
