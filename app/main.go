@@ -388,7 +388,10 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	case "r", "R":
 		fmt.Println("this is rook")
 	case "n", "N":
-		fmt.Println("this is knight")
+		err := knightRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		if err != nil {
+			return err
+		}
 	case "b", "B":
 		fmt.Println("this is bishop")
 	case "q", "Q":
@@ -407,7 +410,7 @@ pawn rules, its exactly what it sounds
 
 TODO:
 en passant (half done)
-promote
+promote (done)
 */
 func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
 	//can only move 1 or 2 square when never move before
@@ -462,6 +465,17 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 
 	// }
 	return nil
+}
+
+//knight rules
+/*
+	TODO: 
+	search the logic to find a knight possible or legal moves
+	because the row and column is a can be a +3, not determined like 
+	pawn that can only move forward so its only row+1, its tricky
+*/
+func knightRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	return nil	
 }
 
 func promotePawn() (string) {
