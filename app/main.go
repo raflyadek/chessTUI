@@ -386,22 +386,38 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 			return err
 		}
 	case "r", "R":
-		fmt.Println("this is rook")
+		fmt.Println("this is rook rules")
+		err := rookRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		if err != nil {
+			return err
+		}
 	case "n", "N":
+		fmt.Println("this is knight rules")
 		err := knightRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
 		if err != nil {
 			return err
 		}
 	case "b", "B":
-		fmt.Println("this is bishop")
+		fmt.Println("this is bishop rules")
+		err := bishopRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		if err != nil {
+			return err
+		}
 	case "q", "Q":
-		fmt.Println("this is queen")
+		fmt.Println("this is queen rules")
+		err := queenRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		if err != nil {
+			return err
+		}
 	case "k", "K":
-		fmt.Println("this is king")
-		// default:
-		// 	return fmt.Errorf("what piece is this? lol")
+		fmt.Println("this is king rules")
+		err := kingRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		if err != nil {
+			return err
+		}
+	default:
+		return fmt.Errorf("what piece is this? lol")
 	}
-
 	return nil
 }
 
@@ -475,6 +491,46 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	pawn that can only move forward so its only row+1, its tricky
 */
 func knightRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	return nil	
+}
+
+//bishop rules
+/*
+	TODO: 
+	search the logic to find a bishop possible or legal moves
+	
+*/
+func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	return nil	
+}
+
+//rook rules
+/*
+	TODO: 
+	search the logic to find a rook possible or legal moves
+	
+*/
+func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	return nil	
+}
+
+//queen rules
+/*
+	TODO: 
+	search the logic to find a queen possible or legal moves
+	
+*/
+func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	return nil	
+}
+
+//king rules
+/*
+	TODO: 
+	search the logic to find a king possible or legal moves
+	
+*/
+func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
 	return nil	
 }
 
