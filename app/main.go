@@ -207,13 +207,13 @@ func piecesMove() (from, to string) {
 /*
 apply move from input piecesMove()
 */
-func applyMove(board [8][8]string, from, to string) ([8][8]string) {
+func applyMove(board [8][8]string, from, to string) [8][8]string {
 	//from e2 to e3'
 	fromCol := int(from[0] - 'a')
 	fromRow := 8 - int(from[1]-'0')
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
-	
+
 	pieceLocation := board[fromRow][fromCol]
 	fmt.Println("piece location: ", pieceLocation)
 
@@ -485,74 +485,76 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 
 //knight rules
 /*
-	TODO: 
+	TODO:
 	search the logic to find a knight possible or legal moves
-	because the row and column is a can be a +3, not determined like 
+	because the row and column is a can be a +3, not determined like
 	pawn that can only move forward so its only row+1, its tricky
 */
 func knightRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
-	return nil	
+
+	return nil
 }
 
 //bishop rules
 /*
-	TODO: 
+	TODO:
 	search the logic to find a bishop possible or legal moves
-	
+
 */
 func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
-	return nil	
+	return nil
 }
 
 //rook rules
 /*
-	TODO: 
+	TODO:
 	search the logic to find a rook possible or legal moves
-	
+
 */
 func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
-	return nil	
+	return nil
 }
 
 //queen rules
 /*
-	TODO: 
+	TODO:
 	search the logic to find a queen possible or legal moves
-	
+
 */
 func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
-	return nil	
+	return nil
 }
 
 //king rules
 /*
-	TODO: 
+	TODO:
 	search the logic to find a king possible or legal moves
-	
+
 */
 func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
-	return nil	
+	return nil
 }
 
-func promotePawn() (string) {
+func promotePawn() string {
 	//promote
 	pieces := "rnbq"
 
 	var piecesPromote string
-	
+
 	if playerMove(moveCounter) == "White" {
 		piecesPromote = "(R/N/B/Q)"
-		} else {
+	} else {
 		piecesPromote = "(r/n/b/q)"
 	}
 
 	var promote string
+
 	for {
 		fmt.Printf("select pieces you want to promote %s: ", piecesPromote)
 		reader := bufio.NewScanner(os.Stdin)
 		reader.Scan()
 		promote = reader.Text()
-		
+
 		if playerMove(moveCounter) == "White" {
 			if !strings.Contains(strings.ToUpper(pieces), promote) {
 				fmt.Println("select the right pieces")
@@ -566,5 +568,5 @@ func promotePawn() (string) {
 				return promote
 			}
 		}
-	}	
+	}
 }
