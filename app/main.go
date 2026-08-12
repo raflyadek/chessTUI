@@ -209,6 +209,12 @@ apply move from input piecesMove()
 */
 func applyMove(board [8][8]string, from, to string) [8][8]string {
 	//from e2 to e3'
+	//fromCol take input index 0 for exmaple c and we substract it
+	//with a then we get index 2 because decimal number of c is 97 and a is 95
+	//then fromRow is we substract 8 with ascii decimal number of index 1 of input
+	//for example is 2 and we subtract it again with 0 then we get 2 and we total it
+	//8 - 2 = 6
+	//so combining all of that c2 -> board[2][6]
 	fromCol := int(from[0] - 'a')
 	fromRow := 8 - int(from[1]-'0')
 	toCol := int(to[0] - 'a')
