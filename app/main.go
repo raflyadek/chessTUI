@@ -512,6 +512,22 @@ func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	if from[0] == to[0] || from[1] == to[1] {
 		return fmt.Errorf("bishop must move diagonally")
 	}
+
+	//example:
+	//if white player bishop white is in the d3, then it can move either to
+	//c4 and so on or e4 or move backward to c2 or e2
+	//we use a difference from where we standing
+	differenceColRaw := fromCol - toCol
+	differenceRowRaw := fromRow - toRow
+	differenceCol := max(differenceColRaw, -differenceColRaw)
+	differenceRow := max(differenceRowRaw, -differenceRowRaw)
+	if differenceCol != differenceRow {
+		return fmt.Errorf("the move is ilegal")
+	}
+
+	//cant move if there is a piece blocking our way
+	//if its the same color, then cant move past them
+	//if its opposite color then we can eat, but cant move past them
 	return nil
 }
 
