@@ -508,6 +508,10 @@ func knightRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 
 */
 func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	//make sure bishop cant move vertical or horizontal
+	if from[0] == to[0] || from[1] == to[1] {
+		return fmt.Errorf("bishop must move diagonally")
+	}
 	return nil
 }
 
