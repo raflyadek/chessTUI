@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -326,7 +327,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 		the guard pieceDestination != "" is because every string contains empty string,
 		so when there is no guard, the actual logic condition always return true
 	*/
-	if strings.Contains(player, "white") {
+	if strings.Contains(player, "White") {
 		if pieceDestination != "" {
 			if strings.Contains(strings.ToUpper(pieces), pieceLocation) == strings.Contains(strings.ToUpper(pieces), pieceDestination) {
 				return false, fmt.Errorf("white piece cant eat white piece")
@@ -346,7 +347,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//pieces cant move past if there are piece in the middle destination
 
 	//pieces rules?
-	pErr := piecesRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+	pErr := piecesRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 	if pErr != nil {
 		return false, fmt.Errorf(pErr.Error())
 	}
@@ -376,7 +377,7 @@ is it better to make a single function that validate every piece
 ok, make a different function for different piece and later maybe we create one function
 to validate the from pieces, and if p then it goes to pawnRules() function, etc.
 */
-func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	// fmt.Println("fromrow: ", fromRow)
 	// fmt.Println("fromCol", fromCol)
 	// fmt.Println("from: ", from)
@@ -405,7 +406,7 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 		}
 	case "b", "B":
 		fmt.Println("this is bishop rules")
-		err := bishopRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		err := bishopRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
@@ -507,7 +508,7 @@ func knightRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	search the logic to find a bishop possible or legal moves
 
 */
-func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	//make sure bishop cant move vertical or horizontal
 	if from[0] == to[0] || from[1] == to[1] {
 		return fmt.Errorf("bishop must move diagonally")
@@ -519,15 +520,28 @@ func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	//we use a difference from where we standing
 	differenceColRaw := fromCol - toCol
 	differenceRowRaw := fromRow - toRow
-	differenceCol := max(differenceColRaw, -differenceColRaw)
-	differenceRow := max(differenceRowRaw, -differenceRowRaw)
-	if differenceCol != differenceRow {
+	differenceColAbs := max(differenceColRaw, -differenceColRaw)
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+	if differenceColAbs != differenceRowAbs {
 		return fmt.Errorf("the move is ilegal")
 	}
 
 	//cant move if there is a piece blocking our way
 	//if its the same color, then cant move past them
 	//if its opposite color then we can eat, but cant move past them
+	//we use difference too i think? and from there
+	//get either 1 or -1
+	rowDir := (toRow - fromRow) / int(math.Abs(float64(toRow)-float64(fromRow)))
+	colDir := (toCol - fromCol) / int(math.Abs(float64(toCol)-float64(fromCol)))
+	fmt.Printf("rowdir: %d, coldir: %d", rowDir, colDir)
+	for i := 1; i < differenceColAbs; i++ {
+		//check every step
+		row := fromRow + i*rowDir
+		col := fromCol + i*colDir
+		if board[row][col] != "" {
+			return fmt.Errorf("There is a piece block your move")
+		}
+	}
 	return nil
 }
 
