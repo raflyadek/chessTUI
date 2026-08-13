@@ -394,7 +394,7 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 		}
 	case "r", "R":
 		fmt.Println("this is rook rules")
-		err := rookRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		err := rookRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
@@ -533,15 +533,16 @@ func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	//get either 1 or -1
 	rowDir := (toRow - fromRow) / int(math.Abs(float64(toRow)-float64(fromRow)))
 	colDir := (toCol - fromCol) / int(math.Abs(float64(toCol)-float64(fromCol)))
-	fmt.Printf("rowdir: %d, coldir: %d", rowDir, colDir)
 	for i := 1; i < differenceColAbs; i++ {
-		//check every step
+		//check every step before the destination
 		row := fromRow + i*rowDir
 		col := fromCol + i*colDir
 		if board[row][col] != "" {
 			return fmt.Errorf("There is a piece block your move")
 		}
 	}
+
+	//i think thats it for bishop?
 	return nil
 }
 
@@ -551,7 +552,46 @@ func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	search the logic to find a rook possible or legal moves
 
 */
-func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+	// cant move diagonally, only vertical or horizontal
+	//if its vertical then the column is the same from[0] == to[0]
+	//if its horizontal then the row is the same from[1] == to[1]
+	if from[1] != to[1] && from[0] != to[0] {
+		return fmt.Errorf("Illegal move, rook move either horizontal or vertical")
+	}
+
+	//check every move bbefore the destination
+	differenceColRaw := fromCol - toCol
+	differenceRowRaw := fromRow - toRow
+	differenceColAbs := max(differenceColRaw, -differenceColRaw)
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+	//vertical
+	if from[0] == to[0] {
+		rowDir := (toRow - fromRow) / int(math.Abs(float64(toRow)-float64(fromRow)))
+		for i := 1; i < differenceRowAbs; i++ {
+			//check every step before destination
+			row := fromRow + i*rowDir
+			col := fromCol
+			fmt.Printf("row: %d", row)
+			fmt.Printf("col: %d", col)
+			if board[row][col] != "" {
+				return fmt.Errorf("Illegal move there is a piece blocking your way")
+			}
+		}
+	}
+	//horizontal
+	if from[1] == to[1] {
+		colDir := (toCol - fromCol) / int(math.Abs(float64(toCol)-float64(fromCol)))
+		for i := 1; i < differenceColAbs; i++ {
+			//check every step before destination
+			row := fromRow
+			col := fromCol + i*colDir
+
+			if board[row][col] != "" {
+				return fmt.Errorf("Illegal move there is a piece blocking your way")
+			}
+		}
+	}
 	return nil
 }
 
