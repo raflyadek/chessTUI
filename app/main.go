@@ -610,10 +610,8 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 
 	//queen move rules combine rook+bishop
-	if from[1] != to[1] && from[0] != to[0] {
-		if differenceColAbs != differenceRowAbs {
-			return fmt.Errorf("the move is ilegal")
-		}
+	if from[1] != to[1] && from[0] != to[0] && differenceColAbs != differenceRowAbs {
+		return fmt.Errorf("the move is ilegal")
 	}
 
 	//rook-like rules
@@ -676,10 +674,17 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
 	//its kinda easy except for the castle
 	//just move anywhere but only +1 square
-	//move +1 on vertical
+	//move +1 on vertical / horizontal / diaognal
 	if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
 		return fmt.Errorf("king only move 1 square")
 	}
+
+	//checkmate/check or open check from another piece
+	//or create another function to check every move if that move
+	//threaten the king or if that move open check the king and return
+	//string maybe -> "Check/Open Check"
+
+	// i think thats it?
 	return nil
 }
 
@@ -717,4 +722,21 @@ func promotePawn() string {
 			}
 		}
 	}
+}
+
+/*
+checkmate/check or open check from another piece
+or create another function to check every move if that move
+threaten the king or if that move open check the king and return
+string maybe -> "Check/Open Check"
+*/
+func checkMove(pieceLocation string) (string, error) {
+	//check if the next move from previous move is threaten the king
+	//if bishop then check possible move for bishop if that can move to king
+	//if yes then it check the opposite king or if we want to move
+	//
+	//or we can check the entire board and determine which piece can't move
+	//because they block the king from check
+
+	return "", nil
 }
