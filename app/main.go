@@ -412,7 +412,7 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 		}
 	case "q", "Q":
 		fmt.Println("this is queen rules")
-		err := queenRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		err := queenRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
@@ -538,7 +538,7 @@ func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 		row := fromRow + i*rowDir
 		col := fromCol + i*colDir
 		if board[row][col] != "" {
-			return fmt.Errorf("There is a piece block your move")
+			return fmt.Errorf("Illegal move there is a piece block your move")
 		}
 	}
 
@@ -592,6 +592,7 @@ func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 			}
 		}
 	}
+	//thats it no?
 	return nil
 }
 
@@ -599,9 +600,71 @@ func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 /*
 	TODO:
 	search the logic to find a queen possible or legal moves
+	its basically the combination of rook and bishop
 
 */
-func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+	differenceColRaw := fromCol - toCol
+	differenceRowRaw := fromRow - toRow
+	differenceColAbs := max(differenceColRaw, -differenceColRaw)
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+
+	//queen move rules combine rook+bishop
+	if from[1] != to[1] && from[0] != to[0] {
+		if differenceColAbs != differenceRowAbs {
+			return fmt.Errorf("the move is ilegal")
+		}
+	}
+
+	//rook-like rules
+	if from[0] == to[0] || from[1] == to[1] {
+		//vertical
+		if from[0] == to[0] {
+			rowDir := (toRow - fromRow) / int(math.Abs(float64(toRow)-float64(fromRow)))
+			for i := 1; i < differenceRowAbs; i++ {
+				//check every step before destination
+				row := fromRow + i*rowDir
+				col := fromCol
+				fmt.Printf("row: %d", row)
+				fmt.Printf("col: %d", col)
+				if board[row][col] != "" {
+					return fmt.Errorf("Illegal move there is a piece blocking your way")
+				}
+			}
+		}
+		//horizontal
+		if from[1] == to[1] {
+			colDir := (toCol - fromCol) / int(math.Abs(float64(toCol)-float64(fromCol)))
+			for i := 1; i < differenceColAbs; i++ {
+				//check every step before destination
+				row := fromRow
+				col := fromCol + i*colDir
+
+				if board[row][col] != "" {
+					return fmt.Errorf("Illegal move there is a piece blocking your way")
+				}
+			}
+		}
+	} else {
+		//cant move if there is a piece blocking our way
+		//if its the same color, then cant move past them
+		//if its opposite color then we can eat, but cant move past them
+		//we use difference too i think? and from there
+		//get either 1 or -1
+		//bishop-like rule
+		rowDir := (toRow - fromRow) / int(math.Abs(float64(toRow)-float64(fromRow)))
+		colDir := (toCol - fromCol) / int(math.Abs(float64(toCol)-float64(fromCol)))
+		for i := 1; i < differenceColAbs; i++ {
+			//check every step before the destination
+			row := fromRow + i*rowDir
+			col := fromCol + i*colDir
+			if board[row][col] != "" {
+				return fmt.Errorf("Illegal move there is a piece block your move")
+			}
+		}
+	}
+
+	//thats it no?
 	return nil
 }
 
@@ -609,9 +672,14 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 /*
 	TODO:
 	search the logic to find a king possible or legal moves
-
 */
 func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	//its kinda easy except for the castle
+	//just move anywhere but only +1 square
+	//move +1 on vertical
+	if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
+		return fmt.Errorf("king only move 1 square")
+	}
 	return nil
 }
 
