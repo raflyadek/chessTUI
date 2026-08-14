@@ -112,7 +112,7 @@ func main() {
 	//init the board
 	board := initBoard()
 
-	notation := "  abcdefgh"
+	notation := "    a    b    c    d    e    f    g    h    "
 	//loop until checkmate or resign
 	for {
 		numberNotation := 8
@@ -126,9 +126,9 @@ func main() {
 			for j := 0; j < len(board); j++ {
 				if board[i][j] == "" {
 					if (i+j)%2 == 0 {
-						fmt.Print(".")
+						fmt.Print("  .  ")
 					} else {
-						fmt.Print(",")
+						fmt.Print("  ,  ")
 					}
 				} else {
 					fmt.Print(board[i][j])
@@ -136,6 +136,7 @@ func main() {
 				//add number notation at the end of loop
 				if j == 7 {
 					fmt.Printf(" %d", numberNotation)
+					fmt.Println()
 					numberNotation--
 				}
 			}
@@ -177,12 +178,12 @@ func initBoard() [8][8]string {
 	board := [8][8]string{}
 
 	//white
-	board[7] = [8]string{"R", "N", "B", "Q", "K", "B", "N", "R"}
-	board[6] = [8]string{"P", "P", "P", "P", "P", "P", "P", "P"}
+	board[7] = [8]string{"  R  ", "  N  ", "  B  ", "  Q  ", "  K  ", "  B  ", "  N  ", "  R  "}
+	board[6] = [8]string{"  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  "}
 
 	//black
-	board[1] = [8]string{"p", "p", "p", "p", "p", "p", "p", "p"}
-	board[0] = [8]string{"r", "n", "b", "q", "k", "b", "n", "r"}
+	board[1] = [8]string{"  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  "}
+	board[0] = [8]string{"  r  ", "  n  ", "  b  ", "  q  ", "  k  ", "  b  ", "  n  ", "  r  "}
 
 	return board
 }
