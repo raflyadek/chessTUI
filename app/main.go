@@ -296,10 +296,10 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	toRow := 8 - int(to[1]-'0')
 
 	//get what piece it want to move
-	pieceLocation := board[fromRow][fromCol]
-	pieceDestination := board[toRow][toCol]
-	// fmt.Println("[oece location: ", pieceLocation)
-	// fmt.Println("[oece destination: ", pieceDestination)
+	pieceLocation := strings.TrimSpace(board[fromRow][fromCol])
+	pieceDestination := strings.TrimSpace(board[toRow][toCol])
+	fmt.Printf("piece location: a%s  ", pieceLocation)
+	fmt.Printf("poece destination: b%s ", pieceDestination)
 
 	if pieceLocation == "" {
 		return false, fmt.Errorf("you cant move piece from empty square")
