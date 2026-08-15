@@ -121,6 +121,7 @@ func main() {
 			//print notatin at the top before the loop begin
 			if i == 0 {
 				fmt.Println(notation)
+				fmt.Println()
 			}
 			fmt.Printf("%d ", numberNotation)
 			for j := 0; j < len(board); j++ {
@@ -223,7 +224,6 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	toRow := 8 - int(to[1]-'0')
 
 	pieceLocation := board[fromRow][fromCol]
-	fmt.Println("piece location: ", pieceLocation)
 
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
@@ -298,8 +298,8 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//get what piece it want to move
 	pieceLocation := strings.TrimSpace(board[fromRow][fromCol])
 	pieceDestination := strings.TrimSpace(board[toRow][toCol])
-	fmt.Printf("piece location: a%s  ", pieceLocation)
-	fmt.Printf("poece destination: b%s ", pieceDestination)
+	// fmt.Printf("piece location: a%s  ", pieceLocation)
+	// fmt.Printf("poece destination: b%s ", pieceDestination)
 
 	if pieceLocation == "" {
 		return false, fmt.Errorf("you cant move piece from empty square")
@@ -353,6 +353,15 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 		return false, fmt.Errorf(pErr.Error())
 	}
 
+	// //check state for castle and en passant
+	// whiteCastle, blackCastle, _, messageCastle := moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
+	// fmt.Println(messageCastle)
+	// if blackCastle == false || whiteCastle == false {
+	// 	if pieceLocation == "k" || pieceLocation == "K" && toCol != fromCol+1 {
+	// 		return false, fmt.Errorf("you move king already, cant castle")
+	// 	}
+	// }
+	// fmt.Println(messageCastle)
 	// after all condition pased then return true
 	return true, nil
 }
@@ -419,7 +428,7 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 		}
 	case "k", "K":
 		fmt.Println("this is king rules")
-		err := kingRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		err := kingRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
@@ -487,7 +496,6 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	*/
 	// if pieceLocation == "p" && fromRow > 4 {
 
-	// }
 	return nil
 }
 
@@ -671,9 +679,19 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 /*
 	TODO:
 	search the logic to find a king possible or legal moves
+	add more logic on the castle section, if its true then king can move + 2 col and the rook is swap places with king
 */
-func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	//its kinda easy except for the castle
+	//castle
+
+	whiteCastle, blackCastle, _, messageCastle := moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
+	fmt.Println(messageCastle)
+	if blackCastle == false || whiteCastle == false {
+		if pieceLocation == "k" || pieceLocation == "K" && toCol != fromCol+1 {
+			fmt.Errorf("you move king already, cant castle")
+		}
+	}
 	//just move anywhere but only +1 square
 	//move +1 on vertical / horizontal / diaognal
 	if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
@@ -740,4 +758,44 @@ func checkMove(pieceLocation string) (string, error) {
 	//because they block the king from check
 
 	return "", nil
+}
+
+/*
+this function to track the move before, it purpose is to check
+if the king still can castle or not, and the if the pawn can perform en passant
+and we can put the function just before apply move?
+*/
+
+// TODO:
+// add rook cant move just like king logic
+func moveState(pieceLocation string, fromRow, toRow, fromCol, tocoL int, board [8][8]string) (bool, bool, bool, string) {
+	//initial state
+	enPassant := false
+	blackCastle := true
+	whiteCastle := true
+	if playerMove(moveCounter) == "Black" && board[0][4] != "k" {
+		blackCastle = false
+	}
+	if playerMove(moveCounter) == "White" && board[7][4] != "K" {
+		whiteCastle = false
+	}
+
+	//white pawn must be at the exactly row 5/index 3
+	if pieceLocation == "P" && fromRow == 3 {
+		fmt.Println("possible en passant")
+	}
+
+	//black pawn must be at the exactly row 4/index 4
+	if pieceLocation == "p" && fromRow == 4 {
+		fmt.Println("possible en passant")
+	}
+
+	var messageCastle string
+	if playerMove(moveCounter) == "Black" {
+		messageCastle = fmt.Sprintf("castle is %t", blackCastle)
+	} else {
+		messageCastle = fmt.Sprintf("castle is %t", whiteCastle)
+	}
+
+	return whiteCastle, blackCastle, enPassant, messageCastle
 }
