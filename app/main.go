@@ -12,6 +12,9 @@ import (
 )
 
 var moveCounter int = 0
+var blackCastle bool = true
+var whiteCastle bool = true
+var enPassant bool = false
 
 func main() {
 	//in order to create chess i think we can use 2d array?
@@ -223,7 +226,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
 
-	pieceLocation := board[fromRow][fromCol]
+	pieceLocation := strings.TrimSpace(board[fromRow][fromCol])
 
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
@@ -238,6 +241,19 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 		if toRow == 7 || toRow == 0 {
 			promote := promotePawn()
 			board[toRow][toCol] = promote
+		}
+	}
+
+	if (pieceLocation == "K" || pieceLocation == "k") && (toCol == fromCol+2 || toCol == fromCol-2) {
+		//swap rook to beside king
+		if toCol == fromCol+2 {
+			fmt.Println("disini")
+			board[toRow][toCol-1] = board[toRow][toCol+1]
+			board[toRow][toCol+1] = ""
+		}
+		if toCol == fromCol-2 {
+			board[toRow][toCol+1] = board[toRow][toCol-2]
+			board[toRow][toCol-2] = ""
 		}
 	}
 
@@ -683,21 +699,33 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 */
 func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	//its kinda easy except for the castle
-	//castle
 
-	whiteCastle, blackCastle, _, messageCastle := moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
-	fmt.Println(messageCastle)
-	if blackCastle == false || whiteCastle == false {
-		if pieceLocation == "k" || pieceLocation == "K" && toCol != fromCol+1 {
-			fmt.Errorf("you move king already, cant castle")
-		}
-	}
 	//just move anywhere but only +1 square
 	//move +1 on vertical / horizontal / diaognal
-	if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
-		return fmt.Errorf("king only move 1 square")
+	if blackCastle == false && whiteCastle == false {
+		if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
+			return fmt.Errorf("king only move 1 square")
+		}
 	}
 
+	//TODO:
+	//separate blackcastle for "k" and whitecastle for "K"
+	//castle
+	whiteCastle, blackCastle, _, _ := moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
+	if blackCastle == true || whiteCastle == true {
+		if toCol == fromCol+2 {
+			if board[fromRow][fromCol+1] != "" || board[fromRow][fromCol+2] != "" {
+				return fmt.Errorf("cant castle, there is a piece block the way")
+			}
+			return nil
+		}
+		if toCol == fromCol-2 {
+			if board[fromRow][fromCol-1] != "" || board[fromRow][fromCol-2] != "" || board[fromRow][fromCol-3] != "" {
+				return fmt.Errorf("cant castle, there is a piece blocking the way")
+			}
+			return nil
+		}
+	}
 	//checkmate/check or open check from another piece
 	//or create another function to check every move if that move
 	//threaten the king or if that move open check the king and return
@@ -764,21 +792,23 @@ func checkMove(pieceLocation string) (string, error) {
 this function to track the move before, it purpose is to check
 if the king still can castle or not, and the if the pawn can perform en passant
 and we can put the function just before apply move?
+
+MAYBE we can just create a fen notation tho? i think its easier to save the state then
+we just need to transfer the whole board into fen and save it to map[moveCounter] = fen
 */
 
 // TODO:
 // add rook cant move just like king logic
+//
+
 func moveState(pieceLocation string, fromRow, toRow, fromCol, tocoL int, board [8][8]string) (bool, bool, bool, string) {
-	//initial state
-	enPassant := false
-	blackCastle := true
-	whiteCastle := true
-	if playerMove(moveCounter) == "Black" && board[0][4] != "k" {
+	if playerMove(moveCounter) == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
 		blackCastle = false
 	}
-	if playerMove(moveCounter) == "White" && board[7][4] != "K" {
+	if playerMove(moveCounter) == "White" && (board[7][4] != "K" || board[7][0] != "R" || board[7][7] != "R") {
 		whiteCastle = false
 	}
+	fmt.Println("black", blackCastle, "white", whiteCastle)
 
 	//white pawn must be at the exactly row 5/index 3
 	if pieceLocation == "P" && fromRow == 3 {
