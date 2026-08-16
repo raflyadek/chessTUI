@@ -509,13 +509,7 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	return nil
 }
 
-//knight rules
-/*
-	TODO:
-	search the logic to find a knight possible or legal moves
-	because the row and column is a can be a +3, not determined like
-	pawn that can only move forward so its only row+1, its tricky
-*/
+// knight rules
 func knightRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
 	//i think its quite easy, its either move vertical or horizontal for + 2/-2
 	//then just - 1/+1 after for either vertical/horizontal
@@ -527,6 +521,22 @@ func knightRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	if differenceColAbs > 2 || differenceRowAbs > 2 {
 		return fmt.Errorf("knight can only jump 3 square")
 	}
+	//cant arrive at the same row/col
+	if fromRow == toRow || fromCol == toCol {
+		return fmt.Errorf("invalid knight move")
+	}
+	if differenceColAbs == 2 {
+		if differenceRowAbs != 1 {
+			return fmt.Errorf("thats invalid knight move")
+		}
+	}
+
+	if differenceColAbs == 1 {
+		if differenceRowAbs != 2 {
+			return fmt.Errorf("invalid knight move man")
+		}
+	}
+	//thats it no?
 	return nil
 }
 
