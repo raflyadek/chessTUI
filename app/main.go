@@ -256,16 +256,14 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 			board[toRow][toCol-2] = ""
 		}
 	}
-
+	if pieceLocation == "k" || pieceLocation == "K" || pieceLocation == "r" || pieceLocation == "R" {
+		moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
+	}
 	return board
 }
 
 /*
-	when input with the right notation, it still return false
-
-TODO: we can change the return to err and change the return in each logic to
-fmt.ErrorF and send the message to err, so we can show the err message
-to the output instead of just "illegal move"
+when input with the right notation, it still return false
 */
 func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, error) {
 	notation := "abcdefgh"
@@ -456,10 +454,6 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 
 /*
 pawn rules, its exactly what it sounds
-
-TODO:
-en passant (half done)
-promote (done)
 */
 func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
 	//can only move 1 or 2 square when never move before
@@ -523,16 +517,20 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	pawn that can only move forward so its only row+1, its tricky
 */
 func knightRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+	//i think its quite easy, its either move vertical or horizontal for + 2/-2
+	//then just - 1/+1 after for either vertical/horizontal
 
+	differenceColRaw := fromCol - toCol
+	differenceRowRaw := fromRow - toRow
+	differenceColAbs := max(differenceColRaw, -differenceColRaw)
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+	if differenceColAbs > 2 || differenceRowAbs > 2 {
+		return fmt.Errorf("knight can only jump 3 square")
+	}
 	return nil
 }
 
-//bishop rules
-/*
-	TODO:
-	search the logic to find a bishop possible or legal moves
-
-*/
+// bishop rules
 func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	//make sure bishop cant move vertical or horizontal
 	if from[0] == to[0] || from[1] == to[1] {
@@ -571,12 +569,7 @@ func bishopRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	return nil
 }
 
-//rook rules
-/*
-	TODO:
-	search the logic to find a rook possible or legal moves
-
-*/
+// rook rules
 func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	// cant move diagonally, only vertical or horizontal
 	//if its vertical then the column is the same from[0] == to[0]
@@ -597,8 +590,6 @@ func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 			//check every step before destination
 			row := fromRow + i*rowDir
 			col := fromCol
-			fmt.Printf("row: %d", row)
-			fmt.Printf("col: %d", col)
 			if board[row][col] != "" {
 				return fmt.Errorf("Illegal move there is a piece blocking your way")
 			}
@@ -621,13 +612,7 @@ func rookRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	return nil
 }
 
-//queen rules
-/*
-	TODO:
-	search the logic to find a queen possible or legal moves
-	its basically the combination of rook and bishop
-
-*/
+// queen rules
 func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	differenceColRaw := fromCol - toCol
 	differenceRowRaw := fromRow - toRow
@@ -648,7 +633,6 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 				//check every step before destination
 				row := fromRow + i*rowDir
 				col := fromCol
-				fmt.Printf("row: %d", row)
 				fmt.Printf("col: %d", col)
 				if board[row][col] != "" {
 					return fmt.Errorf("Illegal move there is a piece blocking your way")
@@ -691,27 +675,25 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 	return nil
 }
 
-//king rules
-/*
-	TODO:
-	search the logic to find a king possible or legal moves
-	add more logic on the castle section, if its true then king can move + 2 col and the rook is swap places with king
-*/
+// king rules
 func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	//its kinda easy except for the castle
 
-	//just move anywhere but only +1 square
-	//move +1 on vertical / horizontal / diaognal
-	if blackCastle == false && whiteCastle == false {
-		if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
-			return fmt.Errorf("king only move 1 square")
-		}
+	differenceColRaw := fromCol - toCol
+	differenceRowRaw := fromRow - toRow
+	differenceColAbs := max(differenceColRaw, -differenceColRaw)
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+
+	//or king move +2 square col if its castle
+	if differenceColAbs > 2 {
+		return fmt.Errorf("king only move 1 square or 2 square for castle")
+	}
+	//king move only + 1 square for diagonal or vertical
+	if differenceRowAbs >= 2 {
+		return fmt.Errorf("king only move 1 square diagonal or vertical")
 	}
 
-	//TODO:
-	//separate blackcastle for "k" and whitecastle for "K"
 	//castle
-	whiteCastle, blackCastle, _, _ := moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
 	if blackCastle == true || whiteCastle == true {
 		if toCol == fromCol+2 {
 			if board[fromRow][fromCol+1] != "" || board[fromRow][fromCol+2] != "" {
@@ -724,6 +706,20 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 				return fmt.Errorf("cant castle, there is a piece blocking the way")
 			}
 			return nil
+		}
+	}
+
+	//just move anywhere but only +1 square
+	//move +1 on vertical / horizontal / diaognal
+	if blackCastle == false && pieceLocation == "k" {
+		if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
+			return fmt.Errorf("king only move 1 square")
+		}
+	}
+
+	if whiteCastle == false && pieceLocation == "K" {
+		if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
+			return fmt.Errorf("king only move 1 square")
 		}
 	}
 	//checkmate/check or open check from another piece
@@ -772,6 +768,8 @@ func promotePawn() string {
 }
 
 /*
+	TODO:
+
 checkmate/check or open check from another piece
 or create another function to check every move if that move
 threaten the king or if that move open check the king and return
@@ -796,12 +794,10 @@ and we can put the function just before apply move?
 MAYBE we can just create a fen notation tho? i think its easier to save the state then
 we just need to transfer the whole board into fen and save it to map[moveCounter] = fen
 */
+//TODO: Enpassant
 
-// TODO:
-// add rook cant move just like king logic
-//
-
-func moveState(pieceLocation string, fromRow, toRow, fromCol, tocoL int, board [8][8]string) (bool, bool, bool, string) {
+func moveState(pieceLocation string, fromRow, toRow, fromCol, tocoL int, board [8][8]string) {
+	//why it is update when the move is invalid like e8 to b8 but it update the state?
 	if playerMove(moveCounter) == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
 		blackCastle = false
 	}
@@ -819,13 +815,4 @@ func moveState(pieceLocation string, fromRow, toRow, fromCol, tocoL int, board [
 	if pieceLocation == "p" && fromRow == 4 {
 		fmt.Println("possible en passant")
 	}
-
-	var messageCastle string
-	if playerMove(moveCounter) == "Black" {
-		messageCastle = fmt.Sprintf("castle is %t", blackCastle)
-	} else {
-		messageCastle = fmt.Sprintf("castle is %t", whiteCastle)
-	}
-
-	return whiteCastle, blackCastle, enPassant, messageCastle
 }
