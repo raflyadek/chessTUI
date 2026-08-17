@@ -14,7 +14,10 @@ import (
 var moveCounter int = 0
 var blackCastle bool = true
 var whiteCastle bool = true
-var enPassant bool = false
+var enPassantMoveCounter int = 0
+var enPassantRow int = 0
+var enPassantCol int = 0
+var isEnPassant bool = false
 
 func main() {
 	//in order to create chess i think we can use 2d array?
@@ -247,7 +250,6 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	if (pieceLocation == "K" || pieceLocation == "k") && (toCol == fromCol+2 || toCol == fromCol-2) {
 		//swap rook to beside king
 		if toCol == fromCol+2 {
-			fmt.Println("disini")
 			board[toRow][toCol-1] = board[toRow][toCol+1]
 			board[toRow][toCol+1] = ""
 		}
@@ -258,6 +260,15 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	}
 	if pieceLocation == "k" || pieceLocation == "K" || pieceLocation == "r" || pieceLocation == "R" {
 		moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
+	}
+
+	//en-passant pawn
+	if pieceLocation == "p" || pieceLocation == "P" {
+		moveBefore(fromRow, toCol, toRow, pieceLocation)
+		if isEnPassant == true {
+			board[enPassantRow][enPassantCol] = ""
+			isEnPassant = false
+		}
 	}
 	return board
 }
@@ -366,7 +377,6 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	if pErr != nil {
 		return false, fmt.Errorf(pErr.Error())
 	}
-
 	// //check state for castle and en passant
 	// whiteCastle, blackCastle, _, messageCastle := moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
 	// fmt.Println(messageCastle)
@@ -412,36 +422,31 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 	// fmt.Println("piece destination: ", pieceDestination)
 	switch pieceLocation {
 	case "p", "P":
-		err := pawnRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
+		err := pawnRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
 	case "r", "R":
-		fmt.Println("this is rook rules")
 		err := rookRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
 	case "n", "N":
-		fmt.Println("this is knight rules")
 		err := knightRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow)
 		if err != nil {
 			return err
 		}
 	case "b", "B":
-		fmt.Println("this is bishop rules")
 		err := bishopRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
 	case "q", "Q":
-		fmt.Println("this is queen rules")
 		err := queenRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
 	case "k", "K":
-		fmt.Println("this is king rules")
 		err := kingRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
@@ -455,7 +460,60 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 /*
 pawn rules, its exactly what it sounds
 */
-func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int) error {
+func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+	differenceRowRaw := fromRow - toRow
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+	//check is any en passant available
+	//wtf is this messy logic lol
+	if moveCounter == enPassantMoveCounter+1 {
+		if fromCol != 0 && fromCol != 7 {
+			besidePawn := strings.TrimSpace(board[fromRow][fromCol+1])
+			besidePawn2 := strings.TrimSpace(board[fromRow][fromCol-1])
+
+			if pieceLocation == "P" && toCol == enPassantCol && differenceRowAbs == 1 {
+				if besidePawn == "p" || besidePawn2 == "p" {
+					isEnPassant = true
+					return nil
+				}
+			}
+			if pieceLocation == "p" && toCol == enPassantCol && differenceRowAbs == 1 {
+				if besidePawn == "P" || besidePawn2 == "P" {
+					isEnPassant = true
+					return nil
+				}
+			}
+		}
+		//for column a enpassant
+		if fromCol == 0 {
+			if pieceLocation == "P" && toCol == enPassantCol && differenceRowAbs == 1 {
+				if strings.TrimSpace(board[fromRow][fromCol+1]) == "p" {
+					isEnPassant = true
+					return nil
+				}
+			}
+			if pieceLocation == "p" && toCol == enPassantCol && differenceRowAbs == 1 {
+				if strings.TrimSpace(board[fromRow][fromCol+1]) == "P" {
+					isEnPassant = true
+					return nil
+				}
+			}
+		}
+		//for column h enpassant
+		if fromCol == 7 {
+			if pieceLocation == "P" && toCol == enPassantCol && differenceRowAbs == 1 {
+				if strings.TrimSpace(board[fromRow][fromCol-1]) == "p" {
+					isEnPassant = true
+					return nil
+				}
+			}
+			if pieceLocation == "p" && toCol == enPassantCol && differenceRowAbs == 1 {
+				if strings.TrimSpace(board[fromRow][fromCol-1]) == "P" {
+					isEnPassant = true
+					return nil
+				}
+			}
+		}
+	}
 	//can only move 1 or 2 square when never move before
 	if pieceLocation == "P" && fromRow == 6 {
 		if to[1] != from[1]+1 && to[1] != from[1]+2 {
@@ -803,26 +861,33 @@ and we can put the function just before apply move?
 
 MAYBE we can just create a fen notation tho? i think its easier to save the state then
 we just need to transfer the whole board into fen and save it to map[moveCounter] = fen
-*/
+
 //TODO: Enpassant
 
-func moveState(pieceLocation string, fromRow, toRow, fromCol, tocoL int, board [8][8]string) {
+	if piecelOCATION == p/P and it moved + 2 from starting point
+	then check if there is a +1/-1 column there is opposite pawn or no
+	if yes then enPassant = true and it saved col/row pawn that are eligible
+	white pawn must be at the exactly row 5/index 3
+*/
+func moveBefore(fromRow, toCol, toRow int, pieceLocation string) (int, int, int) {
+	differenceRowRaw := fromRow - toRow
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+
+	//the && binds tighter than ||, so used parentheses in the || not &&
+	if (pieceLocation == "P" || pieceLocation == "p") && differenceRowAbs == 2 {
+		enPassantCol = toCol
+		enPassantRow = toRow
+		enPassantMoveCounter = moveCounter
+	}
+	//if there is a pawn move 2 square save the col and row and moveCounter
+	return enPassantCol, enPassantRow, enPassantMoveCounter
+}
+func moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [8][8]string) {
 	//why it is update when the move is invalid like e8 to b8 but it update the state?
 	if playerMove(moveCounter) == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
 		blackCastle = false
 	}
 	if playerMove(moveCounter) == "White" && (board[7][4] != "K" || board[7][0] != "R" || board[7][7] != "R") {
 		whiteCastle = false
-	}
-	fmt.Println("black", blackCastle, "white", whiteCastle)
-
-	//white pawn must be at the exactly row 5/index 3
-	if pieceLocation == "P" && fromRow == 3 {
-		fmt.Println("possible en passant")
-	}
-
-	//black pawn must be at the exactly row 4/index 4
-	if pieceLocation == "p" && fromRow == 4 {
-		fmt.Println("possible en passant")
 	}
 }
