@@ -18,6 +18,8 @@ var enPassantMoveCounter int = 0
 var enPassantRow int = 0
 var enPassantCol int = 0
 var isEnPassant bool = false
+var isCheck bool = false
+var isCheckMate bool = false
 
 func main() {
 	//in order to create chess i think we can use 2d array?
@@ -862,8 +864,6 @@ and we can put the function just before apply move?
 MAYBE we can just create a fen notation tho? i think its easier to save the state then
 we just need to transfer the whole board into fen and save it to map[moveCounter] = fen
 
-//TODO: Enpassant
-
 	if piecelOCATION == p/P and it moved + 2 from starting point
 	then check if there is a +1/-1 column there is opposite pawn or no
 	if yes then enPassant = true and it saved col/row pawn that are eligible
@@ -882,6 +882,7 @@ func moveBefore(fromRow, toCol, toRow int, pieceLocation string) (int, int, int)
 	//if there is a pawn move 2 square save the col and row and moveCounter
 	return enPassantCol, enPassantRow, enPassantMoveCounter
 }
+
 func moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [8][8]string) {
 	//why it is update when the move is invalid like e8 to b8 but it update the state?
 	if playerMove(moveCounter) == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
