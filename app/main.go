@@ -758,11 +758,6 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	if differenceColAbs >= 2 || differenceRowAbs > 1 {
 		return fmt.Errorf("king only move 1 square or 2 col square for castle")
 	}
-	//what is this????
-	//king move only + 1 square for diagonal or vertical
-	// if differenceRowAbs >= 2 {
-	// 	return fmt.Errorf("king only move 1 square diagonal or vertical")
-	// }
 
 	//just move anywhere but only +1 square
 	//move +1 on vertical / horizontal / diaognal
