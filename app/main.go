@@ -272,6 +272,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 			isEnPassant = false
 		}
 	}
+
 	return board
 }
 
@@ -389,6 +390,10 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	// }
 	// fmt.Println(messageCastle)
 	// after all condition pased then return true
+	//check
+	if isCheck == true && (pieceLocation != "k" || pieceLocation != "K") {
+		return false, fmt.Errorf("you are being checked, move your king")
+	}
 	return true, nil
 }
 
