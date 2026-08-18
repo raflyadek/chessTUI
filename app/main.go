@@ -755,14 +755,28 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 
 	//or king move +2 square col if its castle
-	if differenceColAbs > 2 {
-		return fmt.Errorf("king only move 1 square or 2 square for castle")
+	if differenceColAbs >= 2 || differenceRowAbs > 1 {
+		return fmt.Errorf("king only move 1 square or 2 col square for castle")
 	}
+	//what is this????
 	//king move only + 1 square for diagonal or vertical
-	if differenceRowAbs >= 2 {
-		return fmt.Errorf("king only move 1 square diagonal or vertical")
+	// if differenceRowAbs >= 2 {
+	// 	return fmt.Errorf("king only move 1 square diagonal or vertical")
+	// }
+
+	//just move anywhere but only +1 square
+	//move +1 on vertical / horizontal / diaognal
+	if blackCastle == false && pieceLocation == "k" {
+		if differenceRowAbs > 1 && differenceColAbs > 1 && differenceColAbs != differenceRowAbs {
+			return fmt.Errorf("king only move 1 square")
+		}
 	}
 
+	if whiteCastle == false && pieceLocation == "K" {
+		if differenceRowAbs > 1 && differenceColAbs > 1 && differenceColAbs != differenceRowAbs {
+			return fmt.Errorf("king only move 1 square")
+		}
+	}
 	//castle
 	if blackCastle == true || whiteCastle == true {
 		if toCol == fromCol+2 {
@@ -779,19 +793,6 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 		}
 	}
 
-	//just move anywhere but only +1 square
-	//move +1 on vertical / horizontal / diaognal
-	if blackCastle == false && pieceLocation == "k" {
-		if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
-			return fmt.Errorf("king only move 1 square")
-		}
-	}
-
-	if whiteCastle == false && pieceLocation == "K" {
-		if to[1] != from[1]+1 && to[1] != from[1]-1 && to[0] != from[0]+1 && to[0] != from[0]-1 {
-			return fmt.Errorf("king only move 1 square")
-		}
-	}
 	//checkmate/check or open check from another piece
 	//or create another function to check every move if that move
 	//threaten the king or if that move open check the king and return
@@ -853,6 +854,11 @@ func checkMove(pieceLocation string) (string, error) {
 	//or we can check the entire board and determine which piece can't move
 	//because they block the king from check
 
+	//OOOR we can used something like, after applyMove(), we can trigger a function
+	//to check opponent piece, is there any piece that can touch the king? if yes then check
+	//if not then applyMove, something like
+	//checkMove(pieceLocation) bool <- and inside that function we just pass the pieceLocation
+	//to everyFunction rules and
 	return "", nil
 }
 
