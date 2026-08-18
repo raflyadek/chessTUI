@@ -177,6 +177,9 @@ func main() {
 			fmt.Printf("error: %s\n", err)
 			fmt.Println()
 		}
+		if moveCounter == 2 {
+			isCheck = true
+		}
 	}
 }
 
