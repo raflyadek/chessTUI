@@ -19,6 +19,7 @@ var enPassantRow int = 0
 var enPassantCol int = 0
 var isEnPassant bool = false
 var isCheck bool = false
+var pieceCheck string
 var isCheckMate bool = false
 
 func main() {
@@ -165,7 +166,8 @@ func main() {
 			just create another function that return [8][8]string and use that as a new board
 		*/
 
-		fmt.Printf("Its %s move", player)
+		fmt.Printf("Its %s move\n", player)
+		fmt.Printf("isCheck: %v\n", isCheck)
 		from, to := piecesMove()
 		flag, err := legalMove(from, to, board, moveCounter)
 
@@ -176,9 +178,6 @@ func main() {
 		} else {
 			fmt.Printf("error: %s\n", err)
 			fmt.Println()
-		}
-		if moveCounter == 2 {
-			isCheck = true
 		}
 	}
 }
@@ -276,6 +275,10 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 		}
 	}
 
+	//but if another piece block the king??
+	if pieceLocation == "k" || pieceLocation == "K" {
+		isCheck = false
+	}
 	return board
 }
 
@@ -394,7 +397,8 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	// fmt.Println(messageCastle)
 	// after all condition pased then return true
 	//check
-	if isCheck == true && (pieceLocation != "k" || pieceLocation != "K") {
+	//but if another piece block the king??
+	if isCheck == true && pieceLocation != "k" && pieceLocation != "K" {
 		return false, fmt.Errorf("you are being checked, move your king")
 	}
 	return true, nil
@@ -422,14 +426,6 @@ ok, make a different function for different piece and later maybe we create one 
 to validate the from pieces, and if p then it goes to pawnRules() function, etc.
 */
 func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
-	// fmt.Println("fromrow: ", fromRow)
-	// fmt.Println("fromCol", fromCol)
-	// fmt.Println("from: ", from)
-	// fmt.Println("to: ", to)
-	// fmt.Println("toRow: ", toRow)
-	// fmt.Println("toCol: ", toCol)
-	// fmt.Println("piece location: ", pieceLocation)
-	// fmt.Println("piece destination: ", pieceDestination)
 	switch pieceLocation {
 	case "p", "P":
 		err := pawnRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
@@ -480,13 +476,13 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 			besidePawn := strings.TrimSpace(board[fromRow][fromCol+1])
 			besidePawn2 := strings.TrimSpace(board[fromRow][fromCol-1])
 
-			if pieceLocation == "P" && toCol == enPassantCol && differenceRowAbs == 1 {
+			if pieceLocation == "P" && toCol == enPassantCol && toRow == enPassantRow-1 {
 				if besidePawn == "p" || besidePawn2 == "p" {
 					isEnPassant = true
 					return nil
 				}
 			}
-			if pieceLocation == "p" && toCol == enPassantCol && differenceRowAbs == 1 {
+			if pieceLocation == "p" && toCol == enPassantCol && toRow == enPassantRow+1 {
 				if besidePawn == "P" || besidePawn2 == "P" {
 					isEnPassant = true
 					return nil
@@ -495,13 +491,13 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 		}
 		//for column a enpassant
 		if fromCol == 0 {
-			if pieceLocation == "P" && toCol == enPassantCol && differenceRowAbs == 1 {
+			if pieceLocation == "P" && toCol == enPassantCol && toRow == enPassantRow-1 {
 				if strings.TrimSpace(board[fromRow][fromCol+1]) == "p" {
 					isEnPassant = true
 					return nil
 				}
 			}
-			if pieceLocation == "p" && toCol == enPassantCol && differenceRowAbs == 1 {
+			if pieceLocation == "p" && toCol == enPassantCol && toRow == enPassantRow+1 {
 				if strings.TrimSpace(board[fromRow][fromCol+1]) == "P" {
 					isEnPassant = true
 					return nil
@@ -566,13 +562,6 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 			return fmt.Errorf("move diagonal when there is a piece to eat")
 		}
 	}
-
-	//en passant (this shit hard)
-	/*
-		i think its should be have their own function just like promotePawn()
-		there is just too much to do, keeping a counter, etc
-	*/
-	// if pieceLocation == "p" && fromRow > 4 {
 
 	return nil
 }
@@ -862,6 +851,11 @@ func checkMove(pieceLocation string) (string, error) {
 	//if not then applyMove, something like
 	//checkMove(pieceLocation) bool <- and inside that function we just pass the pieceLocation
 	//to everyFunction rules and
+	//
+	//we used pieceCheck to check if its n the one check the king, because if its
+	//n/knight then the king has to move itself, if not we can still block it
+	isCheck = true
+	pieceCheck = pieceLocation
 	return "", nil
 }
 
