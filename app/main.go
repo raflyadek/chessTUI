@@ -838,7 +838,7 @@ or create another function to check every move if that move
 threaten the king or if that move open check the king and return
 string maybe -> "Check/Open Check"
 */
-func checkMove(pieceLocation string) (string, error) {
+func checkMove(pieceLocation string, board [8][8]string) {
 	//check if the next move from previous move is threaten the king
 	//if bishop then check possible move for bishop if that can move to king
 	//if yes then it check the opposite king or if we want to move
@@ -854,9 +854,21 @@ func checkMove(pieceLocation string) (string, error) {
 	//
 	//we used pieceCheck to check if its n the one check the king, because if its
 	//n/knight then the king has to move itself, if not we can still block it
+	//
+	//find the king position on board[row][col] then check horizontal and vertical for
+	//enemy queen and rook, check diagonal for enemy bishop or queen,
+	//check sorrounding diagonal+1/-1 for enemy pawn, check L shape for enemy knight
+	//if there is anything then isCheck = true
+	//with this i think we can solve check/discovered check/double check/checkmate even?
+	//so in this function we can return possible king moves if none checkmate,
+	//or is there any friend piece that can block it,
+	//so check the moves from diagonal/vertical/horizontal if there is opponent there,
+	//or  our friend piece can block the attack?
+	//when we check the direction from our king if we met the friend piece first then stop
+	//because that mean it block already,
+	//
 	isCheck = true
 	pieceCheck = pieceLocation
-	return "", nil
 }
 
 /*
