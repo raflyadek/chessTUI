@@ -22,6 +22,7 @@ var isCheck bool = false
 var pieceCheck string
 var isCheckMate bool = false
 
+// TODO: create the tui with the bubbletea
 func main() {
 	//in order to create chess i think we can use 2d array?
 	//first array is for rows
