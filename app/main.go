@@ -867,7 +867,15 @@ func checkMove(pieceLocation string, board [8][8]string) {
 	//or  our friend piece can block the attack?
 	//when we check the direction from our king if we met the friend piece first then stop
 	//because that mean it block already,
-	//
+	// and maybe with this approach we can check if particular square is defended with some piece
+	// like for example if pawn on d2 block a black player white bishop on b4, because we can do
+	// something like we check sorrounding king and if its found friend piece first, dont immediately
+	// skip to next square, check through that friend piece first, like in above example,
+	// pawn d2 block bishop b4 then if we try to move d2 while bishop b4 still there then prevent that move
+	// so we run this check every move, before applyMove() we check first and throw error if it catch
+	// something like check/open check/discovered check/ even checkmate i  think?, or for checkmate we can
+	// extend the logic to, if its either that 3 then calculate the possible king position, if there none
+	// then checkmate
 	isCheck = true
 	pieceCheck = pieceLocation
 }
