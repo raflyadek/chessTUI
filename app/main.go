@@ -468,8 +468,8 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 pawn rules, its exactly what it sounds
 */
 func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
-	differenceRowRaw := fromRow - toRow
-	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+	// differenceRowRaw := fromRow - toRow
+	// differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 	//check is any en passant available
 	//wtf is this messy logic lol
 	if moveCounter == enPassantMoveCounter+1 {
@@ -507,13 +507,13 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 		}
 		//for column h enpassant
 		if fromCol == 7 {
-			if pieceLocation == "P" && toCol == enPassantCol && differenceRowAbs == 1 {
+			if pieceLocation == "P" && toCol == enPassantCol && toRow == enPassantRow-1 {
 				if strings.TrimSpace(board[fromRow][fromCol-1]) == "p" {
 					isEnPassant = true
 					return nil
 				}
 			}
-			if pieceLocation == "p" && toCol == enPassantCol && differenceRowAbs == 1 {
+			if pieceLocation == "p" && toCol == enPassantCol && toRow == enPassantRow+1 {
 				if strings.TrimSpace(board[fromRow][fromCol-1]) == "P" {
 					isEnPassant = true
 					return nil
