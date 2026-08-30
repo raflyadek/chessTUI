@@ -21,6 +21,8 @@ var isEnPassant bool = false
 var isCheck bool = false
 var pieceCheck string
 var isCheckMate bool = false
+var kingWhitePosition string
+var kingBlackPosition string
 
 // TODO: create the tui with the bubbletea
 func main() {
@@ -840,43 +842,9 @@ threaten the king or if that move open check the king and return
 string maybe -> "Check/Open Check"
 */
 func checkMove(pieceLocation string, board [8][8]string) {
-	//check if the next move from previous move is threaten the king
-	//if bishop then check possible move for bishop if that can move to king
-	//if yes then it check the opposite king or if we want to move
-	//
-	//or we can check the entire board and determine which piece can't move
-	//because they block the king from check
 
-	//OOOR we can used something like, after applyMove(), we can trigger a function
-	//to check opponent piece, is there any piece that can touch the king? if yes then check
-	//if not then applyMove, something like
-	//checkMove(pieceLocation) bool <- and inside that function we just pass the pieceLocation
-	//to everyFunction rules and
-	//
-	//we used pieceCheck to check if its n the one check the king, because if its
-	//n/knight then the king has to move itself, if not we can still block it
-	//
-	//find the king position on board[row][col] then check horizontal and vertical for
-	//enemy queen and rook, check diagonal for enemy bishop or queen,
-	//check sorrounding diagonal+1/-1 for enemy pawn, check L shape for enemy knight
-	//if there is anything then isCheck = true
-	//with this i think we can solve check/discovered check/double check/checkmate even?
-	//so in this function we can return possible king moves if none checkmate,
-	//or is there any friend piece that can block it,
-	//so check the moves from diagonal/vertical/horizontal if there is opponent there,
-	//or  our friend piece can block the attack?
-	//when we check the direction from our king if we met the friend piece first then stop
-	//because that mean it block already,
-	// and maybe with this approach we can check if particular square is defended with some piece
-	// like for example if pawn on d2 block a black player white bishop on b4, because we can do
-	// something like we check sorrounding king and if its found friend piece first, dont immediately
-	// skip to next square, check through that friend piece first, like in above example,
-	// pawn d2 block bishop b4 then if we try to move d2 while bishop b4 still there then prevent that move
-	// so we run this check every move, before applyMove() we check first and throw error if it catch
-	// something like check/open check/discovered check/ even checkmate i  think?, or for checkmate we can
-	// extend the logic to, if its either that 3 then calculate the possible king position, if there none
-	// then checkmate
 	isCheck = true
+
 	pieceCheck = pieceLocation
 }
 
