@@ -843,6 +843,16 @@ string maybe -> "Check/Open Check"
 */
 func checkMove(pieceLocation string, board [8][8]string) {
 
+	// check, checkmate and stalemate, open check first do we want to wrap these rules in one function? because for check
+	// we can set it on the after applyMove() for example whenever piece is move, after that move is applied we check if the
+	// same piece can reach the opponent king, for example we run knight from a4 to b6 then from b6 can it reach the opponent
+	// king which is currently at h8 <- and we call the knightRules and give from (b6) to (h8) <- it returns false then it is
+	// not check, but if the king is at c8 <- it return true that it is check and the check global variable is set to true, but
+	// what if the check is not from the piece that make a move or discovered check? it requires a different approach then, what
+	// if whenever we make a move and after the applyMove(), get all the opponent position and check if there is any piece that can check
+	// the king, and after that we can calculate whats the possible move for the king, if there are none possible move then checkmate,
+	// i think it is solid? <- yeah its solid enough and one note how to track the king position we can create a global variable
+	// for each king position and used that position to throw in the function
 	isCheck = true
 
 	pieceCheck = pieceLocation
