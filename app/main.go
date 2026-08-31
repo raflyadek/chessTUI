@@ -893,7 +893,7 @@ func checkMove(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 					toRowKing := 8 - int(BlackKingPosition[1]-'0')
 					//from?? <- row 0 col 0 = a8
 					//to byte and then read the byte and cast to string from := string(byteFrom)
-					err := piecesRules(from, BlackKingPosition, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+					err := piecesRules(from, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 					if err != nil {
 						isCheck = true
 					}
@@ -902,7 +902,7 @@ func checkMove(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 				if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
 					toColKing := int(WhiteKingPosition[0] - 'a')
 					toRowKing := 8 - int(WhiteKingPosition[1]-'0')
-					err := piecesRules(from, WhiteKingPosition, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+					err := piecesRules(from, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 					if err != nil {
 						isCheck = true
 					}
