@@ -19,8 +19,8 @@ var enPassantRow int = 0
 var enPassantCol int = 0
 var isEnPassant bool = false
 var isCheck bool = false
-var pieceCheck string
 var isCheckMate bool = false
+var isStaleMate bool = false
 var WhiteKingPosition string = "e1"
 var BlackKingPosition string = "e8"
 
@@ -182,6 +182,14 @@ func main() {
 			fmt.Printf("error: %s\n", err)
 			fmt.Println()
 		}
+		if isCheckMate == true {
+			fmt.Println("Checkmate %s win", player)
+			break
+		}
+
+		if isStaleMate == true {
+			fmt.Println("Stalemate, its draw")
+		}
 	}
 }
 
@@ -291,6 +299,9 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	if pieceLocation == "k" || pieceLocation == "K" {
 		isCheck = false
 	}
+
+	//check
+	check, checkMate, staleMate := checkMove(pieceLocation, board)
 	return board
 }
 
@@ -863,8 +874,14 @@ func checkMove(pieceLocation string, board [8][8]string) {
 	// i think it is solid? <- yeah its solid enough and one note how to track the king position we can create a global variable
 	// for each king position and used that position to throw in the function
 
+	//check scenario just scan
 	isCheck = true
-	pieceCheck = pieceLocation
+
+	//checkmate scenario
+	isCheckMate = true
+
+	//stalemate scenario
+	isStaleMate = true
 }
 
 /*
