@@ -21,8 +21,8 @@ var isEnPassant bool = false
 var isCheck bool = false
 var pieceCheck string
 var isCheckMate bool = false
-var kingWhitePosition string
-var kingBlackPosition string
+var WhiteKingPosition string = "e1"
+var BlackKingPosition string = "e8"
 
 // TODO: create the tui with the bubbletea
 func main() {
@@ -269,6 +269,15 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 		moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
 	}
 
+	if pieceLocation == "k" {
+		BlackKingPosition = to
+	}
+
+	if pieceLocation == "K" {
+		WhiteKingPosition = to
+	}
+
+	// fmt.Printf("white king: %s, black king: %s\n", WhiteKingPosition, BlackKingPosition)
 	//en-passant pawn
 	if pieceLocation == "p" || pieceLocation == "P" {
 		moveBefore(fromRow, toCol, toRow, pieceLocation)
@@ -853,8 +862,8 @@ func checkMove(pieceLocation string, board [8][8]string) {
 	// the king, and after that we can calculate whats the possible move for the king, if there are none possible move then checkmate,
 	// i think it is solid? <- yeah its solid enough and one note how to track the king position we can create a global variable
 	// for each king position and used that position to throw in the function
-	isCheck = true
 
+	isCheck = true
 	pieceCheck = pieceLocation
 }
 
