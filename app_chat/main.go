@@ -19,8 +19,8 @@ func main() {
 	}
 	b := 2
 	if b > 2 {
-		return 
-	} 
+		return
+	}
 }
 
 type model struct {
@@ -58,7 +58,7 @@ Type a message and press Enter to send.`)
 	vp.KeyMap.Right.SetEnabled(false)
 
 	ta.KeyMap.InsertNewline.SetEnabled(false)
-	
+
 	return model{
 		textarea:    ta,
 		message:     []string{},

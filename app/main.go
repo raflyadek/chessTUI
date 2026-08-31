@@ -249,7 +249,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
 
-	// pieceDestination := board[toRow][toCol]
+	pieceDestination := board[toRow][toCol]
 	//pawn promote
 
 	//why board[toRow][toCol] works but if i put that into a variable
@@ -301,7 +301,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	}
 
 	//check
-	check, checkMate, staleMate := checkMove(pieceLocation, board)
+	checkMove(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 	return board
 }
 
@@ -861,7 +861,7 @@ or create another function to check every move if that move
 threaten the king or if that move open check the king and return
 string maybe -> "Check/Open Check"
 */
-func checkMove(pieceLocation string, board [8][8]string) {
+func checkMove(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) {
 
 	// check, checkmate and stalemate, open check first do we want to wrap these rules in one function? because for check
 	// we can set it on the after applyMove() for example whenever piece is move, after that move is applied we check if the
@@ -874,11 +874,47 @@ func checkMove(pieceLocation string, board [8][8]string) {
 	// i think it is solid? <- yeah its solid enough and one note how to track the king position we can create a global variable
 	// for each king position and used that position to throw in the function
 
-	//check scenario just scan
-	isCheck = true
+	//how to get all the position on the enemy pieces?
+	//do we run through all the index in the board?
+	//OR
+	//do we saved all the location on the variable and update it everytime? <- kinda dumb ngl lol
 
-	//checkmate scenario
-	isCheckMate = true
+	//pieces
+	pieces := "rnbqkpr"
+
+	//check scenario
+	//get player
+	player := playerMove(moveCounter)
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
+			if player == "White" {
+				if strings.Contains(pieces, strings.TrimSpace(board[i][j])) {
+					toColKing := int(BlackKingPosition[0] - 'a')
+					toRowKing := 8 - int(BlackKingPosition[1]-'0')
+					//from?? <- row 0 col 0 = a8
+					//to byte and then read the byte and cast to string from := string(byteFrom)
+					err := piecesRules(from, BlackKingPosition, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+					if err != nil {
+						isCheck = true
+					}
+				}
+			} else {
+				if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
+					toColKing := int(WhiteKingPosition[0] - 'a')
+					toRowKing := 8 - int(WhiteKingPosition[1]-'0')
+					err := piecesRules(from, WhiteKingPosition, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+					if err != nil {
+						isCheck = true
+					}
+				}
+			}
+		}
+	}
+	if isCheck == true {
+		//logic to get possible move for king if nothing then
+		//checkmate scenario
+		isCheckMate = true
+	}
 
 	//stalemate scenario
 	isStaleMate = true
