@@ -880,7 +880,7 @@ func checkMove(pieceDestination string, board [8][8]string) {
 	//do we saved all the location on the variable and update it everytime? <- kinda dumb ngl lol
 
 	//pieces
-	pieces := "rnbqkpr"
+	pieces := "rnbqkp"
 
 	//check scenario
 	//get player
@@ -888,39 +888,35 @@ func checkMove(pieceDestination string, board [8][8]string) {
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if player == "White" {
-				if strings.Contains(pieces, strings.TrimSpace(board[i][j])) {
-					fmt.Println("i: ", i)
-					fmt.Println("j: ", j)
-					toColKing := int(BlackKingPosition[0] - 'a')
-					toRowKing := 8 - int(BlackKingPosition[1]-'0')
-					//from?? <- row 0 col 0 = a8
-					//to byte and then read the byte and cast to string from := string(byteFrom)
-					fromByte1 := byte(97 + i)
-					fromByte2 := byte(j + 1)
-					fromString := string(fromByte1) + string(fromByte2)
-					fmt.Println("fromstring1:", string(fromByte1))
-					fmt.Println("fromstring2:", string(fromByte2))
-					fmt.Println("piece position: ", strings.TrimSpace(board[i][j]))
-					err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
-					if err == nil {
-						isCheck = true
+				if strings.TrimSpace(board[i][j]) != "" {
+					if test := strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])); test {
+						toColKing := int(BlackKingPosition[0] - 'a')
+						toRowKing := 8 - int(BlackKingPosition[1]-'0')
+						//from?? <- row 0 col 0 = a8
+						//to byte and then read the byte and cast to string from := string(byteFrom)
+						fromByte1 := byte(97 + j)
+						fromByte2 := byte(8 - i)
+						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
+						err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
+						if err == nil {
+							isCheck = true
+						}
 					}
 				}
 			} else {
-				if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
-					fmt.Println("i: ", i)
-					fmt.Println("j: ", j)
-					toColKing := int(BlackKingPosition[0] - 'a')
-					toRowKing := 8 - int(BlackKingPosition[1]-'0')
-					//from?? <- row 0 col 0 = a8
-					//to byte and then read the byte and cast to string from := string(byteFrom)
-					fromByte1 := byte(97 + i)
-					fromByte2 := byte(j + 1)
-					fromString := string(fromByte1) + string(fromByte2)
-					fmt.Println("fromstring:", fromString)
-					err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
-					if err == nil {
-						isCheck = true
+				if strings.TrimSpace(board[i][j]) != "" {
+					if strings.Contains(pieces, strings.TrimSpace(board[i][j])) {
+						toColKing := int(WhiteKingPosition[0] - 'a')
+						toRowKing := 8 - int(WhiteKingPosition[1]-'0')
+						//from?? <- row 0 col 0 = a8
+						//to byte and then read the byte and cast to string from := string(byteFrom)
+						fromByte1 := byte(97 + j)
+						fromByte2 := byte(8 - i)
+						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
+						err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
+						if err == nil {
+							isCheck = true
+						}
 					}
 				}
 			}
