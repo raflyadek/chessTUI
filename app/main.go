@@ -249,7 +249,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
 
-	pieceDestination := board[toRow][toCol]
+	// pieceDestination := board[toRow][toCol]
 	//pawn promote
 
 	//why board[toRow][toCol] works but if i put that into a variable
@@ -303,7 +303,6 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	//check
 	//how do we put the if isCheck == true <- then when try to run another piece/not block
 	//it is not update the board??
-	checkMove(pieceDestination, board)
 	return board
 }
 
@@ -426,7 +425,21 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	// if isCheck == true && pieceLocation != "k" && pieceLocation != "K" {
 	// 	return false, fmt.Errorf("you are being checked, move your king")
 	// }
+	//after test passes, we check the king condition
 
+	//temporary board
+	board[toRow][toCol] = board[fromRow][fromCol]
+	board[fromRow][fromCol] = ""
+	if pieceLocation == "k" {
+		BlackKingPosition = to
+	}
+	if pieceLocation == "K" {
+		WhiteKingPosition = to
+	}
+
+	if err := checkMove(pieceDestination, board); err != nil {
+		return false, fmt.Errorf(err.Error())
+	}
 	// checkMove(pieceDestination, board)
 	// if isCheck == true {
 	// 	return false, fmt.Errorf("You are checked, move your king or cover it with other pieces")
@@ -730,7 +743,6 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 				//check every step before destination
 				row := fromRow + i*rowDir
 				col := fromCol
-				fmt.Printf("col: %d", col)
 				if board[row][col] != "" {
 					return fmt.Errorf("Illegal move there is a piece blocking your way")
 				}
@@ -868,7 +880,7 @@ or create another function to check every move if that move
 threaten the king or if that move open check the king and return
 string maybe -> "Check/Open Check"
 */
-func checkMove(pieceDestination string, board [8][8]string) {
+func checkMove(pieceDestination string, board [8][8]string) error {
 
 	// check, checkmate and stalemate, open check first do we want to wrap these rules in one function? because for check
 	// we can set it on the after applyMove() for example whenever piece is move, after that move is applied we check if the
@@ -889,15 +901,91 @@ func checkMove(pieceDestination string, board [8][8]string) {
 	//pieces
 	pieces := "rnbqkp"
 
-	//check scenario
-	//get player
+	//the issue here is when we check with white, and black king move/blocked with another piece
+	//it doesnt update the isCheck state, so when that happen the state is still true until the white move
+	//i think it suppose, we check our own king, when we move, is there any threat to our king or no,
+	//OR with this current logic, when the isCheck true, then if isCheck = true, do the same thing but
+	//check our own king position
+
+	//should we create this function return something so we can exit early?
 	player := playerMove(moveCounter)
 	checkCounter := 0
+	//white king check
+	if isCheck == true && player == "White" {
+		fmt.Println("here checkwhite")
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if strings.TrimSpace(board[i][j]) != "" {
+					if strings.Contains(strings.ToLower(pieces), strings.TrimSpace(board[i][j])) {
+
+						toColKing := int(WhiteKingPosition[0] - 'a')
+						toRowKing := 8 - int(WhiteKingPosition[1]-'0')
+
+						fromByte1 := byte(97 + j)
+						fromByte2 := byte(8 - i)
+						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
+						err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
+						if err == nil {
+							fmt.Printf("check from string: %s\n", fromString)
+							fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
+							fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
+							checkCounter++
+						}
+					}
+				}
+				if i == 7 && j == 7 && checkCounter != 0 {
+					return fmt.Errorf("your king is being check, move or block it")
+				}
+				if i == 7 && j == 7 && checkCounter == 0 {
+					isCheck = false
+					return nil
+				}
+			}
+		}
+	}
+
+	//black king check condition
+	if isCheck == true && player == "Black" {
+		fmt.Println("checkblack")
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if strings.TrimSpace(board[i][j]) != "" {
+					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
+
+						toColKing := int(BlackKingPosition[0] - 'a')
+						toRowKing := 8 - int(BlackKingPosition[1]-'0')
+
+						fromByte1 := byte(97 + j)
+						fromByte2 := byte(8 - i)
+						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
+						err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
+						if err == nil {
+							fmt.Printf("check from string: %s\n", fromString)
+							fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
+							fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
+							checkCounter++
+						}
+
+					}
+				}
+				if i == 7 && j == 7 && checkCounter != 0 {
+					return fmt.Errorf("your king is being check, move or block it")
+				}
+				if i == 7 && j == 7 && checkCounter == 0 {
+					isCheck = false
+					return nil
+				}
+			}
+		}
+	}
+
+	//check scenario
+	//get player
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if player == "White" {
 				if strings.TrimSpace(board[i][j]) != "" {
-					if test := strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])); test {
+					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
 						toColKing := int(BlackKingPosition[0] - 'a')
 						toRowKing := 8 - int(BlackKingPosition[1]-'0')
 						//from?? <- row 0 col 0 = a8
@@ -907,18 +995,11 @@ func checkMove(pieceDestination string, board [8][8]string) {
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
-							fmt.Println("check")
 							isCheck = true
-							checkCounter++
 						}
 						//is check = false where to put that? because now if we put in this loop
 						//it will auto false because the loop is one by one then after we put it to
 						//true then the next is false, so the logic always return false even just 1 != nil
-						if i == 7 && j == 7 && checkCounter == 0 {
-							fmt.Println("here")
-							isCheck = false
-						}
-						fmt.Println("check counter2: ", checkCounter)
 					}
 				}
 			} else {
@@ -933,15 +1014,8 @@ func checkMove(pieceDestination string, board [8][8]string) {
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
-							fmt.Println("check 2")
 							isCheck = true
-							checkCounter++
 						}
-						if i == 7 && j == 7 && checkCounter == 0 {
-							fmt.Println("asd")
-							isCheck = false
-						}
-						fmt.Println("check counter: ", checkCounter)
 					}
 				}
 			}
@@ -955,6 +1029,7 @@ func checkMove(pieceDestination string, board [8][8]string) {
 	//
 	// //stalemate scenario
 	// isStaleMate = true
+	return nil
 }
 
 /*
