@@ -302,6 +302,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 
 	//check
 	checkMove(pieceDestination, board)
+
 	return board
 }
 
@@ -423,6 +424,11 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//but if another piece block the king??
 	// if isCheck == true && pieceLocation != "k" && pieceLocation != "K" {
 	// 	return false, fmt.Errorf("you are being checked, move your king")
+	// }
+
+	// checkMove(pieceDestination, board)
+	// if isCheck == true {
+	// 	return false, fmt.Errorf("You are checked, move your king or cover it with other pieces")
 	// }
 	return true, nil
 }
@@ -901,6 +907,9 @@ func checkMove(pieceDestination string, board [8][8]string) {
 						if err == nil {
 							isCheck = true
 						}
+						//is check = false where to put that? because now if we put in this loop
+						//it will auto false because the loop is one by one then after we put it to
+						//true then the next is false, so the logic always return false even just 1 != nil
 					}
 				}
 			} else {
