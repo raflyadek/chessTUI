@@ -1021,6 +1021,9 @@ func checkMove(pieceDestination string, board [8][8]string) error {
 			}
 		}
 	}
+
+	// TODO:
+	// checkmate scenario if isCheck = true <- check all the possible king position if none then checkmate
 	// if isCheck == true {
 	// 	//logic to get possible move for king if nothing then
 	// 	//checkmate scenario
