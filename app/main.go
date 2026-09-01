@@ -301,8 +301,9 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	// }
 
 	//check
+	//how do we put the if isCheck == true <- then when try to run another piece/not block
+	//it is not update the board??
 	checkMove(pieceDestination, board)
-
 	return board
 }
 
@@ -891,6 +892,7 @@ func checkMove(pieceDestination string, board [8][8]string) {
 	//check scenario
 	//get player
 	player := playerMove(moveCounter)
+	checkCounter := 0
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			if player == "White" {
@@ -905,11 +907,18 @@ func checkMove(pieceDestination string, board [8][8]string) {
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
+							fmt.Println("check")
 							isCheck = true
+							checkCounter++
 						}
 						//is check = false where to put that? because now if we put in this loop
 						//it will auto false because the loop is one by one then after we put it to
 						//true then the next is false, so the logic always return false even just 1 != nil
+						if i == 7 && j == 7 && checkCounter == 0 {
+							fmt.Println("here")
+							isCheck = false
+						}
+						fmt.Println("check counter2: ", checkCounter)
 					}
 				}
 			} else {
@@ -924,8 +933,15 @@ func checkMove(pieceDestination string, board [8][8]string) {
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
+							fmt.Println("check 2")
 							isCheck = true
+							checkCounter++
 						}
+						if i == 7 && j == 7 && checkCounter == 0 {
+							fmt.Println("asd")
+							isCheck = false
+						}
+						fmt.Println("check counter: ", checkCounter)
 					}
 				}
 			}
