@@ -1039,15 +1039,13 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 	// 	isCheckMate = true
 	// }
 
-	if isCheck == true && player == "White" {
-		//check sorrounding king +1 -1 for every direction, if the one check us is knight
-		//and is there any friend pieces that can eat the knight,
-		//but if something else then get the position that check the king
-		fmt.Printf("wip")
-	}
 	// //stalemate scenario
 	// isStaleMate = true
 	return nil
+}
+
+func checkMateState() {
+
 }
 
 /*
