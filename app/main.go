@@ -430,20 +430,20 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//temporary board
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
+	var blackKingPositionCopy string = BlackKingPosition
+	var whiteKingPositionCopy string = WhiteKingPosition
 	if pieceLocation == "k" {
-		BlackKingPosition = to
+		blackKingPositionCopy = BlackKingPosition
+		blackKingPositionCopy = to
 	}
 	if pieceLocation == "K" {
-		WhiteKingPosition = to
+		whiteKingPositionCopy = WhiteKingPosition
+		whiteKingPositionCopy = to
 	}
 
 	if err := checkMove(pieceDestination, board); err != nil {
 		return false, fmt.Errorf(err.Error())
 	}
-	// checkMove(pieceDestination, board)
-	// if isCheck == true {
-	// 	return false, fmt.Errorf("You are checked, move your king or cover it with other pieces")
-	// }
 	return true, nil
 }
 
@@ -880,7 +880,7 @@ or create another function to check every move if that move
 threaten the king or if that move open check the king and return
 string maybe -> "Check/Open Check"
 */
-func checkMove(pieceDestination string, board [8][8]string) error {
+func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCopy, blackKingPositionCopy string) error {
 
 	// check, checkmate and stalemate, open check first do we want to wrap these rules in one function? because for check
 	// we can set it on the after applyMove() for example whenever piece is move, after that move is applied we check if the
@@ -926,9 +926,9 @@ func checkMove(pieceDestination string, board [8][8]string) error {
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
-							fmt.Printf("check from string: %s\n", fromString)
-							fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
-							fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
+							// fmt.Printf("check from string: %s\n", fromString)
+							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
+							// fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
 							checkCounter++
 						}
 					}
@@ -960,9 +960,9 @@ func checkMove(pieceDestination string, board [8][8]string) error {
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
-							fmt.Printf("check from string: %s\n", fromString)
-							fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
-							fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
+							// fmt.Printf("check from string: %s\n", fromString)
+							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
+							// fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
 							checkCounter++
 						}
 
@@ -1005,6 +1005,8 @@ func checkMove(pieceDestination string, board [8][8]string) error {
 			} else {
 				if strings.TrimSpace(board[i][j]) != "" {
 					if strings.Contains(pieces, strings.TrimSpace(board[i][j])) {
+						//we can put this variable outside of loop for performance sake?, or is it just irrelevant?
+						//because it is just a small variable?
 						toColKing := int(WhiteKingPosition[0] - 'a')
 						toRowKing := 8 - int(WhiteKingPosition[1]-'0')
 						//from?? <- row 0 col 0 = a8
@@ -1029,7 +1031,13 @@ func checkMove(pieceDestination string, board [8][8]string) error {
 	// 	//checkmate scenario
 	// 	isCheckMate = true
 	// }
-	//
+
+	if isCheck == true && player == "White" {
+		//check sorrounding king +1 -1 for every direction, if the one check us is knight
+		//and is there any friend pieces that can eat the knight,
+		//but if something else then get the position that check the king
+		fmt.Printf("wip")
+	}
 	// //stalemate scenario
 	// isStaleMate = true
 	return nil
