@@ -428,8 +428,6 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//after test passes, we check the king condition
 
 	//temporary board
-	board[toRow][toCol] = board[fromRow][fromCol]
-	board[fromRow][fromCol] = ""
 	var blackKingPositionCopy string = BlackKingPosition
 	var whiteKingPositionCopy string = WhiteKingPosition
 	if pieceLocation == "k" {
@@ -441,7 +439,13 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 		whiteKingPositionCopy = to
 	}
 
-	if err := checkMove(pieceDestination, board); err != nil {
+	// fromColCopy := int(from[0] - 'a')
+	// fromRowCopy := 8 - int(from[1]-'0')
+	// toColCopy := int(to[0] - 'a')
+	// toRowCopy := 8 - int(to[1]-'0')
+	board[toRow][toCol] = board[fromRow][fromCol]
+	board[fromRow][fromCol] = ""
+	if err := checkMove(pieceDestination, board, whiteKingPositionCopy, blackKingPositionCopy); err != nil {
 		return false, fmt.Errorf(err.Error())
 	}
 	return true, nil
@@ -918,13 +922,13 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 				if strings.TrimSpace(board[i][j]) != "" {
 					if strings.Contains(strings.ToLower(pieces), strings.TrimSpace(board[i][j])) {
 
-						toColKing := int(WhiteKingPosition[0] - 'a')
-						toRowKing := 8 - int(WhiteKingPosition[1]-'0')
+						toColKing := int(whiteKingPositionCopy[0] - 'a')
+						toRowKing := 8 - int(whiteKingPositionCopy[1]-'0')
 
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
+						err := piecesRules(fromString, whiteKingPositionCopy, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							// fmt.Printf("check from string: %s\n", fromString)
 							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
@@ -952,13 +956,13 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 				if strings.TrimSpace(board[i][j]) != "" {
 					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
 
-						toColKing := int(BlackKingPosition[0] - 'a')
-						toRowKing := 8 - int(BlackKingPosition[1]-'0')
+						toColKing := int(blackKingPositionCopy[0] - 'a')
+						toRowKing := 8 - int(blackKingPositionCopy[1]-'0')
 
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
+						err := piecesRules(fromString, blackKingPositionCopy, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							// fmt.Printf("check from string: %s\n", fromString)
 							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
@@ -986,14 +990,14 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 			if player == "White" {
 				if strings.TrimSpace(board[i][j]) != "" {
 					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
-						toColKing := int(BlackKingPosition[0] - 'a')
-						toRowKing := 8 - int(BlackKingPosition[1]-'0')
+						toColKing := int(blackKingPositionCopy[0] - 'a')
+						toRowKing := 8 - int(blackKingPositionCopy[1]-'0')
 						//from?? <- row 0 col 0 = a8
 						//to byte and then read the byte and cast to string from := string(byteFrom)
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
+						err := piecesRules(fromString, blackKingPositionCopy, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							isCheck = true
 						}
@@ -1007,16 +1011,19 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 					if strings.Contains(pieces, strings.TrimSpace(board[i][j])) {
 						//we can put this variable outside of loop for performance sake?, or is it just irrelevant?
 						//because it is just a small variable?
-						toColKing := int(WhiteKingPosition[0] - 'a')
-						toRowKing := 8 - int(WhiteKingPosition[1]-'0')
+						toColKing := int(whiteKingPositionCopy[0] - 'a')
+						toRowKing := 8 - int(whiteKingPositionCopy[1]-'0')
 						//from?? <- row 0 col 0 = a8
 						//to byte and then read the byte and cast to string from := string(byteFrom)
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
+						err := piecesRules(fromString, whiteKingPositionCopy, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							isCheck = true
+							//either create another function for checkmate
+							//or
+							//use goto: statement
 						}
 					}
 				}
