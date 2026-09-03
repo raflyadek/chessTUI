@@ -170,15 +170,25 @@ func main() {
 			just create another function that return [8][8]string and use that as a new board
 		*/
 
-		fmt.Printf("Its %s move\n", player)
-		fmt.Printf("isCheck: %v\n", isCheck)
 		if isCheckMate == true {
-			fmt.Printf("Checkmate %s win\n", playerWin)
-			break
+			fmt.Printf("Checkmate! %s win\n", playerWin)
+			choice := afterCheckMate()
+			if choice == "e" {
+				break
+			} else if choice == "p" {
+				//reset board and all state
+				board = initBoard()
+				initialState()
+				continue
+			}
 		}
 		if isStaleMate == true {
 			fmt.Println("Stalemate, its draw")
+			break
 		}
+		fmt.Printf("Its %s move\n", player)
+		fmt.Printf("isCheck: %v\n", isCheck)
+		fmt.Printf("movecounter: %d", moveCounter)
 		//wait input
 		from, to := piecesMove()
 		flag, err := legalMove(from, to, board, moveCounter)
@@ -936,7 +946,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 							fmt.Println("check from white")
 							isCheck = true
 							if possibleKingMove := checkMateState(); possibleKingMove == 0 {
-								isCheckMate = false
+								isCheckMate = true
 							}
 							// checkFromHere = true
 							return nil
@@ -962,7 +972,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						if err == nil {
 							isCheck = true
 							if possibleKingMove := checkMateState(); possibleKingMove == 0 {
-								isCheckMate = false
+								isCheckMate = true
 							}
 							return nil
 							// checkFromHere = true
@@ -1109,4 +1119,27 @@ func moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [
 	if playerMove(moveCounter) == "White" && (board[7][4] != "K" || board[7][0] != "R" || board[7][7] != "R") {
 		whiteCastle = false
 	}
+}
+
+func afterCheckMate() string {
+	fmt.Print("do you want to play again (p) or exit (e)? ")
+	reader := bufio.NewScanner(os.Stdin)
+	reader.Scan()
+	choice := reader.Text()
+	return choice
+}
+
+func initialState() {
+	moveCounter = 0
+	blackCastle = true
+	whiteCastle = true
+	enPassantMoveCounter = 0
+	enPassantRow = 0
+	enPassantCol = 0
+	isEnPassant = false
+	isCheckMate = false
+	isCheck = false
+	isStaleMate = false
+	WhiteKingPosition = "e1"
+	BlackKingPosition = "e8"
 }
