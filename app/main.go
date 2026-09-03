@@ -994,8 +994,8 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 					return fmt.Errorf("your king is being check, move or block it")
 				}
 				if i == 7 && j == 7 && checkCounter == 0 {
-					fmt.Printf("checkcounter: %d\n", checkCounter)
-					fmt.Println("change ischeck to false white")
+					// fmt.Printf("checkcounter: %d\n", checkCounter)
+					// fmt.Println("change ischeck to false white")
 					isCheck = false
 					return nil
 				}
@@ -1030,8 +1030,8 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 					return fmt.Errorf("your king is being check, move or block it")
 				}
 				if i == 7 && j == 7 && checkCounter == 0 {
-					fmt.Printf("checkcounter: %d\n", checkCounter)
-					fmt.Println("change ischeck to false")
+					// fmt.Printf("checkcounter: %d\n", checkCounter)
+					// fmt.Println("change ischeck to false")
 					isCheck = false
 					return nil
 				}
@@ -1059,6 +1059,8 @@ func checkMateState() {
 	//then no need to check if its check/no, then if its possible move then we do loop to search
 	//if any opponent piece can reach that location
 	//do the same loop like check logic
+	//OR we can get all legal move for king, saved that to a variable and later used that each move
+	//to calculate if there is any possible move for king to escape
 }
 
 /*
@@ -1085,6 +1087,7 @@ func moveBefore(fromRow, toCol, toRow int, pieceLocation string) (int, int, int)
 		enPassantMoveCounter = moveCounter
 	}
 	//if there is a pawn move 2 square save the col and row and moveCounter
+	//wtf this return meant?? lol
 	return enPassantCol, enPassantRow, enPassantMoveCounter
 }
 
