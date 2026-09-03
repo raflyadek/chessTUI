@@ -1123,6 +1123,7 @@ func moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [
 
 func afterCheckMate() string {
 	fmt.Print("do you want to play again (p) or exit (e)? ")
+	fmt.Println()
 	reader := bufio.NewScanner(os.Stdin)
 	reader.Scan()
 	choice := reader.Text()
