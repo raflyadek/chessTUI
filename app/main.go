@@ -1051,7 +1051,14 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 }
 
 func checkMateState() {
-
+	//so whenever isCheck change to true, then check if its only check or checkMate
+	//we can do that with immidiately check possible move king, if king is in e1 being check
+	//then check if f1,f2,e2,d1,d2 is being check too or no?, then we can create
+	//white king position copy and changed that copy value +1/-1 on col and row
+	//and first check if its possible move for king, because if there is a piece block that move
+	//then no need to check if its check/no, then if its possible move then we do loop to search
+	//if any opponent piece can reach that location
+	//do the same loop like check logic
 }
 
 /*
