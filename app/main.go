@@ -11,6 +11,7 @@ import (
 	// tea "charm.land/bubbletea/v2"
 )
 
+// var moveCounterCheckMate int = 0
 var moveCounter int = 0
 var blackCastle bool = true
 var whiteCastle bool = true
@@ -162,7 +163,7 @@ func main() {
 			}
 		}
 		player := playerMove(moveCounter)
-
+		playerWin := playerMove(moveCounter - 1)
 		/*
 			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
 			board representation is above this, how do i use this variable? (done)
@@ -171,6 +172,14 @@ func main() {
 
 		fmt.Printf("Its %s move\n", player)
 		fmt.Printf("isCheck: %v\n", isCheck)
+		if isCheckMate == true {
+			fmt.Printf("Checkmate %s win\n", playerWin)
+			break
+		}
+		if isStaleMate == true {
+			fmt.Println("Stalemate, its draw")
+		}
+		//wait input
 		from, to := piecesMove()
 		flag, err := legalMove(from, to, board, moveCounter)
 
@@ -181,14 +190,6 @@ func main() {
 		} else {
 			fmt.Printf("error: %s\n", err)
 			fmt.Println()
-		}
-		if isCheckMate == true {
-			fmt.Println("Checkmate %s win", player)
-			break
-		}
-
-		if isStaleMate == true {
-			fmt.Println("Stalemate, its draw")
 		}
 	}
 }
@@ -914,7 +915,6 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 	//should we create this function return something so we can exit early?
 	player := playerMove(moveCounter)
 	checkCounter := 0
-	checkFromHere := false
 	//white king check
 
 	//check scenario
@@ -935,7 +935,11 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						if err == nil {
 							fmt.Println("check from white")
 							isCheck = true
-							checkFromHere = true
+							if possibleKingMove := checkMateState(); possibleKingMove == 0 {
+								isCheckMate = false
+							}
+							// checkFromHere = true
+							return nil
 						}
 						//is check = false where to put that? because now if we put in this loop
 						//it will auto false because the loop is one by one then after we put it to
@@ -957,7 +961,11 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						err := piecesRules(fromString, whiteKingPositionCopy, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							isCheck = true
-							checkFromHere = true
+							if possibleKingMove := checkMateState(); possibleKingMove == 0 {
+								isCheckMate = false
+							}
+							return nil
+							// checkFromHere = true
 							//either create another function for checkmate
 							//or
 							//use goto: statement
@@ -968,8 +976,8 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 		}
 	}
 
-	// TODO:
-	if checkFromHere == false && player == "White" {
+	//pin pieces and force king to move / block if king is in check
+	if player == "White" {
 		for i := 0; i < 8; i++ {
 			for j := 0; j < 8; j++ {
 				if strings.TrimSpace(board[i][j]) != "" {
@@ -1003,8 +1011,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 		}
 	}
 
-	//black king check condition
-	if checkFromHere == false && player == "Black" {
+	if player == "Black" {
 		for i := 0; i < 8; i++ {
 			for j := 0; j < 8; j++ {
 				if strings.TrimSpace(board[i][j]) != "" {
@@ -1050,7 +1057,9 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 	return nil
 }
 
-func checkMateState() {
+func checkMateState() int {
+
+	possibleKingMove := 0
 	//so whenever isCheck change to true, then check if its only check or checkMate
 	//we can do that with immidiately check possible move king, if king is in e1 being check
 	//then check if f1,f2,e2,d1,d2 is being check too or no?, then we can create
@@ -1061,6 +1070,7 @@ func checkMateState() {
 	//do the same loop like check logic
 	//OR we can get all legal move for king, saved that to a variable and later used that each move
 	//to calculate if there is any possible move for king to escape
+	return possibleKingMove
 }
 
 /*
