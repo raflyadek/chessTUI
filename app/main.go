@@ -888,8 +888,6 @@ func promotePawn() string {
 }
 
 /*
-	TODO:
-
 checkmate/check or open check from another piece
 or create another function to check every move if that move
 threaten the king or if that move open check the king and return
@@ -1043,6 +1041,9 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 
 					}
 				}
+				//the check counter is kinda unnecessary i think,
+				//can just if err != nil then return "your king is checked"
+				//and if i == 7 and j == 7 then isCheck false
 				if i == 7 && j == 7 && checkCounter != 0 {
 					return fmt.Errorf("your king is being check, move or block it")
 				}
@@ -1067,6 +1068,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 	return nil
 }
 
+// TODO: CHECKMATE LOGIC
 func checkMateState() int {
 
 	possibleKingMove := 0
