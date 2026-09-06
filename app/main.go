@@ -1079,6 +1079,8 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 
 // TODO: CHECKMATE LOGIC
 func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) int {
+	//basic validation, should we call the pieceRules()? instead of kingRules? bcause
+	//we already force it like +1 -1 on col/row
 	//get all the possible king square
 	player := playerMove(moveCounter)
 	possibleKingMove := 0
@@ -1094,27 +1096,29 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				//to byte and then read the byte and cast to string from := string(byteFrom)
 				toByte1 := byte(int(BlackKingPosition[0]) + j)
 				toByte2 := byte(int(BlackKingPosition[1]) + i)
-				toColKing := int(toByte1 - 'a')
-				toRowKing := 8 - int(toByte2-'0')
+				// toColKing := int(toByte1 - 'a')
+				// toRowKing := 8 - int(toByte2-'0')
 				toString := string(toByte1) + string(toByte2)
 				fmt.Printf("tostirng: %s\n", toString)
 				fmt.Printf("blackkingposition: %s\n", BlackKingPosition)
-				fmt.Printf("blackking[0]: %d\n", int(BlackKingPosition[0]))
-				fmt.Printf("blackking[1]: %d\n", int(BlackKingPosition[1]))
-				fmt.Printf("blackking[0]: %s\n", string(BlackKingPosition[0]))
-				fmt.Printf("blackking[1]: %d\n", int(BlackKingPosition[1]))
-				fmt.Printf("tobyte1king: %d\n", toByte1)
-				fmt.Printf("tobyte2king: %d\n", toByte2)
-				fmt.Printf("torowking: %d\n", toRowKing)
-				fmt.Printf("tocolking: %d\n", toColKing)
+				// fmt.Printf("blackking[0]: %d\n", int(BlackKingPosition[0]))
+				// fmt.Printf("blackking[1]: %d\n", int(BlackKingPosition[1]))
+				// fmt.Printf("blackking[0]: %s\n", string(BlackKingPosition[0]))
+				// fmt.Printf("blackking[1]: %d\n", int(BlackKingPosition[1]))
+				// fmt.Printf("tobyte1king: %d\n", toByte1)
+				// fmt.Printf("tobyte2king: %d\n", toByte2)
+				// fmt.Printf("torowking: %d\n", toRowKing)
+				// fmt.Printf("tocolking: %d\n", toColKing)
 				fmt.Printf("fromrowKing: %d\n", fromRowKing)
 				fmt.Printf("fromcolking: %d\n", fromColKing)
-				err := kingRules(BlackKingPosition, toString, strings.TrimSpace(board[fromRowKing][fromColKing]), strings.TrimSpace(board[toRowKing][toColKing]), fromRowKing, fromColKing, toColKing, toRowKing, board)
+				_, err := legalMove(BlackKingPosition, toString, board, moveCounter)
 				if err == nil {
+					fmt.Println("here not check")
 					possibleKingMove++
 					possibleSquareKing = append(possibleSquareKing, toString)
 				}
-				fmt.Printf("square king: %v", possibleSquareKing)
+
+				fmt.Printf("square king: %v\n", possibleSquareKing)
 			}
 			if player == "Black" {
 				fromColKing := int(WhiteKingPosition[0] - 'a')
