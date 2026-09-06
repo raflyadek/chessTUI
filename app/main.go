@@ -952,10 +952,9 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 							fmt.Printf("checkFrom: %v\n", checkFrom)
 							fmt.Printf("checkPieces: %v\n", checkPiece)
 							isCheck = true
-							if possibleKingMove := checkMateState(checkCounter, checkFrom, checkPiece, board); possibleKingMove == 0 {
+							if checkMate := checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
 								isCheckMate = true
 							}
-							// checkFromHere = true
 							return nil
 						}
 						//is check = false where to put that? because now if we put in this loop
@@ -979,7 +978,6 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						if err == nil {
 							isCheck = true
 							// if possibleKingMove := checkMateState(); possibleKingMove == 0 {
-							// 	isCheckMate = true
 							// }
 							return nil
 							// checkFromHere = true
@@ -1069,7 +1067,6 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 	// if isCheck == true {
 	// 	//logic to get possible move for king if nothing then
 	// 	//checkmate scenario
-	// 	isCheckMate = true
 	// }
 
 	// //stalemate scenario
@@ -1078,7 +1075,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 }
 
 // TODO: CHECKMATE LOGIC
-func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) int {
+func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) bool {
 	//basic validation, should we call the pieceRules()? instead of kingRules? bcause
 	//we already force it like +1 -1 on col/row
 	//get all the possible king square
@@ -1090,59 +1087,48 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 			if player == "White" {
 				//call kingRules() and if nil possiblekingmove++
 				//to is dynamic and from is static just get from the global variable
-				fromColKing := int(BlackKingPosition[0] - 'a')
-				fromRowKing := 8 - int(BlackKingPosition[1]-'0')
+				// fromColKing := int(BlackKingPosition[0] - 'a')
+				// fromRowKing := 8 - int(BlackKingPosition[1]-'0')
 				//from?? <- row 0 col 0 = a8
 				//to byte and then read the byte and cast to string from := string(byteFrom)
 				toByte1 := byte(int(BlackKingPosition[0]) + j)
 				toByte2 := byte(int(BlackKingPosition[1]) + i)
-				// toColKing := int(toByte1 - 'a')
-				// toRowKing := 8 - int(toByte2-'0')
+				toColKing := int(toByte1 - 'a')
+				toRowKing := 8 - int(toByte2-'0')
 				toString := string(toByte1) + string(toByte2)
-				fmt.Printf("tostirng: %s\n", toString)
-				fmt.Printf("blackkingposition: %s\n", BlackKingPosition)
-				// fmt.Printf("blackking[0]: %d\n", int(BlackKingPosition[0]))
-				// fmt.Printf("blackking[1]: %d\n", int(BlackKingPosition[1]))
-				// fmt.Printf("blackking[0]: %s\n", string(BlackKingPosition[0]))
-				// fmt.Printf("blackking[1]: %d\n", int(BlackKingPosition[1]))
-				// fmt.Printf("tobyte1king: %d\n", toByte1)
-				// fmt.Printf("tobyte2king: %d\n", toByte2)
-				// fmt.Printf("torowking: %d\n", toRowKing)
-				// fmt.Printf("tocolking: %d\n", toColKing)
-				fmt.Printf("fromrowKing: %d\n", fromRowKing)
-				fmt.Printf("fromcolking: %d\n", fromColKing)
-				_, err := legalMove(BlackKingPosition, toString, board, moveCounter)
-				if err == nil {
-					fmt.Println("here not check")
+
+				if toRowKing > 8 || toRowKing < 0 || toColKing > 8 || toColKing < 0 {
+					continue
+				}
+				if board[toRowKing][toColKing] == "" {
 					possibleKingMove++
 					possibleSquareKing = append(possibleSquareKing, toString)
 				}
-
-				fmt.Printf("square king: %v\n", possibleSquareKing)
 			}
 			if player == "Black" {
-				fromColKing := int(WhiteKingPosition[0] - 'a')
-				fromRowKing := 8 - int(WhiteKingPosition[1]-'0')
 				toByte1 := byte(WhiteKingPosition[0] + 'j')
 				toByte2 := byte(WhiteKingPosition[1] + 'i')
 				toColKing := int(toByte1 - 'a')
 				toRowKing := int(toByte2 - '0')
 				toString := string(toByte1) + fmt.Sprintf("%d", toByte2)
-				err := kingRules(WhiteKingPosition, toString, strings.TrimSpace(board[fromRowKing][fromColKing]), strings.TrimSpace(board[toByte2][toByte1]), fromRowKing, fromColKing, toColKing, toRowKing, board)
-				if err == nil {
+
+				if toRowKing > 8 || toRowKing < 0 || toColKing > 8 || toColKing < 0 {
+					continue
+				}
+
+				if board[toRowKing][toColKing] == "" {
 					possibleKingMove++
 					possibleSquareKing = append(possibleSquareKing, toString)
 				}
-				fmt.Printf("square king: %v", possibleSquareKing)
 			}
 		}
 	}
 	//if checkCounter > 0 then dont bother to search piece who can eat or block
 	//it just move the king then if only 1 we search the piece who can eat or block its
 
-	if checkCounter > 1 {
-
-	}
+	// if checkCounter > 1 {
+	//
+	// }
 
 	//so whenever isCheck change to true, then check if its only check or checkMate
 	//we can do that with immidiately check possible move king, if king is in e1 being check
@@ -1155,7 +1141,11 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	//OR we can get all legal move for king, saved that to a variable and later used that each move
 	//to calculate if there is any possible move for king to escape
 
-	return possibleKingMove
+	checkMate := false
+	if possibleKingMove == 0 {
+		checkMate = true
+	}
+	return checkMate
 }
 
 /*
