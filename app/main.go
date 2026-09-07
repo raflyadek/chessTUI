@@ -1087,14 +1087,35 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 
 // TODO: CHECKMATE LOGIC
 func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) bool {
-	//basic validation, should we call the pieceRules()? instead of kingRules? bcause
-	//we already force it like +1 -1 on col/row
-	//get all the possible king square
 	pieces := "rnbqkp"
 	player := playerMove(moveCounter)
 	possibleKingMove := 0
 	possibleSquareKing := make([]string, 0)
-	pieceWhoCanEat := 0
+	squareUntilCheck := make([]string, 0)
+	//pawn or knight is either we run or we eat it
+
+	// pieceWhoCanEat := 0
+	//get all square between until check king
+	//can we just if col is the same then it must be row that are different
+	//if row is the same then it must be col thats different
+	//and if col is not the same and row not the same then it must be diagonal??
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
+	betweenSquareInt := 0
+	for i := 0; i < 8; i++ {
+		for j := 0; j < 8; j++ {
+			if player == "White" {
+				//checking the black king
+				betweenSquareColBlack := int(checkFrom[0] - BlackKingPosition[0])
+				betweenSquareRowBlack := int(checkFrom[1] - BlackKingPosition[1])
+			}
+			if player == "Black" {
+				betweenSquareColWhite := int(checkFrom[0] - WhiteKingPosition[0])
+				betweenSquareRowWhite := int(checkFrom[0] - WhiteKingPosition[1])
+
+			}
+		}
+	}
+	//get all the possible king square
 	for i := -1; i < 2; i++ {
 		for j := -1; j < 2; j++ {
 			if player == "White" {
@@ -1141,6 +1162,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	//it just move the king then if only 1 we search the piece who can eat or block its
 	//if checkcounter == 1 search piece who can eat it
 	if checkCounter == 1 {
+		//eat the one that check our king
 		for i := 0; i < 8; i++ {
 			for j := 0; j < 8; j++ {
 				if player == "White" {
@@ -1154,12 +1176,12 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromString := string(fromByte1) + string(fromByte2)
 							err := piecesRules(fromString, checkFrom[0], strings.TrimSpace(board[i][j]), checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
 							if err == nil {
-								pieceWhoCanEat++
+								// pieceWhoCanEat++
 								return false
 							}
-							if i == 7 && j == 7 && pieceWhoCanEat == 0 {
-								return true
-							}
+							// if i == 7 && j == 7 && pieceWhoCanEat == 0 {
+							// 	return true
+							// }
 						}
 					}
 				}
@@ -1174,23 +1196,40 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromString := string(fromByte1) + string(fromByte2)
 							err := piecesRules(fromString, checkFrom[0], strings.TrimSpace(board[i][j]), checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
 							if err == nil {
-								pieceWhoCanEat++
+								// pieceWhoCanEat++
 								return false
 							}
-							if i == 7 && j == 7 && pieceWhoCanEat == 0 {
-								return true
-							}
+							// if i == 7 && j == 7 && pieceWhoCanEat == 0 {
+							// 	return true
+							// }
 						}
 					}
 				}
 			}
 		}
+		//block the path
+		//but after that can block immediately check if its open check or no
+		//if yes then continue
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if player == "White" {
+
+				}
+				if player == "Black" {
+
+				}
+			}
+		}
 	}
 
-	//check can any friend piece block its
-	if checkPieces[0] != "n" || checkPieces[0] != "N" {
-
-	}
+	//after above instruction
+	//we checked if the possible king move is can be checked or no,
+	//if yes then possiblekingmove--
+	//then
+	//we checked if the piece that checked our king can be eaten/block
+	//if yes then it is certainly not checkmate
+	//
+	//check possiblesquareking
 	// if checkCounter > 1 {
 	//
 	// }
