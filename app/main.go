@@ -1198,6 +1198,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 			}
 		}
+
 		//calculate all square that lead to check
 		differentSquare := 2
 		for i := 1; i < differentSquare; i++ {
@@ -1323,6 +1324,8 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 			}
 		}
 		fmt.Printf("square until king: %v\n", squareUntilCheck)
+
+		//TODO: PIECES THAT CAN BLOCK THE CHECK LOGIC
 		//block the path
 		//but after that can block immediately check if its open check or no
 		//if yes then continue
