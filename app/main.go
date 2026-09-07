@@ -188,6 +188,7 @@ func main() {
 		}
 		fmt.Printf("Its %s move\n", player)
 		fmt.Printf("isCheck: %v\n", isCheck)
+		fmt.Printf("isCheckMate: %v\n", isCheckMate)
 		fmt.Printf("movecounter: %d", moveCounter)
 		//wait input
 		from, to := piecesMove()
@@ -528,7 +529,12 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	// differenceRowRaw := fromRow - toRow
 	// differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 	//check is any en passant available
+	//a7 to b5 is possible HOWW
 	//wtf is this messy logic lol
+	differenceColRaw := fromCol - toCol
+	differenceRowRaw := fromRow - toRow
+	differenceColAbs := max(differenceColRaw, -differenceColRaw)
+	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 	if moveCounter == enPassantMoveCounter+1 {
 		if fromCol != 0 && fromCol != 7 {
 			besidePawn := strings.TrimSpace(board[fromRow][fromCol+1])
@@ -578,15 +584,29 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 			}
 		}
 	}
+	//can only eat diagonal/column +1/-1 from its position
+	if from[0] != to[0] {
+		if pieceDestination != "" && differenceColAbs == 1 && differenceRowAbs == 1 {
+		} else {
+			return fmt.Errorf("move diagonal when there is a piece to eat")
+		}
+	}
+
 	//can only move 1 or 2 square when never move before
 	if pieceLocation == "P" && fromRow == 6 {
 		if to[1] != from[1]+1 && to[1] != from[1]+2 {
+			if from[0] != to[0] {
+				return fmt.Errorf("cant move 2 square diagonal")
+			}
 			return fmt.Errorf("pawn white can only move 1 or 2 square in its starting position")
 		}
 	}
 
 	if pieceLocation == "p" && fromRow == 1 {
 		if to[1] != from[1]-1 && to[1] != from[1]-2 {
+			if from[0] != to[0] {
+				return fmt.Errorf("cant move 2 square diagonal")
+			}
 			return fmt.Errorf("pawn can only move 1 or 2 square in its starting position")
 		}
 	}
@@ -610,17 +630,8 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 		}
 	}
 
-	//can only eat diagonal/column +1/-1 from its position
-	if from[0] != to[0] {
-		if pieceDestination != "" {
-			if fromCol-toCol != 1 && fromCol-toCol != -1 {
-				return fmt.Errorf("can only move 1 square to diagonal")
-			}
-		} else {
-			return fmt.Errorf("move diagonal when there is a piece to eat")
-		}
-	}
-
+	fmt.Println("pawn from: ", from)
+	fmt.Println("pawn to: ", to)
 	return nil
 }
 
@@ -1137,27 +1148,16 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 						if strings.Contains(pieces, strings.TrimSpace(board[i][j])) {
 							pieceCheckRow := 8 - int(checkFrom[0][1]-'0')
 							pieceCheckCol := int(checkFrom[0][0] - 'a')
-							pieceCheckString := string(byte(97+pieceCheckCol)) + string(byte(56+pieceCheckCol))
+							// pieceCheckString := string(byte(97+pieceCheckCol)) + string(byte(56+pieceCheckCol))
 							fromByte1 := byte(97 + j)
 							fromByte2 := byte(56 - i)
 							fromString := string(fromByte1) + string(fromByte2)
-							err := piecesRules(fromString, checkFrom[0], strings.TrimSpace(board[i][j]), checkPieces[0], i, j, pieceCheckRow, pieceCheckCol, board)
+							err := piecesRules(fromString, checkFrom[0], strings.TrimSpace(board[i][j]), checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
 							if err == nil {
-								fmt.Println("fromrow: ", i)
-								fmt.Println("fromcol: ", j)
-								fmt.Println("piececheckstring: ", pieceCheckString)
-								fmt.Println("torow: ", pieceCheckRow)
-								fmt.Println("tocol: ", pieceCheckCol)
-								fmt.Println("check from: ", checkFrom[0])
-								fmt.Println("piece who can eat: ", fromString)
-								fmt.Println("piec location: ", strings.TrimSpace(board[i][j]))
-								fmt.Println("checkfrom[0]: ", string(checkFrom[0][0]))
-								fmt.Println("checkfrom[1]: ", string(checkFrom[0][1]))
 								pieceWhoCanEat++
 								return false
 							}
 							if i == 7 && j == 7 && pieceWhoCanEat == 0 {
-								fmt.Println("checkmaetmewokr")
 								return true
 							}
 						}
@@ -1186,6 +1186,11 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 			}
 		}
 	}
+
+	//check can any friend piece block its
+	if checkPieces[0] != "n" || checkPieces[0] != "N" {
+
+	}
 	// if checkCounter > 1 {
 	//
 	// }
@@ -1201,11 +1206,11 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	//OR we can get all legal move for king, saved that to a variable and later used that each move
 	//to calculate if there is any possible move for king to escape
 
-	checkMate := false
+	fmt.Println("possbilekingmove: ", possibleKingMove)
 	if possibleKingMove == 0 {
-		checkMate = true
+		return true
 	}
-	return checkMate
+	return false
 }
 
 /*
