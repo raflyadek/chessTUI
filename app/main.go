@@ -1094,7 +1094,6 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	squareUntilCheck := make([]string, 0)
 	//pawn or knight is either we run or we eat it
 
-	// pieceWhoCanEat := 0
 	//get all square between until check king
 	//can we just if col is the same then it must be row that are different
 	//if row is the same then it must be col thats different
@@ -1105,69 +1104,8 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	// toColKing := int(toByte1 - 'a')
 	// toRowKing := 8 - int(toByte2-'0')
 	// toString := string(toByte1) + string(toByte2)
-	for i := 1; i < 8; i++ {
-		if player == "White" {
-			fmt.Println("here")
-			//checking the black king
-			//same col
-			if checkFrom[0][0] == BlackKingPosition[0] {
-				fmt.Println("hereasd")
-				if checkFrom[0][1] > BlackKingPosition[1] {
-					fmt.Println("herefdsjkdfs")
-					rowByte := byte(int(checkFrom[0][1]) - i)
-					squareString := string(checkFrom[0][0]) + string(rowByte)
-					squareUntilCheck = append(squareUntilCheck, squareString)
-				} else {
-					fmt.Println("here903920432")
-					rowByte := byte(int(checkFrom[0][1]) + i)
-					squareString := string(checkFrom[0][0]) + string(rowByte)
-					squareUntilCheck = append(squareUntilCheck, squareString)
-				}
-			}
-			//same row
-			if checkFrom[0][1] == BlackKingPosition[1] {
-				if checkFrom[0][0] > BlackKingPosition[0] {
-					colByte := byte(int(checkFrom[0][0]) - i)
-					squareString := string(colByte) + string(checkFrom[0][1])
-					squareUntilCheck = append(squareUntilCheck, squareString)
-				} else {
-					colByte := byte(int(checkFrom[0][0]) + i)
-					squareString := string(colByte) + string(checkFrom[0][1])
-					squareUntilCheck = append(squareUntilCheck, squareString)
-				}
-			}
-			//diagonal
-			if checkFrom[0][0] != BlackKingPosition[0] && checkFrom[0][1] != BlackKingPosition[1] {
-				fmt.Println("masuk")
-			}
-		}
-		if player == "Black" {
-			if checkFrom[0][0] == WhiteKingPosition[0] {
-				if checkFrom[0][1] > WhiteKingPosition[1] {
-					rowByte := byte(int(checkFrom[0][1]) - i)
-					squareString := string(checkFrom[0][0]) + string(rowByte)
-					squareUntilCheck = append(squareUntilCheck, squareString)
-				} else {
-					rowByte := byte(int(checkFrom[0][1]) + i)
-					squareString := string(checkFrom[0][0]) + string(rowByte)
-					squareUntilCheck = append(squareUntilCheck, squareString)
-				}
-			}
-			if checkFrom[0][1] == WhiteKingPosition[1] {
-				if checkFrom[0][0] > WhiteKingPosition[0] {
-					colByte := byte(int(checkFrom[0][0]) - i)
-					squareString := string(colByte) + string(checkFrom[0][1])
-					squareUntilCheck = append(squareUntilCheck, squareString)
-				} else {
-					colByte := byte(int(checkFrom[0][0]) + i)
-					squareString := string(colByte) + string(checkFrom[0][1])
-					squareUntilCheck = append(squareUntilCheck, squareString)
-				}
-			}
-
-		}
-	}
-	fmt.Printf("square until king: %v\n", squareUntilCheck)
+	//
+	//var for different square int so we loop to that number
 	//get all the possible king square
 	for i := -1; i < 2; i++ {
 		for j := -1; j < 2; j++ {
@@ -1260,6 +1198,131 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 			}
 		}
+		//calculate all square that lead to check
+		differentSquare := 2
+		for i := 1; i < differentSquare; i++ {
+			if player == "White" {
+				fmt.Println("here")
+				//checking the black king
+				//same col
+				if checkFrom[0][0] == BlackKingPosition[0] {
+					rowInt := 8 - int(checkFrom[0][1]-'0')
+					differentSquare = rowInt
+					if checkFrom[0][1] > BlackKingPosition[1] {
+						rowByte := byte(int(checkFrom[0][1]) - i)
+						squareString := string(checkFrom[0][0]) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					} else {
+						rowByte := byte(int(checkFrom[0][1]) + i)
+						squareString := string(checkFrom[0][0]) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+				}
+				//same row
+				if checkFrom[0][1] == BlackKingPosition[1] {
+					colInt := int(checkFrom[0][0] - 'a')
+					differentSquare = colInt
+					if checkFrom[0][0] > BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) - i)
+						squareString := string(colByte) + string(checkFrom[0][1])
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					} else {
+						colByte := byte(int(checkFrom[0][0]) + i)
+						squareString := string(colByte) + string(checkFrom[0][1])
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+				}
+				//diagonal
+				if checkFrom[0][0] != BlackKingPosition[0] && checkFrom[0][1] != BlackKingPosition[1] {
+					rowInt := 8 - int(checkFrom[0][1]-'0')
+					differentSquare = rowInt
+					if checkFrom[0][1] > BlackKingPosition[1] && checkFrom[0][0] > BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) - i)
+						rowByte := byte(int(checkFrom[0][1]) - i)
+						squareString := string(colByte) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+					if checkFrom[0][1] > BlackKingPosition[1] && checkFrom[0][0] < BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) + i)
+						rowByte := byte(int(checkFrom[0][1]) - i)
+						squareString := string(colByte) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+					if checkFrom[0][1] < BlackKingPosition[1] && checkFrom[0][0] > BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) - i)
+						rowByte := byte(int(checkFrom[0][1]) + i)
+						squareString := string(colByte) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+					if checkFrom[0][1] < BlackKingPosition[1] && checkFrom[0][0] < BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) + i)
+						rowByte := byte(int(checkFrom[0][1]) + i)
+						squareString := string(colByte) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+				}
+			}
+			if player == "Black" {
+				//same col
+				if checkFrom[0][0] == WhiteKingPosition[0] {
+					rowInt := 8 - int(checkFrom[0][1]-'0')
+					differentSquare = rowInt
+					if checkFrom[0][1] > WhiteKingPosition[1] {
+						rowByte := byte(int(checkFrom[0][1]) - i)
+						squareString := string(checkFrom[0][0]) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					} else {
+						rowByte := byte(int(checkFrom[0][1]) + i)
+						squareString := string(checkFrom[0][0]) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+				}
+				//same row
+				if checkFrom[0][1] == WhiteKingPosition[1] {
+					colInt := int(checkFrom[0][0] - 'a')
+					differentSquare = colInt
+					if checkFrom[0][0] > WhiteKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) - i)
+						squareString := string(colByte) + string(checkFrom[0][1])
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					} else {
+						colByte := byte(int(checkFrom[0][0]) + i)
+						squareString := string(colByte) + string(checkFrom[0][1])
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+				}
+				//diagonal
+				if checkFrom[0][0] != BlackKingPosition[0] && checkFrom[0][1] != BlackKingPosition[1] {
+					rowInt := 8 - int(checkFrom[0][1]-'0')
+					differentSquare = rowInt
+					if checkFrom[0][1] > BlackKingPosition[1] && checkFrom[0][0] > BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) - i)
+						rowByte := byte(int(checkFrom[0][1]) - i)
+						squareString := string(colByte) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+					if checkFrom[0][1] > BlackKingPosition[1] && checkFrom[0][0] < BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) + i)
+						rowByte := byte(int(checkFrom[0][1]) - i)
+						squareString := string(colByte) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+					if checkFrom[0][1] < BlackKingPosition[1] && checkFrom[0][0] > BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) - i)
+						rowByte := byte(int(checkFrom[0][1]) + i)
+						squareString := string(colByte) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+					if checkFrom[0][1] < BlackKingPosition[1] && checkFrom[0][0] < BlackKingPosition[0] {
+						colByte := byte(int(checkFrom[0][0]) + i)
+						rowByte := byte(int(checkFrom[0][1]) + i)
+						squareString := string(colByte) + string(rowByte)
+						squareUntilCheck = append(squareUntilCheck, squareString)
+					}
+				}
+			}
+		}
+		fmt.Printf("square until king: %v\n", squareUntilCheck)
 		//block the path
 		//but after that can block immediately check if its open check or no
 		//if yes then continue
