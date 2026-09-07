@@ -1079,9 +1079,11 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	//basic validation, should we call the pieceRules()? instead of kingRules? bcause
 	//we already force it like +1 -1 on col/row
 	//get all the possible king square
+	pieces := "rnbqkp"
 	player := playerMove(moveCounter)
 	possibleKingMove := 0
 	possibleSquareKing := make([]string, 0)
+	pieceWhoCanEat := 0
 	for i := -1; i < 2; i++ {
 		for j := -1; j < 2; j++ {
 			if player == "White" {
@@ -1123,9 +1125,67 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 			}
 		}
 	}
-	//if checkCounter > 0 then dont bother to search piece who can eat or block
-	//it just move the king then if only 1 we search the piece who can eat or block its
 
+	//if checkCounter > 1 then dont bother to search piece who can eat or block
+	//it just move the king then if only 1 we search the piece who can eat or block its
+	//if checkcounter == 1 search piece who can eat it
+	if checkCounter == 1 {
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if player == "White" {
+					if strings.TrimSpace(board[i][j]) != "" {
+						if strings.Contains(pieces, strings.TrimSpace(board[i][j])) {
+							pieceCheckRow := 8 - int(checkFrom[0][1]-'0')
+							pieceCheckCol := int(checkFrom[0][0] - 'a')
+							pieceCheckString := string(byte(97+pieceCheckCol)) + string(byte(56+pieceCheckCol))
+							fromByte1 := byte(97 + j)
+							fromByte2 := byte(56 - i)
+							fromString := string(fromByte1) + string(fromByte2)
+							err := piecesRules(fromString, checkFrom[0], strings.TrimSpace(board[i][j]), checkPieces[0], i, j, pieceCheckRow, pieceCheckCol, board)
+							if err == nil {
+								fmt.Println("fromrow: ", i)
+								fmt.Println("fromcol: ", j)
+								fmt.Println("piececheckstring: ", pieceCheckString)
+								fmt.Println("torow: ", pieceCheckRow)
+								fmt.Println("tocol: ", pieceCheckCol)
+								fmt.Println("check from: ", checkFrom[0])
+								fmt.Println("piece who can eat: ", fromString)
+								fmt.Println("piec location: ", strings.TrimSpace(board[i][j]))
+								fmt.Println("checkfrom[0]: ", string(checkFrom[0][0]))
+								fmt.Println("checkfrom[1]: ", string(checkFrom[0][1]))
+								pieceWhoCanEat++
+								return false
+							}
+							if i == 7 && j == 7 && pieceWhoCanEat == 0 {
+								fmt.Println("checkmaetmewokr")
+								return true
+							}
+						}
+					}
+				}
+				if player == "Black" {
+					if strings.TrimSpace(board[i][j]) != "" {
+						if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
+							pieceCheckRow := 8 - int(checkFrom[0][1]-'0')
+							pieceCheckCol := int(checkFrom[0][0] - 'a')
+
+							fromByte1 := byte(97 + j)
+							fromByte2 := byte(56 - i)
+							fromString := string(fromByte1) + string(fromByte2)
+							err := piecesRules(fromString, checkFrom[0], strings.TrimSpace(board[i][j]), checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
+							if err == nil {
+								pieceWhoCanEat++
+								return false
+							}
+							if i == 7 && j == 7 && pieceWhoCanEat == 0 {
+								return true
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	// if checkCounter > 1 {
 	//
 	// }
