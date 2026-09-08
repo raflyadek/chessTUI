@@ -630,8 +630,6 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 		}
 	}
 
-	fmt.Println("pawn from: ", from)
-	fmt.Println("pawn to: ", to)
 	return nil
 }
 
@@ -944,6 +942,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 		for j := 0; j < 8; j++ {
 			if player == "White" {
 				if strings.TrimSpace(board[i][j]) != "" {
+					fmt.Println("white??")
 					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
 						toColKing := int(blackKingPositionCopy[0] - 'a')
 						toRowKing := 8 - int(blackKingPositionCopy[1]-'0')
@@ -959,22 +958,24 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 							checkPiece = append(checkPiece, strings.TrimSpace(board[i][j]))
 							checkCounter++
 						}
-						if i == 7 && j == 7 && checkCounter != 0 {
-							fmt.Printf("checkFrom: %v\n", checkFrom)
-							fmt.Printf("checkPieces: %v\n", checkPiece)
-							isCheck = true
-							if checkMate := checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
-								isCheckMate = true
-							}
-							return nil
-						}
 						//is check = false where to put that? because now if we put in this loop
 						//it will auto false because the loop is one by one then after we put it to
 						//true then the next is false, so the logic always return false even just 1 != nil
 					}
+					if i == 7 && j == 7 && checkCounter != 0 {
+						fmt.Printf("checkFrom: %v\n", checkFrom)
+						fmt.Printf("checkPieces: %v\n", checkPiece)
+						isCheck = true
+						if checkMate := checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
+							isCheckMate = true
+						}
+						return nil
+					}
 				}
-			} else {
+			}
+			if player == "Black" {
 				if strings.TrimSpace(board[i][j]) != "" {
+					fmt.Println("black??")
 					if strings.Contains(pieces, strings.TrimSpace(board[i][j])) {
 						//we can put this variable outside of loop for performance sake?, or is it just irrelevant?
 						//because it is just a small variable?
@@ -987,15 +988,23 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := piecesRules(fromString, whiteKingPositionCopy, strings.TrimSpace(board[i][j]), pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
-							isCheck = true
-							// if possibleKingMove := checkMateState(); possibleKingMove == 0 {
-							// }
-							return nil
-							// checkFromHere = true
-							//either create another function for checkmate
-							//or
-							//use goto: statement
+							checkFrom = append(checkFrom, fromString)
+							checkPiece = append(checkPiece, strings.TrimSpace(board[i][j]))
+							checkCounter++
 						}
+						fmt.Println("i: ", i)
+						fmt.Println("j: ", j)
+						fmt.Println("location: ", strings.TrimSpace(board[i][j]))
+					}
+					if i == 7 && j == 7 && checkCounter != 0 {
+						fmt.Printf("checkfrom: %v", checkFrom)
+						fmt.Printf("checkpieces: %v", checkPiece)
+						isCheck = true
+						if checkMate := checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
+							isCheckMate = true
+						}
+						fmt.Println("ga return?")
+						return nil
 					}
 				}
 			}
@@ -1007,6 +1016,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 		for i := 0; i < 8; i++ {
 			for j := 0; j < 8; j++ {
 				if strings.TrimSpace(board[i][j]) != "" {
+					fmt.Println("masuk ke white?")
 					if strings.Contains(strings.ToLower(pieces), strings.TrimSpace(board[i][j])) {
 
 						toColKing := int(whiteKingPositionCopy[0] - 'a')
@@ -1025,6 +1035,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 					}
 				}
 				if i == 7 && j == 7 && checkCounter != 0 {
+					fmt.Println("masuk ke check?")
 					return fmt.Errorf("your king is being check, move or block it")
 				}
 				if i == 7 && j == 7 && checkCounter == 0 {
@@ -1040,6 +1051,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 	if player == "Black" {
 		for i := 0; i < 8; i++ {
 			for j := 0; j < 8; j++ {
+				fmt.Println("masa sini?")
 				if strings.TrimSpace(board[i][j]) != "" {
 					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
 
@@ -1063,6 +1075,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 				//can just if err != nil then return "your king is checked"
 				//and if i == 7 and j == 7 then isCheck false
 				if i == 7 && j == 7 && checkCounter != 0 {
+					fmt.Println("masuk ke check black?")
 					return fmt.Errorf("your king is being check, move or block it")
 				}
 				if i == 7 && j == 7 && checkCounter == 0 {
@@ -1207,8 +1220,9 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				//checking the black king
 				//same col
 				if checkFrom[0][0] == BlackKingPosition[0] {
-					rowInt := 8 - int(checkFrom[0][1]-'0')
-					differentSquare = rowInt
+					rowInt := int(checkFrom[0][1]) - int(BlackKingPosition[1])
+					rowIntAbs := max(rowInt, -rowInt)
+					differentSquare = rowIntAbs
 					if checkFrom[0][1] > BlackKingPosition[1] {
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(checkFrom[0][0]) + string(rowByte)
@@ -1221,11 +1235,9 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 				//same row
 				if checkFrom[0][1] == BlackKingPosition[1] {
-					colInt := int(checkFrom[0][0] - BlackKingPosition[0])
-					fmt.Println("checkfrom[0][0]int: ", int(checkFrom[0][0]))
-					fmt.Println("'a'int: ", int('a'))
-					fmt.Println("colint: ", colInt)
-					differentSquare = colInt
+					colInt := int(checkFrom[0][0]) - int(BlackKingPosition[0])
+					colIntAbs := max(colInt, -colInt)
+					differentSquare = colIntAbs
 					if checkFrom[0][0] > BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						squareString := string(colByte) + string(checkFrom[0][1])
@@ -1238,8 +1250,9 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 				//diagonal
 				if checkFrom[0][0] != BlackKingPosition[0] && checkFrom[0][1] != BlackKingPosition[1] {
-					rowInt := 8 - int(checkFrom[0][1]-'0')
-					differentSquare = rowInt
+					rowInt := int(checkFrom[0][1]) - int(BlackKingPosition[1])
+					rowIntAbs := max(rowInt, -rowInt)
+					differentSquare = rowIntAbs
 					if checkFrom[0][1] > BlackKingPosition[1] && checkFrom[0][0] > BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						rowByte := byte(int(checkFrom[0][1]) - i)
@@ -1266,11 +1279,13 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 					}
 				}
 			}
+
 			if player == "Black" {
 				//same col
 				if checkFrom[0][0] == WhiteKingPosition[0] {
-					rowInt := 8 - int(checkFrom[0][1]-'0')
-					differentSquare = rowInt
+					rowInt := int(checkFrom[0][1]) - int(WhiteKingPosition[0])
+					rowIntAbs := max(rowInt, -rowInt)
+					differentSquare = rowIntAbs
 					if checkFrom[0][1] > WhiteKingPosition[1] {
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(checkFrom[0][0]) + string(rowByte)
@@ -1283,8 +1298,9 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 				//same row
 				if checkFrom[0][1] == WhiteKingPosition[1] {
-					colInt := int(checkFrom[0][0] - 'a')
-					differentSquare = colInt
+					colInt := int(checkFrom[0][0]) - int(WhiteKingPosition[1])
+					colIntAbs := max(colInt, -colInt)
+					differentSquare = colIntAbs
 					if checkFrom[0][0] > WhiteKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						squareString := string(colByte) + string(checkFrom[0][1])
@@ -1297,8 +1313,10 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 				//diagonal
 				if checkFrom[0][0] != BlackKingPosition[0] && checkFrom[0][1] != BlackKingPosition[1] {
-					rowInt := 8 - int(checkFrom[0][1]-'0')
-					differentSquare = rowInt
+					fmt.Println("here")
+					rowInt := int(checkFrom[0][1]) - int(BlackKingPosition[1])
+					rowIntAbs := max(rowInt, -rowInt)
+					differentSquare = rowIntAbs
 					if checkFrom[0][1] > BlackKingPosition[1] && checkFrom[0][0] > BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						rowByte := byte(int(checkFrom[0][1]) - i)
