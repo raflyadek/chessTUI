@@ -1221,7 +1221,10 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 				//same row
 				if checkFrom[0][1] == BlackKingPosition[1] {
-					colInt := int(checkFrom[0][0] - 'a')
+					colInt := int(checkFrom[0][0] - BlackKingPosition[0])
+					fmt.Println("checkfrom[0][0]int: ", int(checkFrom[0][0]))
+					fmt.Println("'a'int: ", int('a'))
+					fmt.Println("colint: ", colInt)
 					differentSquare = colInt
 					if checkFrom[0][0] > BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
