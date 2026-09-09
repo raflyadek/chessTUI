@@ -1344,8 +1344,8 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 		//but after that can block immediately check if its open check or no
 		//if yes then continue
 		for i := 0; i <= len(squareUntilCheck); i++ {
-			for j := 0; i < 8; j++ {
-				for k := 0; j < 8; k++ {
+			for j := 0; j < 8; j++ {
+				for k := 0; k < 8; k++ {
 					if player == "White" {
 						if strings.Contains(pieces, strings.TrimSpace(board[j][k])) {
 							squareCheckRow := 8 - int(squareUntilCheck[i][1]-'0')
@@ -1355,7 +1355,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromString := string(fromByte1) + string(fromByte2)
 							err := piecesRules(fromString, squareUntilCheck[i], strings.TrimSpace(board[j][k]), "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
-								fmt.Printf("fromstring: %s and from pieces: %s", fromString, strings.TrimSpace(board[j][k]))
+								fmt.Printf("fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
 								//open check or no?
 								return false
 							}
@@ -1370,7 +1370,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromString := string(fromByte1) + string(fromByte2)
 							err := piecesRules(fromString, squareUntilCheck[i], strings.TrimSpace(board[j][k]), "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
-								fmt.Printf("fromstring: %s and from pieces: %s", fromString, strings.TrimSpace(board[j][k]))
+								fmt.Printf("fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
 								return false
 							}
 						}
