@@ -212,12 +212,12 @@ func initBoard() [8][8]string {
 	board := [8][8]string{}
 
 	//white
-	board[7] = [8]string{"  R  ", "  N  ", "  B  ", "  Q  ", "  K  ", "  B  ", "  N  ", "  R  "}
 	board[6] = [8]string{"  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  "}
+	board[7] = [8]string{"  R  ", "  N  ", "  B  ", "  Q  ", "  K  ", "  B  ", "  N  ", "  R  "}
 
 	//black
 	board[1] = [8]string{"  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  "}
-	board[0] = [8]string{"  r  ", "  n  ", "  b  ", "    ", "  k  ", "    ", "    ", "  r  "}
+	board[0] = [8]string{"  r  ", "  n  ", "  b  ", "  q  ", "  k  ", "  b  ", "  n  ", "  r  "}
 
 	return board
 }
@@ -1006,6 +1006,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 			}
 		}
 	}
+	fmt.Println("iischeck: ", isCheck)
 
 	//pin pieces and force king to move / block if king is in check
 	if player == "White" {
@@ -1133,7 +1134,6 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				if board[toRowKing][toColKing] == "" {
 					possibleKingMove++
 					possibleSquareKing = append(possibleSquareKing, toString)
-					fmt.Printf("append king move: %v\n", possibleSquareKing)
 				}
 			}
 			if player == "Black" {
@@ -1150,7 +1150,6 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				if board[toRowKing][toColKing] == "" {
 					possibleKingMove++
 					possibleSquareKing = append(possibleSquareKing, toString)
-					fmt.Printf("append king move: %v\n", possibleSquareKing)
 				}
 			}
 		}
@@ -1345,7 +1344,6 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 		for i := 0; i < len(squareUntilCheck); i++ {
 			for j := 0; j < 8; j++ {
 				for k := 0; k < 8; k++ {
-					fmt.Println("masuk loop block")
 					if player == "White" {
 						if strings.Contains(pieces, strings.TrimSpace(board[j][k])) && strings.TrimSpace(board[j][k]) != "k" {
 							squareCheckRow := 8 - int(squareUntilCheck[i][1]-'0')
@@ -1358,6 +1356,11 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 								//TODO: but after that can block immediately check if its open check or no
 								//if yes then continue
 								fmt.Printf("fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
+								isPin := pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
+								fmt.Println("ispin? ", isPin)
+								if isPin == true {
+									continue
+								}
 								//open check or no?
 								return false
 							}
@@ -1375,6 +1378,10 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 								//TODO: but after that can block immediately check if its open check or no
 								//if yes then continue
 								fmt.Printf("fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
+								isPin := pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
+								if isPin == true {
+									continue
+								}
 								return false
 							}
 						}
@@ -1391,38 +1398,43 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	//
 	//check possiblesquareking
 	//label for reset the loop once we found a pieces that can check that possible square
+	fmt.Println("masuk kesini?")
 outerLoop:
 	for i := 0; i < len(possibleSquareKing); i++ {
 		for j := 0; j < 8; j++ {
 			for k := 0; k < 8; k++ {
 				//any enemies that can check me then its gg
 				if player == "White" {
-					possibleSquareCol := int(possibleSquareKing[i][0] - 'a')
-					possibleSquareRow := 8 - int(possibleSquareKing[i][1]-'0')
+					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[j][k])) {
+						possibleSquareCol := int(possibleSquareKing[i][0] - 'a')
+						possibleSquareRow := 8 - int(possibleSquareKing[i][1]-'0')
 
-					fromByte1 := byte(97 + k)
-					fromByte2 := byte(56 - j)
-					fromString := string(fromByte1) + string(fromByte2)
-					err := piecesRules(fromString, possibleSquareKing[i], strings.TrimSpace(board[j][k]), "k", j, k, possibleSquareCol, possibleSquareRow, board)
-					if err == nil {
-						fmt.Printf("attack possible square king: from string: %s, from pieces: %s\n", fromString, strings.TrimSpace(board[j][k]))
-						possibleKingMove--
-						//reset the loop after we find who can check that square
-						continue outerLoop
+						fromByte1 := byte(97 + k)
+						fromByte2 := byte(56 - j)
+						fromString := string(fromByte1) + string(fromByte2)
+						err := piecesRules(fromString, possibleSquareKing[i], strings.TrimSpace(board[j][k]), "k", j, k, possibleSquareCol, possibleSquareRow, board)
+						if err == nil {
+							fmt.Printf("attack possible square king: %s, from string: %s, from pieces: %s\n", possibleSquareKing[i], fromString, strings.TrimSpace(board[j][k]))
+							possibleKingMove--
+							//reset the loop after we find who can check that square
+							continue outerLoop
+						}
 					}
 				}
 				if player == "Black" {
-					possibleSquareCol := int(possibleSquareKing[i][0] - 'a')
-					possibleSquareRow := 8 - int(possibleSquareKing[i][1]-'0')
+					if strings.Contains(strings.ToLower(pieces), strings.TrimSpace(board[j][k])) {
+						possibleSquareCol := int(possibleSquareKing[i][0] - 'a')
+						possibleSquareRow := 8 - int(possibleSquareKing[i][1]-'0')
 
-					fromByte1 := byte(97 + k)
-					fromByte2 := byte(56 - j)
-					fromString := string(fromByte1) + string(fromByte2)
-					err := piecesRules(fromString, possibleSquareKing[i], strings.TrimSpace(board[j][k]), "K", j, k, possibleSquareCol, possibleSquareRow, board)
-					if err == nil {
-						fmt.Printf("attack possible square king: from strings: %s, from pieces: %s\n", fromString, strings.TrimSpace(board[j][k]))
-						possibleKingMove--
-						continue outerLoop
+						fromByte1 := byte(97 + k)
+						fromByte2 := byte(56 - j)
+						fromString := string(fromByte1) + string(fromByte2)
+						err := piecesRules(fromString, possibleSquareKing[i], strings.TrimSpace(board[j][k]), "K", j, k, possibleSquareCol, possibleSquareRow, board)
+						if err == nil {
+							fmt.Printf("attack possible square king: %s, from strings: %s, from pieces: %s\n", possibleSquareKing[i], fromString, strings.TrimSpace(board[j][k]))
+							possibleKingMove--
+							continue outerLoop
+						}
 					}
 				}
 			}
@@ -1443,6 +1455,88 @@ outerLoop:
 	fmt.Println("possbilekingmove: ", possibleKingMove)
 	if possibleKingMove == 0 {
 		return true
+	}
+	return false
+}
+
+func pinPiece(board [8][8]string, pieces, player, squareFrom, squareTo string) bool {
+	squareFromCol := int(squareFrom[0] - 'a')
+	squareFromRow := 8 - int(squareFrom[1]-'0')
+	squareToCol := int(squareTo[0] - 'a')
+	squareToRow := 8 - int(squareTo[1]-'0')
+	board[squareToRow][squareToCol] = board[squareFromRow][squareFromCol]
+	board[squareFromRow][squareFromCol] = ""
+	checkCounter := 0
+	//pin pieces and force king to move / block if king is in check
+	if player == "White" {
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if strings.TrimSpace(board[i][j]) != "" {
+					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
+
+						toColKing := int(BlackKingPosition[0] - 'a')
+						toRowKing := 8 - int(BlackKingPosition[1]-'0')
+
+						fromByte1 := byte(97 + j)
+						fromByte2 := byte(8 - i)
+						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
+						err := piecesRules(fromString, BlackKingPosition, strings.TrimSpace(board[i][j]), "K", i, j, toColKing, toRowKing, board)
+						if err == nil {
+							// fmt.Printf("check from string: %s\n", fromString)
+							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
+							// fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
+							checkCounter++
+						}
+					}
+				}
+				if i == 7 && j == 7 && checkCounter != 0 {
+					return true
+				}
+				if i == 7 && j == 7 && checkCounter == 0 {
+					// fmt.Printf("checkcounter: %d\n", checkCounter)
+					// fmt.Println("change ischeck to false white")
+					// isCheck = false
+					return false
+				}
+			}
+		}
+	}
+
+	if player == "Black" {
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if strings.TrimSpace(board[i][j]) != "" {
+					if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[i][j])) {
+
+						toColKing := int(WhiteKingPosition[0] - 'a')
+						toRowKing := 8 - int(WhiteKingPosition[1]-'0')
+
+						fromByte1 := byte(97 + j)
+						fromByte2 := byte(8 - i)
+						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
+						err := piecesRules(fromString, WhiteKingPosition, strings.TrimSpace(board[i][j]), "k", i, j, toColKing, toRowKing, board)
+						if err == nil {
+							// fmt.Printf("check from string: %s\n", fromString)
+							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
+							// fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
+							checkCounter++
+						}
+
+					}
+				}
+				//the check counter is kinda unnecessary i think,
+				//can just if err != nil then return "your king is checked"
+				//and if i == 7 and j == 7 then isCheck false
+				if i == 7 && j == 7 && checkCounter != 0 {
+					return true
+				}
+				if i == 7 && j == 7 && checkCounter == 0 {
+					// fmt.Printf("checkcounter: %d\n", checkCounter)
+					// fmt.Println("change ischeck to false")
+					return false
+				}
+			}
+		}
 	}
 	return false
 }
