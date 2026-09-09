@@ -833,7 +833,6 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 		}
 	}
 
-	fmt.Println("sini?")
 	if whiteCastle == false && pieceLocation == "K" {
 		if differenceRowAbs > 1 || differenceColAbs > 1 || differenceColAbs != differenceRowAbs {
 			return fmt.Errorf("king only move 1 square")
