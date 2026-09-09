@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	// "charm.land/bubbles/v2/textarea"
@@ -820,7 +821,7 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 
 	//or king move +2 square col if its castle
-	if differenceColAbs >= 2 || differenceRowAbs > 1 {
+	if differenceColAbs > 2 || differenceRowAbs > 1 {
 		return fmt.Errorf("king only move 1 square or 2 col square for castle")
 	}
 
@@ -1006,7 +1007,6 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 			}
 		}
 	}
-	fmt.Println("iischeck: ", isCheck)
 
 	//pin pieces and force king to move / block if king is in check
 	if player == "White" {
@@ -1355,7 +1355,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							if err == nil {
 								//TODO: but after that can block immediately check if its open check or no
 								//if yes then continue
-								fmt.Printf("fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
+								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
 								isPin := pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
 								fmt.Println("ispin? ", isPin)
 								if isPin == true {
@@ -1377,7 +1377,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							if err == nil {
 								//TODO: but after that can block immediately check if its open check or no
 								//if yes then continue
-								fmt.Printf("fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
+								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
 								isPin := pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
 								if isPin == true {
 									continue
@@ -1398,7 +1398,6 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	//
 	//check possiblesquareking
 	//label for reset the loop once we found a pieces that can check that possible square
-	fmt.Println("masuk kesini?")
 outerLoop:
 	for i := 0; i < len(possibleSquareKing); i++ {
 		for j := 0; j < 8; j++ {
@@ -1415,6 +1414,8 @@ outerLoop:
 						err := piecesRules(fromString, possibleSquareKing[i], strings.TrimSpace(board[j][k]), "k", j, k, possibleSquareCol, possibleSquareRow, board)
 						if err == nil {
 							fmt.Printf("attack possible square king: %s, from string: %s, from pieces: %s\n", possibleSquareKing[i], fromString, strings.TrimSpace(board[j][k]))
+							//delete 1 index is index, index+1, like slice :0 <- get index 0 only
+							possibleSquareKing = slices.Delete(possibleSquareKing, i, i+1)
 							possibleKingMove--
 							//reset the loop after we find who can check that square
 							continue outerLoop
@@ -1432,6 +1433,7 @@ outerLoop:
 						err := piecesRules(fromString, possibleSquareKing[i], strings.TrimSpace(board[j][k]), "K", j, k, possibleSquareCol, possibleSquareRow, board)
 						if err == nil {
 							fmt.Printf("attack possible square king: %s, from strings: %s, from pieces: %s\n", possibleSquareKing[i], fromString, strings.TrimSpace(board[j][k]))
+							possibleSquareKing = slices.Delete(possibleSquareKing, i, i+1)
 							possibleKingMove--
 							continue outerLoop
 						}
@@ -1452,7 +1454,7 @@ outerLoop:
 	//OR we can get all legal move for king, saved that to a variable and later used that each move
 	//to calculate if there is any possible move for king to escape
 
-	fmt.Println("possbilekingmove: ", possibleKingMove)
+	fmt.Printf("possbilekingmove: %d => %v \n", possibleKingMove, possibleSquareKing)
 	if possibleKingMove == 0 {
 		return true
 	}
