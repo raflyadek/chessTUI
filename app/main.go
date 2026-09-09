@@ -828,13 +828,14 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	//just move anywhere but only +1 square
 	//move +1 on vertical / horizontal / diaognal
 	if blackCastle == false && pieceLocation == "k" {
-		if differenceRowAbs > 1 && differenceColAbs > 1 && differenceColAbs != differenceRowAbs {
+		if differenceRowAbs > 1 || differenceColAbs > 1 || differenceColAbs != differenceRowAbs {
 			return fmt.Errorf("king only move 1 square")
 		}
 	}
 
+	fmt.Println("sini?")
 	if whiteCastle == false && pieceLocation == "K" {
-		if differenceRowAbs > 1 && differenceColAbs > 1 && differenceColAbs != differenceRowAbs {
+		if differenceRowAbs > 1 || differenceColAbs > 1 || differenceColAbs != differenceRowAbs {
 			return fmt.Errorf("king only move 1 square")
 		}
 	}
@@ -853,6 +854,8 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 			return nil
 		}
 	}
+
+	//standard move
 
 	//checkmate/check or open check from another piece
 	//or create another function to check every move if that move
