@@ -217,7 +217,7 @@ func initBoard() [8][8]string {
 
 	//black
 	board[1] = [8]string{"  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  "}
-	board[0] = [8]string{"  r  ", "  n  ", "  b  ", "  q  ", "  k  ", "  b  ", "  n  ", "  r  "}
+	board[0] = [8]string{"  r  ", "  n  ", "  b  ", "    ", "  k  ", "    ", "    ", "  r  "}
 
 	return board
 }
@@ -1339,15 +1339,15 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 		}
 		fmt.Printf("square until king: %v\n", squareUntilCheck)
 
-		//TODO: PIECES THAT CAN BLOCK THE CHECK LOGIC
 		//block the path
 		//but after that can block immediately check if its open check or no
 		//if yes then continue
-		for i := 0; i <= len(squareUntilCheck); i++ {
+		for i := 0; i < len(squareUntilCheck); i++ {
 			for j := 0; j < 8; j++ {
 				for k := 0; k < 8; k++ {
+					fmt.Println("masuk loop block")
 					if player == "White" {
-						if strings.Contains(pieces, strings.TrimSpace(board[j][k])) {
+						if strings.Contains(pieces, strings.TrimSpace(board[j][k])) && strings.TrimSpace(board[j][k]) != "k" {
 							squareCheckRow := 8 - int(squareUntilCheck[i][1]-'0')
 							squareCheckCol := int(squareUntilCheck[i][0] - 'a')
 							fromByte1 := byte(97 + k)
@@ -1355,6 +1355,8 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromString := string(fromByte1) + string(fromByte2)
 							err := piecesRules(fromString, squareUntilCheck[i], strings.TrimSpace(board[j][k]), "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
+								//TODO: but after that can block immediately check if its open check or no
+								//if yes then continue
 								fmt.Printf("fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
 								//open check or no?
 								return false
@@ -1362,7 +1364,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 						}
 					}
 					if player == "Black" {
-						if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[j][k])) {
+						if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[j][k])) && strings.TrimSpace(board[j][k]) != "K" {
 							squareCheckRow := 8 - int(squareUntilCheck[i][1]-'0')
 							squareCheckCol := int(squareUntilCheck[i][0] - 'a')
 							fromByte1 := byte(97 + k)
@@ -1370,6 +1372,8 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromString := string(fromByte1) + string(fromByte2)
 							err := piecesRules(fromString, squareUntilCheck[i], strings.TrimSpace(board[j][k]), "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
+								//TODO: but after that can block immediately check if its open check or no
+								//if yes then continue
 								fmt.Printf("fromstring: %s and from pieces: %s and to square: %s\n", fromString, strings.TrimSpace(board[j][k]), squareUntilCheck[i])
 								return false
 							}
@@ -1384,13 +1388,46 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 	//we checked if the possible king move is can be checked or no,
 	//if yes then possiblekingmove--
 	//then
-	//we checked if the piece that checked our king can be eaten/block
-	//if yes then it is certainly not checkmate
 	//
 	//check possiblesquareking
-	// if checkCounter > 1 {
-	//
-	// }
+	//label for reset the loop once we found a pieces that can check that possible square
+outerLoop:
+	for i := 0; i < len(possibleSquareKing); i++ {
+		for j := 0; j < 8; j++ {
+			for k := 0; k < 8; k++ {
+				//any enemies that can check me then its gg
+				if player == "White" {
+					possibleSquareCol := int(possibleSquareKing[i][0] - 'a')
+					possibleSquareRow := 8 - int(possibleSquareKing[i][1]-'0')
+
+					fromByte1 := byte(97 + k)
+					fromByte2 := byte(56 - j)
+					fromString := string(fromByte1) + string(fromByte2)
+					err := piecesRules(fromString, possibleSquareKing[i], strings.TrimSpace(board[j][k]), "k", j, k, possibleSquareCol, possibleSquareRow, board)
+					if err == nil {
+						fmt.Printf("attack possible square king: from string: %s, from pieces: %s\n", fromString, strings.TrimSpace(board[j][k]))
+						possibleKingMove--
+						//reset the loop after we find who can check that square
+						continue outerLoop
+					}
+				}
+				if player == "Black" {
+					possibleSquareCol := int(possibleSquareKing[i][0] - 'a')
+					possibleSquareRow := 8 - int(possibleSquareKing[i][1]-'0')
+
+					fromByte1 := byte(97 + k)
+					fromByte2 := byte(56 - j)
+					fromString := string(fromByte1) + string(fromByte2)
+					err := piecesRules(fromString, possibleSquareKing[i], strings.TrimSpace(board[j][k]), "K", j, k, possibleSquareCol, possibleSquareRow, board)
+					if err == nil {
+						fmt.Printf("attack possible square king: from strings: %s, from pieces: %s\n", fromString, strings.TrimSpace(board[j][k]))
+						possibleKingMove--
+						continue outerLoop
+					}
+				}
+			}
+		}
+	}
 
 	//so whenever isCheck change to true, then check if its only check or checkMate
 	//we can do that with immidiately check possible move king, if king is in e1 being check
