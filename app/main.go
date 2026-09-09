@@ -586,7 +586,9 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	}
 	//can only eat diagonal/column +1/-1 from its position
 	if from[0] != to[0] {
+		//add isBlock == false
 		if pieceDestination != "" && differenceColAbs == 1 && differenceRowAbs == 1 {
+			//wtf is this else doing here? lol
 		} else {
 			return fmt.Errorf("move diagonal when there is a piece to eat")
 		}
@@ -1131,7 +1133,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				if board[toRowKing][toColKing] == "" {
 					possibleKingMove++
 					possibleSquareKing = append(possibleSquareKing, toString)
-					fmt.Printf("append king move: %v", possibleSquareKing)
+					fmt.Printf("append king move: %v\n", possibleSquareKing)
 				}
 			}
 			if player == "Black" {
@@ -1148,7 +1150,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				if board[toRowKing][toColKing] == "" {
 					possibleKingMove++
 					possibleSquareKing = append(possibleSquareKing, toString)
-					fmt.Printf("append king move: %v", possibleSquareKing)
+					fmt.Printf("append king move: %v\n", possibleSquareKing)
 				}
 			}
 		}
@@ -1341,13 +1343,38 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 		//block the path
 		//but after that can block immediately check if its open check or no
 		//if yes then continue
-		for i := 0; i < 8; i++ {
-			for j := 0; j < 8; j++ {
-				if player == "White" {
-
-				}
-				if player == "Black" {
-
+		for i := 0; i <= len(squareUntilCheck); i++ {
+			for j := 0; i < 8; j++ {
+				for k := 0; j < 8; k++ {
+					if player == "White" {
+						if strings.Contains(pieces, strings.TrimSpace(board[j][k])) {
+							squareCheckRow := 8 - int(squareUntilCheck[i][1]-'0')
+							squareCheckCol := int(squareUntilCheck[i][0] - 'a')
+							fromByte1 := byte(97 + k)
+							fromByte2 := byte(56 - j)
+							fromString := string(fromByte1) + string(fromByte2)
+							err := piecesRules(fromString, squareUntilCheck[i], strings.TrimSpace(board[j][k]), "", j, k, squareCheckCol, squareCheckRow, board)
+							if err == nil {
+								fmt.Printf("fromstring: %s and from pieces: %s", fromString, strings.TrimSpace(board[j][k]))
+								//open check or no?
+								return false
+							}
+						}
+					}
+					if player == "Black" {
+						if strings.Contains(strings.ToUpper(pieces), strings.TrimSpace(board[j][k])) {
+							squareCheckRow := 8 - int(squareUntilCheck[i][1]-'0')
+							squareCheckCol := int(squareUntilCheck[i][0] - 'a')
+							fromByte1 := byte(97 + k)
+							fromByte2 := byte(56 - j)
+							fromString := string(fromByte1) + string(fromByte2)
+							err := piecesRules(fromString, squareUntilCheck[i], strings.TrimSpace(board[j][k]), "", j, k, squareCheckCol, squareCheckRow, board)
+							if err == nil {
+								fmt.Printf("fromstring: %s and from pieces: %s", fromString, strings.TrimSpace(board[j][k]))
+								return false
+							}
+						}
+					}
 				}
 			}
 		}
