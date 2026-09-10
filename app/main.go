@@ -1289,9 +1289,10 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 			if player == "Black" {
 				//same col
 				if checkFrom[0][0] == WhiteKingPosition[0] {
-					rowInt := int(checkFrom[0][1]) - int(WhiteKingPosition[0])
+					rowInt := int(checkFrom[0][1]) - int(WhiteKingPosition[1])
 					rowIntAbs := max(rowInt, -rowInt)
 					differentSquare = rowIntAbs
+					fmt.Printf("rowint: %d, rowintabs: %d, diffsquare: %d", rowInt, rowIntAbs, differentSquare)
 					if checkFrom[0][1] > WhiteKingPosition[1] {
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(checkFrom[0][0]) + string(rowByte)
@@ -1304,7 +1305,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 				//same row
 				if checkFrom[0][1] == WhiteKingPosition[1] {
-					colInt := int(checkFrom[0][0]) - int(WhiteKingPosition[1])
+					colInt := int(checkFrom[0][0]) - int(WhiteKingPosition[0])
 					colIntAbs := max(colInt, -colInt)
 					differentSquare = colIntAbs
 					if checkFrom[0][0] > WhiteKingPosition[0] {
@@ -1371,7 +1372,6 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 								//if yes then continue
 								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
 								isPin := pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
-								fmt.Println("ispin? ", isPin)
 								if isPin == true {
 									continue
 								}
@@ -1522,7 +1522,7 @@ func pinPiece(board [8][8]string, pieces, player, squareFrom, squareTo string) b
 		for i := 0; i < 8; i++ {
 			for j := 0; j < 8; j++ {
 				if board[i][j] != "" {
-					if strings.Contains(strings.ToUpper(pieces), board[i][j]) {
+					if strings.Contains(strings.ToLower(pieces), board[i][j]) {
 
 						toColKing := int(WhiteKingPosition[0] - 'a')
 						toRowKing := 8 - int(WhiteKingPosition[1]-'0')
