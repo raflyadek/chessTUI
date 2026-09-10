@@ -130,7 +130,20 @@ func main() {
 	//loop until checkmate or resign
 	for {
 		numberNotation := 8
-
+		pieces := map[string]string{
+			"p": "♟︎",
+			"r": "♜",
+			"n": "♞",
+			"b": "♝",
+			"q": "♛",
+			"k": "♚",
+			"P": "♙",
+			"R": "♖",
+			"N": "♘",
+			"B": "♗",
+			"Q": "♕",
+			"K": "♔",
+		}
 		for i := 0; i < len(board); i++ {
 			//print notatin at the top before the loop begin
 			if i == 0 {
@@ -146,7 +159,7 @@ func main() {
 						fmt.Print("  ,  ")
 					}
 				} else {
-					fmt.Print(board[i][j])
+					fmt.Print("  " + pieces[board[i][j]] + "  ")
 				}
 				//add number notation at the end of loop
 				if j == 7 {
@@ -213,12 +226,12 @@ func initBoard() [8][8]string {
 	board := [8][8]string{}
 
 	//white
-	board[6] = [8]string{"  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  ", "  P  "}
-	board[7] = [8]string{"  R  ", "  N  ", "  B  ", "  Q  ", "  K  ", "  B  ", "  N  ", "  R  "}
+	board[6] = [8]string{"P", "P", "P", "P", "P", "P", "P", "P"}
+	board[7] = [8]string{"R", "N", "B", "Q", "K", "B", "N", "R"}
 
 	//black
-	board[1] = [8]string{"  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  ", "  p  "}
-	board[0] = [8]string{"  r  ", "  n  ", "  b  ", "  q  ", "  k  ", "  b  ", "  n  ", "  r  "}
+	board[1] = [8]string{"p", "p", "p", "p", "p", "p", "p", "p"}
+	board[0] = [8]string{"r", "n", "b", "q", "k", "b", "n", "r"}
 
 	return board
 }
