@@ -353,7 +353,6 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 
 	toInt, err := strconv.Atoi(string(to[1:]))
 	if err != nil {
-		fmt.Printf("error parse to int %w", err)
 		return false, err
 	}
 	if toInt > 8 || toInt < 1 {
@@ -421,7 +420,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//pieces rules?
 	pErr := piecesRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 	if pErr != nil {
-		return false, fmt.Errorf(pErr.Error())
+		return false, pErr
 	}
 	// //check state for castle and en passant
 	// whiteCastle, blackCastle, _, messageCastle := moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
@@ -459,7 +458,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
 	if err := checkMove(pieceDestination, board, whiteKingPositionCopy, blackKingPositionCopy); err != nil {
-		return false, fmt.Errorf(err.Error())
+		return false, err
 	}
 	return true, nil
 }
