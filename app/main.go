@@ -156,7 +156,7 @@ func main() {
 
 	//init game state
 	state := newGameState()
-	fmt.Printf("gamestate: %var", state)
+	fmt.Printf("gamestate: %var\n", state)
 	//init the board
 	board := initBoard()
 
