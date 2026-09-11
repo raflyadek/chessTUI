@@ -26,6 +26,37 @@ var isStaleMate bool = false
 var WhiteKingPosition string = "e1"
 var BlackKingPosition string = "e8"
 
+type gameState struct {
+	moveCounter          int
+	blackCastle          bool
+	whiteCastle          bool
+	enPassantMoveCounter int
+	enPassantRow         int
+	enPassantCol         int
+	isEnPassant          bool
+	isCheck              bool
+	isCheckMate          bool
+	isStaleMate          bool
+	WhiteKingPosition    string
+	BlackKingPosition    string
+}
+
+func newGameState() *gameState {
+	return &gameState{
+		moveCounter:          0,
+		blackCastle:          true,
+		whiteCastle:          true,
+		enPassantMoveCounter: 0,
+		enPassantRow:         0,
+		enPassantCol:         0,
+		isEnPassant:          false,
+		isCheck:              false,
+		isStaleMate:          false,
+		WhiteKingPosition:    "e1",
+		BlackKingPosition:    "e8",
+	}
+}
+
 // TODO: create the tui with the bubbletea
 func main() {
 	//in order to create chess i think we can use 2d array?
@@ -123,6 +154,9 @@ func main() {
 		how do we know if this move is available for en passant and which square/pawn?
 	*/
 
+	//init game state
+	state := newGameState()
+	fmt.Printf("gamestate: %var", state)
 	//init the board
 	board := initBoard()
 
