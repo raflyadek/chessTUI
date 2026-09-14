@@ -13,18 +13,6 @@ import (
 )
 
 // var moveCounterCheckMate int = 0
-var moveCounter int = 0
-var blackCastle bool = true
-var whiteCastle bool = true
-var enPassantMoveCounter int = 0
-var enPassantRow int = 0
-var enPassantCol int = 0
-var isEnPassant bool = false
-var isCheck bool = false
-var isCheckMate bool = false
-var isStaleMate bool = false
-var WhiteKingPosition string = "e1"
-var BlackKingPosition string = "e8"
 
 type gameState struct {
 	moveCounter          int
@@ -42,6 +30,21 @@ type gameState struct {
 }
 
 func newGameState() *gameState {
+	return &gameState{
+		moveCounter:          0,
+		blackCastle:          true,
+		whiteCastle:          true,
+		enPassantMoveCounter: 0,
+		enPassantRow:         0,
+		enPassantCol:         0,
+		isEnPassant:          false,
+		isCheck:              false,
+		isStaleMate:          false,
+		WhiteKingPosition:    "e1",
+		BlackKingPosition:    "e8",
+	}
+}
+func resetGameState() *gameState {
 	return &gameState{
 		moveCounter:          0,
 		blackCastle:          true,
@@ -156,7 +159,6 @@ func main() {
 
 	//init game state
 	state := newGameState()
-	fmt.Printf("gamestate: %var\n", state)
 	//init the board
 	board := initBoard()
 
@@ -210,42 +212,42 @@ func main() {
 				fmt.Println()
 			}
 		}
-		player := playerMove(moveCounter)
-		playerWin := playerMove(moveCounter - 1)
+		player := state.playerMove()
+		playerWin := state.playerWin()
 		/*
 			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
 			board representation is above this, how do i use this variable? (done)
 			just create another function that return [8][8]string and use that as a new board
 		*/
 
-		if isCheckMate == true {
-			fmt.Printf("Checkmate! %s win\n", playerWin)
+		if state.isCheckMate == true {
+			fmt.Printf("%s\n", playerWin)
 			choice := afterCheckMate()
 			if choice == "e" {
 				break
 			} else if choice == "p" {
 				//reset board and all state
 				board = initBoard()
-				initialState()
+				state = resetGameState()
 				continue
 			}
 		}
-		if isStaleMate == true {
+		if state.isStaleMate == true {
 			fmt.Println("Stalemate, its draw")
 			break
 		}
 		fmt.Printf("Its %s move\n", player)
-		fmt.Printf("isCheck: %v\n", isCheck)
-		fmt.Printf("isCheckMate: %v\n", isCheckMate)
-		fmt.Printf("movecounter: %d", moveCounter)
+		fmt.Printf("isCheck: %v\n", state.isCheck)
+		fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
 		//wait input
 		from, to := piecesMove()
-		flag, err := legalMove(from, to, board, moveCounter)
+		flag, err := state.legalMove(from, to, board, state.moveCounter)
 
 		if flag == true {
-			board = applyMove(board, from, to)
+			board = state.applyMove(board, from, to)
 			// add counter if only the move is legal counter for move
-			moveCounter++
+			// moveCounter++
+			state.moveCounter++
 		} else {
 			fmt.Printf("error: %s\n", err)
 			fmt.Println()
@@ -291,7 +293,7 @@ func piecesMove() (from, to string) {
 /*
 apply move from input piecesMove()
 */
-func applyMove(board [8][8]string, from, to string) [8][8]string {
+func (gs *gameState) applyMove(board [8][8]string, from, to string) [8][8]string {
 	//from e2 to e3'
 	//fromCol take input index 0 for exmaple c and we substract it
 	//with a then we get index 2 because decimal number of c is 97 and a is 95
@@ -317,7 +319,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 	//promote pawn
 	if pieceLocation == "P" || pieceLocation == "p" {
 		if toRow == 7 || toRow == 0 {
-			promote := promotePawn()
+			promote := gs.promotePawn()
 			board[toRow][toCol] = promote
 		}
 	}
@@ -334,24 +336,24 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 		}
 	}
 	if pieceLocation == "k" || pieceLocation == "K" || pieceLocation == "r" || pieceLocation == "R" {
-		moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
+		gs.moveState(pieceLocation, fromRow, toRow, fromCol, toCol, board)
 	}
 
 	if pieceLocation == "k" {
-		BlackKingPosition = to
+		gs.BlackKingPosition = to
 	}
 
 	if pieceLocation == "K" {
-		WhiteKingPosition = to
+		gs.WhiteKingPosition = to
 	}
 
 	// fmt.Printf("white king: %s, black king: %s\n", WhiteKingPosition, BlackKingPosition)
 	//en-passant pawn
 	if pieceLocation == "p" || pieceLocation == "P" {
-		moveBefore(fromRow, toCol, toRow, pieceLocation)
-		if isEnPassant == true {
-			board[enPassantRow][enPassantCol] = ""
-			isEnPassant = false
+		gs.moveBefore(fromRow, toCol, toRow, pieceLocation)
+		if gs.isEnPassant == true {
+			board[gs.enPassantRow][gs.enPassantCol] = ""
+			gs.isEnPassant = false
 		}
 	}
 
@@ -369,7 +371,7 @@ func applyMove(board [8][8]string, from, to string) [8][8]string {
 /*
 when input with the right notation, it still return false
 */
-func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, error) {
+func (gs *gameState) legalMove(from, to string, board [8][8]string, moveCounter int) (bool, error) {
 	notation := "abcdefgh"
 	pieces := "prnbqk"
 
@@ -428,7 +430,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	}
 
 	// if its white turn then its only can move the upper case pieces
-	player := playerMove(moveCounter)
+	player := gs.playerMove()
 	if player == "White" {
 		if !strings.Contains(strings.ToUpper(pieces), pieceLocation) {
 			return false, fmt.Errorf("cant move black piece when its white turn")
@@ -465,7 +467,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//pieces cant move past if there are piece in the middle destination
 
 	//pieces rules?
-	pErr := piecesRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
+	pErr := gs.piecesRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 	if pErr != nil {
 		return false, pErr
 	}
@@ -487,14 +489,14 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	//after test passes, we check the king condition
 
 	//temporary board
-	var blackKingPositionCopy string = BlackKingPosition
-	var whiteKingPositionCopy string = WhiteKingPosition
+	var blackKingPositionCopy string = gs.BlackKingPosition
+	var whiteKingPositionCopy string = gs.WhiteKingPosition
 	if pieceLocation == "k" {
-		blackKingPositionCopy = BlackKingPosition
+		blackKingPositionCopy = gs.BlackKingPosition
 		blackKingPositionCopy = to
 	}
 	if pieceLocation == "K" {
-		whiteKingPositionCopy = WhiteKingPosition
+		whiteKingPositionCopy = gs.WhiteKingPosition
 		whiteKingPositionCopy = to
 	}
 
@@ -504,7 +506,7 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 	// toRowCopy := 8 - int(to[1]-'0')
 	board[toRow][toCol] = board[fromRow][fromCol]
 	board[fromRow][fromCol] = ""
-	if err := checkMove(pieceDestination, board, whiteKingPositionCopy, blackKingPositionCopy); err != nil {
+	if err := gs.checkMove(pieceDestination, board, whiteKingPositionCopy, blackKingPositionCopy); err != nil {
 		return false, err
 	}
 	return true, nil
@@ -513,11 +515,19 @@ func legalMove(from, to string, board [8][8]string, moveCounter int) (bool, erro
 /*
 take turns white/black
 */
-func playerMove(moveCounter int) string {
-	if moveCounter%2 == 0 {
+func (gs *gameState) playerMove() string {
+	if gs.moveCounter%2 == 0 {
 		return "White"
 	} else {
 		return "Black"
+	}
+}
+
+func (gs *gameState) playerWin() string {
+	if (gs.moveCounter+1)%2 == 0 {
+		return "Checkmate! White win"
+	} else {
+		return "Checkmate! Black win"
 	}
 }
 
@@ -531,10 +541,10 @@ is it better to make a single function that validate every piece
 ok, make a different function for different piece and later maybe we create one function
 to validate the from pieces, and if p then it goes to pawnRules() function, etc.
 */
-func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+func (gs *gameState) piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	switch pieceLocation {
 	case "p", "P":
-		err := pawnRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
+		err := gs.pawnRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
@@ -559,7 +569,7 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 			return err
 		}
 	case "k", "K":
-		err := kingRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
+		err := gs.kingRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
 		if err != nil {
 			return err
 		}
@@ -572,7 +582,7 @@ func piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, from
 /*
 pawn rules, its exactly what it sounds
 */
-func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+func (gs *gameState) pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	// differenceRowRaw := fromRow - toRow
 	// differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 	//check is any en passant available
@@ -582,50 +592,50 @@ func pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	differenceRowRaw := fromRow - toRow
 	differenceColAbs := max(differenceColRaw, -differenceColRaw)
 	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
-	if moveCounter == enPassantMoveCounter+1 {
+	if gs.moveCounter == gs.enPassantMoveCounter+1 {
 		if fromCol != 0 && fromCol != 7 {
 			besidePawn := board[fromRow][fromCol+1]
 			besidePawn2 := board[fromRow][fromCol-1]
 
-			if pieceLocation == "P" && toCol == enPassantCol && toRow == enPassantRow-1 {
+			if pieceLocation == "P" && toCol == gs.enPassantCol && toRow == gs.enPassantRow-1 {
 				if besidePawn == "p" || besidePawn2 == "p" {
-					isEnPassant = true
+					gs.isEnPassant = true
 					return nil
 				}
 			}
-			if pieceLocation == "p" && toCol == enPassantCol && toRow == enPassantRow+1 {
+			if pieceLocation == "p" && toCol == gs.enPassantCol && toRow == gs.enPassantRow+1 {
 				if besidePawn == "P" || besidePawn2 == "P" {
-					isEnPassant = true
+					gs.isEnPassant = true
 					return nil
 				}
 			}
 		}
 		//for column a enpassant
 		if fromCol == 0 {
-			if pieceLocation == "P" && toCol == enPassantCol && toRow == enPassantRow-1 {
+			if pieceLocation == "P" && toCol == gs.enPassantCol && toRow == gs.enPassantRow-1 {
 				if board[fromRow][fromCol+1] == "p" {
-					isEnPassant = true
+					gs.isEnPassant = true
 					return nil
 				}
 			}
-			if pieceLocation == "p" && toCol == enPassantCol && toRow == enPassantRow+1 {
+			if pieceLocation == "p" && toCol == gs.enPassantCol && toRow == gs.enPassantRow+1 {
 				if board[fromRow][fromCol+1] == "P" {
-					isEnPassant = true
+					gs.isEnPassant = true
 					return nil
 				}
 			}
 		}
 		//for column h enpassant
 		if fromCol == 7 {
-			if pieceLocation == "P" && toCol == enPassantCol && toRow == enPassantRow-1 {
+			if pieceLocation == "P" && toCol == gs.enPassantCol && toRow == gs.enPassantRow-1 {
 				if board[fromRow][fromCol-1] == "p" {
-					isEnPassant = true
+					gs.isEnPassant = true
 					return nil
 				}
 			}
-			if pieceLocation == "p" && toCol == enPassantCol && toRow == enPassantRow+1 {
+			if pieceLocation == "p" && toCol == gs.enPassantCol && toRow == gs.enPassantRow+1 {
 				if board[fromRow][fromCol-1] == "P" {
-					isEnPassant = true
+					gs.isEnPassant = true
 					return nil
 				}
 			}
@@ -858,7 +868,7 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 }
 
 // king rules
-func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+func (gs *gameState) kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	//its kinda easy except for the castle
 
 	differenceColRaw := fromCol - toCol
@@ -873,19 +883,19 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 
 	//just move anywhere but only +1 square
 	//move +1 on vertical / horizontal / diaognal
-	if blackCastle == false && pieceLocation == "k" {
+	if gs.blackCastle == false && pieceLocation == "k" {
 		if differenceRowAbs > 1 || differenceColAbs > 1 || differenceColAbs != differenceRowAbs {
 			return fmt.Errorf("king only move 1 square")
 		}
 	}
 
-	if whiteCastle == false && pieceLocation == "K" {
+	if gs.whiteCastle == false && pieceLocation == "K" {
 		if differenceRowAbs > 1 || differenceColAbs > 1 || differenceColAbs != differenceRowAbs {
 			return fmt.Errorf("king only move 1 square")
 		}
 	}
 	//castle
-	if blackCastle == true || whiteCastle == true {
+	if gs.blackCastle == true || gs.whiteCastle == true {
 		if toCol == fromCol+2 {
 			if board[fromRow][fromCol+1] != "" || board[fromRow][fromCol+2] != "" {
 				return fmt.Errorf("cant castle, there is a piece block the way")
@@ -911,13 +921,13 @@ func kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCo
 	return nil
 }
 
-func promotePawn() string {
+func (gs *gameState) promotePawn() string {
 	//promote
 	pieces := "rnbq"
 
 	var piecesPromote string
 
-	if playerMove(moveCounter) == "White" {
+	if gs.playerMove() == "White" {
 		piecesPromote = "(R/N/B/Q)"
 	} else {
 		piecesPromote = "(r/n/b/q)"
@@ -931,7 +941,7 @@ func promotePawn() string {
 		reader.Scan()
 		promote = reader.Text()
 
-		if playerMove(moveCounter) == "White" {
+		if gs.playerMove() == "White" {
 			if !strings.Contains(strings.ToUpper(pieces), promote) {
 				fmt.Println("select the right pieces")
 			} else {
@@ -953,7 +963,7 @@ or create another function to check every move if that move
 threaten the king or if that move open check the king and return
 string maybe -> "Check/Open Check"
 */
-func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCopy, blackKingPositionCopy string) error {
+func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCopy, blackKingPositionCopy string) error {
 
 	// check, checkmate and stalemate, open check first do we want to wrap these rules in one function? because for check
 	// we can set it on the after applyMove() for example whenever piece is move, after that move is applied we check if the
@@ -981,7 +991,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 	//check our own king position
 
 	//should we create this function return something so we can exit early?
-	player := playerMove(moveCounter)
+	player := gs.playerMove()
 	checkCounter := 0
 	checkFrom := make([]string, 0)
 	checkPiece := make([]string, 0)
@@ -1001,7 +1011,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, blackKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							fmt.Println("check from white")
 							checkFrom = append(checkFrom, fromString)
@@ -1015,9 +1025,9 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 					if i == 7 && j == 7 && checkCounter != 0 {
 						fmt.Printf("checkFrom: %v\n", checkFrom)
 						fmt.Printf("checkPieces: %v\n", checkPiece)
-						isCheck = true
-						if checkMate := checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
-							isCheckMate = true
+						gs.isCheck = true
+						if checkMate := gs.checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
+							gs.isCheckMate = true
 						}
 						return nil
 					}
@@ -1035,7 +1045,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, whiteKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							checkFrom = append(checkFrom, fromString)
 							checkPiece = append(checkPiece, board[i][j])
@@ -1045,9 +1055,9 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 					if i == 7 && j == 7 && checkCounter != 0 {
 						fmt.Printf("checkfrom: %v\n", checkFrom)
 						fmt.Printf("checkpieces: %v\n", checkPiece)
-						isCheck = true
-						if checkMate := checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
-							isCheckMate = true
+						gs.isCheck = true
+						if checkMate := gs.checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
+							gs.isCheckMate = true
 						}
 						return nil
 					}
@@ -1069,7 +1079,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, whiteKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							// fmt.Printf("check from string: %s\n", fromString)
 							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
@@ -1084,7 +1094,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 				if i == 7 && j == 7 && checkCounter == 0 {
 					// fmt.Printf("checkcounter: %d\n", checkCounter)
 					// fmt.Println("change ischeck to false white")
-					isCheck = false
+					gs.isCheck = false
 					return nil
 				}
 			}
@@ -1103,7 +1113,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, blackKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
 							// fmt.Printf("check from string: %s\n", fromString)
 							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
@@ -1122,7 +1132,7 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 				if i == 7 && j == 7 && checkCounter == 0 {
 					// fmt.Printf("checkcounter: %d\n", checkCounter)
 					// fmt.Println("change ischeck to false")
-					isCheck = false
+					gs.isCheck = false
 					return nil
 				}
 			}
@@ -1140,9 +1150,9 @@ func checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCop
 }
 
 // TODO: CHECKMATE LOGIC
-func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) bool {
+func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) bool {
 	pieces := "rnbqkp"
-	player := playerMove(moveCounter)
+	player := gs.playerMove()
 	possibleKingMove := 0
 	possibleSquareKing := make([]string, 0)
 	squareUntilCheck := make([]string, 0)
@@ -1170,8 +1180,8 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				// fromRowKing := 8 - int(BlackKingPosition[1]-'0')
 				//from?? <- row 0 col 0 = a8
 				//to byte and then read the byte and cast to string from := string(byteFrom)
-				toByte1 := byte(int(BlackKingPosition[0]) + j)
-				toByte2 := byte(int(BlackKingPosition[1]) + i)
+				toByte1 := byte(int(gs.BlackKingPosition[0]) + j)
+				toByte2 := byte(int(gs.BlackKingPosition[1]) + i)
 				toColKing := int(toByte1 - 'a')
 				toRowKing := 8 - int(toByte2-'0')
 				toString := string(toByte1) + string(toByte2)
@@ -1185,8 +1195,8 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 				}
 			}
 			if player == "Black" {
-				toByte1 := byte(int(WhiteKingPosition[0]) + j)
-				toByte2 := byte(int(WhiteKingPosition[1]) + i)
+				toByte1 := byte(int(gs.WhiteKingPosition[0]) + j)
+				toByte2 := byte(int(gs.WhiteKingPosition[1]) + i)
 				toColKing := int(toByte1 - 'a')
 				toRowKing := 8 - int(toByte2-'0')
 				toString := string(toByte1) + string(toByte2)
@@ -1219,7 +1229,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromByte1 := byte(97 + j)
 							fromByte2 := byte(56 - i)
 							fromString := string(fromByte1) + string(fromByte2)
-							err := piecesRules(fromString, checkFrom[0], board[i][j], checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
+							err := gs.piecesRules(fromString, checkFrom[0], board[i][j], checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
 							if err == nil {
 								// pieceWhoCanEat++
 								return false
@@ -1239,7 +1249,7 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromByte1 := byte(97 + j)
 							fromByte2 := byte(56 - i)
 							fromString := string(fromByte1) + string(fromByte2)
-							err := piecesRules(fromString, checkFrom[0], board[i][j], checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
+							err := gs.piecesRules(fromString, checkFrom[0], board[i][j], checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
 							if err == nil {
 								// pieceWhoCanEat++
 								return false
@@ -1259,11 +1269,11 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 			if player == "White" {
 				//checking the black king
 				//same col
-				if checkFrom[0][0] == BlackKingPosition[0] {
-					rowInt := int(checkFrom[0][1]) - int(BlackKingPosition[1])
+				if checkFrom[0][0] == gs.BlackKingPosition[0] {
+					rowInt := int(checkFrom[0][1]) - int(gs.BlackKingPosition[1])
 					rowIntAbs := max(rowInt, -rowInt)
 					differentSquare = rowIntAbs
-					if checkFrom[0][1] > BlackKingPosition[1] {
+					if checkFrom[0][1] > gs.BlackKingPosition[1] {
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(checkFrom[0][0]) + string(rowByte)
 						squareUntilCheck = append(squareUntilCheck, squareString)
@@ -1274,11 +1284,11 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 					}
 				}
 				//same row
-				if checkFrom[0][1] == BlackKingPosition[1] {
-					colInt := int(checkFrom[0][0]) - int(BlackKingPosition[0])
+				if checkFrom[0][1] == gs.BlackKingPosition[1] {
+					colInt := int(checkFrom[0][0]) - int(gs.BlackKingPosition[0])
 					colIntAbs := max(colInt, -colInt)
 					differentSquare = colIntAbs
-					if checkFrom[0][0] > BlackKingPosition[0] {
+					if checkFrom[0][0] > gs.BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						squareString := string(colByte) + string(checkFrom[0][1])
 						squareUntilCheck = append(squareUntilCheck, squareString)
@@ -1289,29 +1299,29 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 					}
 				}
 				//diagonal
-				if checkFrom[0][0] != BlackKingPosition[0] && checkFrom[0][1] != BlackKingPosition[1] {
-					rowInt := int(checkFrom[0][1]) - int(BlackKingPosition[1])
+				if checkFrom[0][0] != gs.BlackKingPosition[0] && checkFrom[0][1] != gs.BlackKingPosition[1] {
+					rowInt := int(checkFrom[0][1]) - int(gs.BlackKingPosition[1])
 					rowIntAbs := max(rowInt, -rowInt)
 					differentSquare = rowIntAbs
-					if checkFrom[0][1] > BlackKingPosition[1] && checkFrom[0][0] > BlackKingPosition[0] {
+					if checkFrom[0][1] > gs.BlackKingPosition[1] && checkFrom[0][0] > gs.BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(colByte) + string(rowByte)
 						squareUntilCheck = append(squareUntilCheck, squareString)
 					}
-					if checkFrom[0][1] > BlackKingPosition[1] && checkFrom[0][0] < BlackKingPosition[0] {
+					if checkFrom[0][1] > gs.BlackKingPosition[1] && checkFrom[0][0] < gs.BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) + i)
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(colByte) + string(rowByte)
 						squareUntilCheck = append(squareUntilCheck, squareString)
 					}
-					if checkFrom[0][1] < BlackKingPosition[1] && checkFrom[0][0] > BlackKingPosition[0] {
+					if checkFrom[0][1] < gs.BlackKingPosition[1] && checkFrom[0][0] > gs.BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						rowByte := byte(int(checkFrom[0][1]) + i)
 						squareString := string(colByte) + string(rowByte)
 						squareUntilCheck = append(squareUntilCheck, squareString)
 					}
-					if checkFrom[0][1] < BlackKingPosition[1] && checkFrom[0][0] < BlackKingPosition[0] {
+					if checkFrom[0][1] < gs.BlackKingPosition[1] && checkFrom[0][0] < gs.BlackKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) + i)
 						rowByte := byte(int(checkFrom[0][1]) + i)
 						squareString := string(colByte) + string(rowByte)
@@ -1322,12 +1332,12 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 
 			if player == "Black" {
 				//same col
-				if checkFrom[0][0] == WhiteKingPosition[0] {
-					rowInt := int(checkFrom[0][1]) - int(WhiteKingPosition[1])
+				if checkFrom[0][0] == gs.WhiteKingPosition[0] {
+					rowInt := int(checkFrom[0][1]) - int(gs.WhiteKingPosition[1])
 					rowIntAbs := max(rowInt, -rowInt)
 					differentSquare = rowIntAbs
 					fmt.Printf("rowint: %d, rowintabs: %d, diffsquare: %d", rowInt, rowIntAbs, differentSquare)
-					if checkFrom[0][1] > WhiteKingPosition[1] {
+					if checkFrom[0][1] > gs.WhiteKingPosition[1] {
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(checkFrom[0][0]) + string(rowByte)
 						squareUntilCheck = append(squareUntilCheck, squareString)
@@ -1338,11 +1348,11 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 					}
 				}
 				//same row
-				if checkFrom[0][1] == WhiteKingPosition[1] {
-					colInt := int(checkFrom[0][0]) - int(WhiteKingPosition[0])
+				if checkFrom[0][1] == gs.WhiteKingPosition[1] {
+					colInt := int(checkFrom[0][0]) - int(gs.WhiteKingPosition[0])
 					colIntAbs := max(colInt, -colInt)
 					differentSquare = colIntAbs
-					if checkFrom[0][0] > WhiteKingPosition[0] {
+					if checkFrom[0][0] > gs.WhiteKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						squareString := string(colByte) + string(checkFrom[0][1])
 						squareUntilCheck = append(squareUntilCheck, squareString)
@@ -1353,30 +1363,30 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 					}
 				}
 				//diagonal
-				if checkFrom[0][0] != WhiteKingPosition[0] && checkFrom[0][1] != WhiteKingPosition[1] {
+				if checkFrom[0][0] != gs.WhiteKingPosition[0] && checkFrom[0][1] != gs.WhiteKingPosition[1] {
 					fmt.Println("here diagonal")
-					rowInt := int(checkFrom[0][1]) - int(WhiteKingPosition[1])
+					rowInt := int(checkFrom[0][1]) - int(gs.WhiteKingPosition[1])
 					rowIntAbs := max(rowInt, -rowInt)
 					differentSquare = rowIntAbs
-					if checkFrom[0][1] > WhiteKingPosition[1] && checkFrom[0][0] > WhiteKingPosition[0] {
+					if checkFrom[0][1] > gs.WhiteKingPosition[1] && checkFrom[0][0] > gs.WhiteKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(colByte) + string(rowByte)
 						squareUntilCheck = append(squareUntilCheck, squareString)
 					}
-					if checkFrom[0][1] > WhiteKingPosition[1] && checkFrom[0][0] < WhiteKingPosition[0] {
+					if checkFrom[0][1] > gs.WhiteKingPosition[1] && checkFrom[0][0] < gs.WhiteKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) + i)
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(colByte) + string(rowByte)
 						squareUntilCheck = append(squareUntilCheck, squareString)
 					}
-					if checkFrom[0][1] < WhiteKingPosition[1] && checkFrom[0][0] > WhiteKingPosition[0] {
+					if checkFrom[0][1] < gs.WhiteKingPosition[1] && checkFrom[0][0] > gs.WhiteKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) - i)
 						rowByte := byte(int(checkFrom[0][1]) + i)
 						squareString := string(colByte) + string(rowByte)
 						squareUntilCheck = append(squareUntilCheck, squareString)
 					}
-					if checkFrom[0][1] < WhiteKingPosition[1] && checkFrom[0][0] < WhiteKingPosition[0] {
+					if checkFrom[0][1] < gs.WhiteKingPosition[1] && checkFrom[0][0] < gs.WhiteKingPosition[0] {
 						colByte := byte(int(checkFrom[0][0]) + i)
 						rowByte := byte(int(checkFrom[0][1]) + i)
 						squareString := string(colByte) + string(rowByte)
@@ -1400,12 +1410,12 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromByte1 := byte(97 + k)
 							fromByte2 := byte(56 - j)
 							fromString := string(fromByte1) + string(fromByte2)
-							err := piecesRules(fromString, squareUntilCheck[i], board[j][k], "", j, k, squareCheckCol, squareCheckRow, board)
+							err := gs.piecesRules(fromString, squareUntilCheck[i], board[j][k], "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
 								//TODO: but after that can block immediately check if its open check or no
 								//if yes then continue
 								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
-								isPin := pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
+								isPin := gs.pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
 								if isPin == true {
 									continue
 								}
@@ -1421,12 +1431,12 @@ func checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8]
 							fromByte1 := byte(97 + k)
 							fromByte2 := byte(56 - j)
 							fromString := string(fromByte1) + string(fromByte2)
-							err := piecesRules(fromString, squareUntilCheck[i], board[j][k], "", j, k, squareCheckCol, squareCheckRow, board)
+							err := gs.piecesRules(fromString, squareUntilCheck[i], board[j][k], "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
 								//TODO: but after that can block immediately check if its open check or no
 								//if yes then continue
 								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
-								isPin := pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
+								isPin := gs.pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
 								if isPin == true {
 									continue
 								}
@@ -1459,7 +1469,7 @@ outerLoop:
 						fromByte1 := byte(97 + k)
 						fromByte2 := byte(56 - j)
 						fromString := string(fromByte1) + string(fromByte2)
-						err := piecesRules(fromString, possibleSquareKing[i], board[j][k], "k", j, k, possibleSquareCol, possibleSquareRow, board)
+						err := gs.piecesRules(fromString, possibleSquareKing[i], board[j][k], "k", j, k, possibleSquareCol, possibleSquareRow, board)
 						if err == nil {
 							fmt.Printf("attack possible square king: %s, from string: %s, from pieces: %s\n", possibleSquareKing[i], fromString, board[j][k])
 							//delete 1 index is index, index+1, like slice :0 <- get index 0 only
@@ -1478,7 +1488,7 @@ outerLoop:
 						fromByte1 := byte(97 + k)
 						fromByte2 := byte(56 - j)
 						fromString := string(fromByte1) + string(fromByte2)
-						err := piecesRules(fromString, possibleSquareKing[i], board[j][k], "K", j, k, possibleSquareCol, possibleSquareRow, board)
+						err := gs.piecesRules(fromString, possibleSquareKing[i], board[j][k], "K", j, k, possibleSquareCol, possibleSquareRow, board)
 						if err == nil {
 							fmt.Printf("attack possible square king: %s, from strings: %s, from pieces: %s\n", possibleSquareKing[i], fromString, board[j][k])
 							possibleSquareKing = slices.Delete(possibleSquareKing, i, i+1)
@@ -1509,7 +1519,7 @@ outerLoop:
 	return false
 }
 
-func pinPiece(board [8][8]string, pieces, player, squareFrom, squareTo string) bool {
+func (gs *gameState) pinPiece(board [8][8]string, pieces, player, squareFrom, squareTo string) bool {
 	squareFromCol := int(squareFrom[0] - 'a')
 	squareFromRow := 8 - int(squareFrom[1]-'0')
 	squareToCol := int(squareTo[0] - 'a')
@@ -1524,13 +1534,13 @@ func pinPiece(board [8][8]string, pieces, player, squareFrom, squareTo string) b
 				if board[i][j] != "" {
 					if strings.Contains(strings.ToUpper(pieces), board[i][j]) {
 
-						toColKing := int(BlackKingPosition[0] - 'a')
-						toRowKing := 8 - int(BlackKingPosition[1]-'0')
+						toColKing := int(gs.BlackKingPosition[0] - 'a')
+						toRowKing := 8 - int(gs.BlackKingPosition[1]-'0')
 
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, BlackKingPosition, board[i][j], "K", i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, gs.BlackKingPosition, board[i][j], "K", i, j, toColKing, toRowKing, board)
 						if err == nil {
 							// fmt.Printf("check from string: %s\n", fromString)
 							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
@@ -1558,13 +1568,13 @@ func pinPiece(board [8][8]string, pieces, player, squareFrom, squareTo string) b
 				if board[i][j] != "" {
 					if strings.Contains(strings.ToLower(pieces), board[i][j]) {
 
-						toColKing := int(WhiteKingPosition[0] - 'a')
-						toRowKing := 8 - int(WhiteKingPosition[1]-'0')
+						toColKing := int(gs.WhiteKingPosition[0] - 'a')
+						toRowKing := 8 - int(gs.WhiteKingPosition[1]-'0')
 
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := piecesRules(fromString, WhiteKingPosition, board[i][j], "k", i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, gs.WhiteKingPosition, board[i][j], "k", i, j, toColKing, toRowKing, board)
 						if err == nil {
 							// fmt.Printf("check from string: %s\n", fromString)
 							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
@@ -1604,28 +1614,28 @@ we just need to transfer the whole board into fen and save it to map[moveCounter
 	if yes then enPassant = true and it saved col/row pawn that are eligible
 	white pawn must be at the exactly row 5/index 3
 */
-func moveBefore(fromRow, toCol, toRow int, pieceLocation string) (int, int, int) {
+func (gs *gameState) moveBefore(fromRow, toCol, toRow int, pieceLocation string) (int, int, int) {
 	differenceRowRaw := fromRow - toRow
 	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 
 	//the && binds tighter than ||, so used parentheses in the || not &&
 	if (pieceLocation == "P" || pieceLocation == "p") && differenceRowAbs == 2 {
-		enPassantCol = toCol
-		enPassantRow = toRow
-		enPassantMoveCounter = moveCounter
+		gs.enPassantCol = toCol
+		gs.enPassantRow = toRow
+		gs.enPassantMoveCounter = gs.moveCounter
 	}
 	//if there is a pawn move 2 square save the col and row and moveCounter
 	//wtf this return meant?? lol
-	return enPassantCol, enPassantRow, enPassantMoveCounter
+	return gs.enPassantCol, gs.enPassantRow, gs.enPassantMoveCounter
 }
 
-func moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [8][8]string) {
+func (gs *gameState) moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [8][8]string) {
 	//why it is update when the move is invalid like e8 to b8 but it update the state?
-	if playerMove(moveCounter) == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
-		blackCastle = false
+	if gs.playerMove() == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
+		gs.blackCastle = false
 	}
-	if playerMove(moveCounter) == "White" && (board[7][4] != "K" || board[7][0] != "R" || board[7][7] != "R") {
-		whiteCastle = false
+	if gs.playerMove() == "White" && (board[7][4] != "K" || board[7][0] != "R" || board[7][7] != "R") {
+		gs.whiteCastle = false
 	}
 }
 
@@ -1636,19 +1646,4 @@ func afterCheckMate() string {
 	choice := reader.Text()
 	fmt.Println()
 	return choice
-}
-
-func initialState() {
-	moveCounter = 0
-	blackCastle = true
-	whiteCastle = true
-	enPassantMoveCounter = 0
-	enPassantRow = 0
-	enPassantCol = 0
-	isEnPassant = false
-	isCheckMate = false
-	isCheck = false
-	isStaleMate = false
-	WhiteKingPosition = "e1"
-	BlackKingPosition = "e8"
 }
