@@ -44,21 +44,6 @@ func newGameState() *gameState {
 		BlackKingPosition:    "e8",
 	}
 }
-func resetGameState() *gameState {
-	return &gameState{
-		moveCounter:          0,
-		blackCastle:          true,
-		whiteCastle:          true,
-		enPassantMoveCounter: 0,
-		enPassantRow:         0,
-		enPassantCol:         0,
-		isEnPassant:          false,
-		isCheck:              false,
-		isStaleMate:          false,
-		WhiteKingPosition:    "e1",
-		BlackKingPosition:    "e8",
-	}
-}
 
 // TODO: create the tui with the bubbletea
 func main() {
@@ -228,7 +213,7 @@ func main() {
 			} else if choice == "p" {
 				//reset board and all state
 				board = initBoard()
-				state = resetGameState()
+				state = newGameState()
 				continue
 			}
 		}
