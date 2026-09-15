@@ -625,6 +625,12 @@ func (gs *gameState) pawnRules(from, to, pieceLocation, pieceDestination string,
 			}
 		}
 	}
+	//if there are pieces in the destination location
+	//and in the same notation, cant move forward
+	if pieceDestination != "" && from[0] == to[0] {
+		return fmt.Errorf("there is a piece, pawn cant move forward")
+	}
+
 	//can only eat diagonal/column +1/-1 from its position
 	if from[0] != to[0] {
 		//add isBlock == false
@@ -652,12 +658,6 @@ func (gs *gameState) pawnRules(from, to, pieceLocation, pieceDestination string,
 			}
 			return fmt.Errorf("pawn can only move 1 or 2 square in its starting position")
 		}
-	}
-
-	//if there are pieces in the destination location
-	//and in the same notation, cant move forward
-	if pieceDestination != "" && from[0] == to[0] {
-		return fmt.Errorf("there is a piece, pawn cant move forward")
 	}
 
 	//can only move 1 square if already move before
@@ -868,13 +868,15 @@ func (gs *gameState) kingRules(from, to, pieceLocation, pieceDestination string,
 	//just move anywhere but only +1 square
 	//move +1 on vertical / horizontal / diaognal
 	if gs.blackCastle == false && pieceLocation == "k" {
-		if differenceRowAbs > 1 || differenceColAbs > 1 || differenceColAbs != differenceRowAbs {
+		if (differenceRowAbs > 1 || differenceColAbs > 1) && differenceColAbs != differenceRowAbs {
+			fmt.Printf("difrowabs: %d, difrowcol: %d", differenceRowAbs, differenceColAbs)
 			return fmt.Errorf("king only move 1 square")
 		}
 	}
 
 	if gs.whiteCastle == false && pieceLocation == "K" {
-		if differenceRowAbs > 1 || differenceColAbs > 1 || differenceColAbs != differenceRowAbs {
+		if (differenceRowAbs > 1 || differenceColAbs > 1) && differenceColAbs != differenceRowAbs {
+			fmt.Printf("difrowabs: %d, difrowcol: %d", differenceRowAbs, differenceColAbs)
 			return fmt.Errorf("king only move 1 square")
 		}
 	}
@@ -1065,9 +1067,9 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
-							// fmt.Printf("check from string: %s\n", fromString)
-							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
-							// fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
+							fmt.Printf("check from string: %s\n", fromString)
+							fmt.Printf("check piece location: %s\n", board[i][j])
+							fmt.Printf("check kingposition: %s\n", whiteKingPositionCopy)
 							checkCounter++
 						}
 					}
@@ -1099,9 +1101,9 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
 						if err == nil {
-							// fmt.Printf("check from string: %s\n", fromString)
-							// fmt.Printf("check piece location: %s\n", strings.TrimSpace(board[i][j]))
-							// fmt.Printf("check kingposition: %s\n", WhiteKingPosition)
+							fmt.Printf("check from string: %s\n", fromString)
+							fmt.Printf("check piece location: %s\n", board[i][j])
+							fmt.Printf("check kingposition: %s\n", blackKingPositionCopy)
 							checkCounter++
 						}
 
