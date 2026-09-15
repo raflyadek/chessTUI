@@ -1198,7 +1198,7 @@ func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 		}
 	}
 
-	fmt.Printf("possible king square: %v", possibleSquareKing)
+	fmt.Printf("possible king square: %v\n", possibleSquareKing)
 	//if checkCounter > 1 then dont bother to search piece who can eat or block
 	//it just move the king then if only 1 we search the piece who can eat or block its
 	//if checkcounter == 1 search piece who can eat it
@@ -1223,10 +1223,12 @@ func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 								// return false
 							}
 						}
-						if i == 7 && j == 7 && len(pieceWhoCanEat) == 1 && pieceWhoCanEat[0] == "k" {
-							//TODO:if the pieces is guarded then it is checkmate
-							fmt.Printf("poossible king move: %d", possibleKingMove)
-							break
+						if i == 7 && j == 7 && len(pieceWhoCanEat) == 1 {
+							if pieceWhoCanEat[0] == "k" {
+								break
+							} else {
+								return false
+							}
 						}
 					}
 				}
@@ -1242,13 +1244,16 @@ func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 							err := gs.piecesRules(fromString, checkFrom[0], board[i][j], checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
 							if err == nil {
 								pieceWhoCanEat = append(pieceWhoCanEat, board[i][j])
-								fmt.Printf("piece who can eat: %s", board[i][j])
+								fmt.Printf("piece who can eat: %s\n", board[i][j])
 								// pieceWhoCanEat++
-								return false
 							}
-							// if i == 7 && j == 7 && pieceWhoCanEat == 0 {
-							// 	return true
-							// }
+							if i == 7 && j == 7 && len(pieceWhoCanEat) == 0 {
+								if pieceWhoCanEat[0] == "K" {
+									break
+								} else {
+									return false
+								}
+							}
 						}
 					}
 				}
