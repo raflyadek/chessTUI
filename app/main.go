@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"math"
 	"os"
-	"slices"
 	"strconv"
 	"strings"
 	// "charm.land/bubbles/v2/textarea"
@@ -1227,7 +1226,7 @@ func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 						if i == 7 && j == 7 && len(pieceWhoCanEat) == 1 && pieceWhoCanEat[0] == "k" {
 							//TODO:if the pieces is guarded then it is checkmate
 							fmt.Printf("poossible king move: %d", possibleKingMove)
-							return true
+							break
 						}
 					}
 				}
@@ -1405,8 +1404,6 @@ func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 							fromString := string(fromByte1) + string(fromByte2)
 							err := gs.piecesRules(fromString, squareUntilCheck[i], board[j][k], "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
-								//TODO: but after that can block immediately check if its open check or no
-								//if yes then continue
 								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
 								isPin := gs.pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
 								if isPin == true {
@@ -1426,8 +1423,6 @@ func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 							fromString := string(fromByte1) + string(fromByte2)
 							err := gs.piecesRules(fromString, squareUntilCheck[i], board[j][k], "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
-								//TODO: but after that can block immediately check if its open check or no
-								//if yes then continue
 								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
 								isPin := gs.pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
 								if isPin == true {
@@ -1462,14 +1457,17 @@ outerLoop:
 						fromByte1 := byte(97 + k)
 						fromByte2 := byte(56 - j)
 						fromString := string(fromByte1) + string(fromByte2)
+						board[possibleSquareRow][possibleSquareCol] = ""
 						err := gs.piecesRules(fromString, possibleSquareKing[i], board[j][k], "k", j, k, possibleSquareCol, possibleSquareRow, board)
 						if err == nil {
 							fmt.Printf("attack possible square king: %s, from string: %s, from pieces: %s\n", possibleSquareKing[i], fromString, board[j][k])
 							//delete 1 index is index, index+1, like slice :0 <- get index 0 only
-							possibleSquareKing = slices.Delete(possibleSquareKing, i, i+1)
+							// possibleSquareKing = slices.Delete(possibleSquareKing, i, i+1)
 							possibleKingMove--
 							//reset the loop after we find who can check that square
 							continue outerLoop
+						} else {
+							fmt.Println("whatts the error?", err)
 						}
 					}
 				}
@@ -1481,10 +1479,10 @@ outerLoop:
 						fromByte1 := byte(97 + k)
 						fromByte2 := byte(56 - j)
 						fromString := string(fromByte1) + string(fromByte2)
+						board[possibleSquareRow][possibleSquareCol] = ""
 						err := gs.piecesRules(fromString, possibleSquareKing[i], board[j][k], "K", j, k, possibleSquareCol, possibleSquareRow, board)
 						if err == nil {
 							fmt.Printf("attack possible square king: %s, from strings: %s, from pieces: %s\n", possibleSquareKing[i], fromString, board[j][k])
-							possibleSquareKing = slices.Delete(possibleSquareKing, i, i+1)
 							possibleKingMove--
 							continue outerLoop
 						}
