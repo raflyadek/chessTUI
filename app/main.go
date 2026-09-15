@@ -1133,7 +1133,6 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 	return nil
 }
 
-// TODO: CHECKMATE LOGIC
 func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) bool {
 	pieces := "rnbqkp"
 	player := gs.playerMove()
@@ -1225,6 +1224,7 @@ func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 						}
 						if i == 7 && j == 7 && len(pieceWhoCanEat) == 1 {
 							if pieceWhoCanEat[0] == "k" {
+								//let it handle with other instruction below
 								break
 							} else {
 								return false
