@@ -637,6 +637,7 @@ func (gs *gameState) pawnRules(from, to, pieceLocation, pieceDestination string,
 		if pieceDestination != "" && differenceColAbs == 1 && differenceRowAbs == 1 {
 			//wtf is this else doing here? lol
 		} else {
+			// fmt.Printf("from: %s,to : %s,  piece destination: %s, diffcolabs: %d, diffrowabs: %d", from, to, pieceDestination, differenceColAbs, differenceRowAbs)
 			return fmt.Errorf("move diagonal when there is a piece to eat")
 		}
 	}
@@ -997,7 +998,7 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], "k", i, j, toColKing, toRowKing, board)
 						if err == nil {
 							fmt.Println("check from white")
 							checkFrom = append(checkFrom, fromString)
@@ -1009,6 +1010,7 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 						//true then the next is false, so the logic always return false even just 1 != nil
 					}
 					if i == 7 && j == 7 && checkCounter != 0 {
+						fmt.Printf("to: %s\n", blackKingPositionCopy)
 						fmt.Printf("checkFrom: %v\n", checkFrom)
 						fmt.Printf("checkPieces: %v\n", checkPiece)
 						gs.isCheck = true
@@ -1031,7 +1033,7 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], "K", i, j, toColKing, toRowKing, board)
 						if err == nil {
 							checkFrom = append(checkFrom, fromString)
 							checkPiece = append(checkPiece, board[i][j])
@@ -1039,8 +1041,9 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 						}
 					}
 					if i == 7 && j == 7 && checkCounter != 0 {
-						fmt.Printf("checkfrom: %v\n", checkFrom)
-						fmt.Printf("checkpieces: %v\n", checkPiece)
+						fmt.Printf("to: %s\n", whiteKingPositionCopy)
+						fmt.Printf("checkFrom: %v\n", checkFrom)
+						fmt.Printf("checkPieces: %v\n", checkPiece)
 						gs.isCheck = true
 						if checkMate := gs.checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
 							gs.isCheckMate = true
@@ -1065,7 +1068,7 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], "K", i, j, toColKing, toRowKing, board)
 						if err == nil {
 							fmt.Printf("check from string: %s\n", fromString)
 							fmt.Printf("check piece location: %s\n", board[i][j])
@@ -1099,7 +1102,7 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromByte1 := byte(97 + j)
 						fromByte2 := byte(8 - i)
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], pieceDestination, i, j, toColKing, toRowKing, board)
+						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], "k", i, j, toColKing, toRowKing, board)
 						if err == nil {
 							fmt.Printf("check from string: %s\n", fromString)
 							fmt.Printf("check piece location: %s\n", board[i][j])
