@@ -984,6 +984,76 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 	checkPiece := make([]string, 0)
 	//white king check
 
+	//pin pieces and force king to move / block if king is in check
+	if player == "White" {
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if board[i][j] != "" {
+					if strings.Contains(strings.ToLower(pieces), board[i][j]) {
+
+						toColKing := int(whiteKingPositionCopy[0] - 'a')
+						toRowKing := 8 - int(whiteKingPositionCopy[1]-'0')
+
+						fromByte1 := byte(97 + j)
+						fromByte2 := byte(8 - i)
+						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
+						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], "K", i, j, toColKing, toRowKing, board)
+						if err == nil {
+							fmt.Printf("check from string: %s\n", fromString)
+							fmt.Printf("check piece location: %s\n", board[i][j])
+							fmt.Printf("check kingposition: %s\n", whiteKingPositionCopy)
+							checkCounter++
+						}
+					}
+				}
+				if i == 7 && j == 7 && checkCounter != 0 {
+					return fmt.Errorf("your king is being check, move or block it")
+				}
+				if i == 7 && j == 7 && checkCounter == 0 {
+					// fmt.Printf("checkcounter: %d\n", checkCounter)
+					// fmt.Println("change ischeck to false white")
+					gs.isCheck = false
+				}
+			}
+		}
+	}
+
+	if player == "Black" {
+		for i := 0; i < 8; i++ {
+			for j := 0; j < 8; j++ {
+				if board[i][j] != "" {
+					if strings.Contains(strings.ToUpper(pieces), board[i][j]) {
+
+						toColKing := int(blackKingPositionCopy[0] - 'a')
+						toRowKing := 8 - int(blackKingPositionCopy[1]-'0')
+
+						fromByte1 := byte(97 + j)
+						fromByte2 := byte(8 - i)
+						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
+						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], "k", i, j, toColKing, toRowKing, board)
+						if err == nil {
+							fmt.Printf("check from string: %s\n", fromString)
+							fmt.Printf("check piece location: %s\n", board[i][j])
+							fmt.Printf("check kingposition: %s\n", blackKingPositionCopy)
+							checkCounter++
+						}
+
+					}
+				}
+				//the check counter is kinda unnecessary i think,
+				//can just if err != nil then return "your king is checked"
+				//and if i == 7 and j == 7 then isCheck false
+				if i == 7 && j == 7 && checkCounter != 0 {
+					return fmt.Errorf("your king is being check, move or block it")
+				}
+				if i == 7 && j == 7 && checkCounter == 0 {
+					// fmt.Printf("checkcounter: %d\n", checkCounter)
+					// fmt.Println("change ischeck to false")
+					gs.isCheck = false
+				}
+			}
+		}
+	}
 	//check scenario
 	//get player
 	for i := 0; i < 8; i++ {
@@ -1055,78 +1125,6 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 		}
 	}
 
-	//pin pieces and force king to move / block if king is in check
-	if player == "White" {
-		for i := 0; i < 8; i++ {
-			for j := 0; j < 8; j++ {
-				if board[i][j] != "" {
-					if strings.Contains(strings.ToLower(pieces), board[i][j]) {
-
-						toColKing := int(whiteKingPositionCopy[0] - 'a')
-						toRowKing := 8 - int(whiteKingPositionCopy[1]-'0')
-
-						fromByte1 := byte(97 + j)
-						fromByte2 := byte(8 - i)
-						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], "K", i, j, toColKing, toRowKing, board)
-						if err == nil {
-							fmt.Printf("check from string: %s\n", fromString)
-							fmt.Printf("check piece location: %s\n", board[i][j])
-							fmt.Printf("check kingposition: %s\n", whiteKingPositionCopy)
-							checkCounter++
-						}
-					}
-				}
-				if i == 7 && j == 7 && checkCounter != 0 {
-					return fmt.Errorf("your king is being check, move or block it")
-				}
-				if i == 7 && j == 7 && checkCounter == 0 {
-					// fmt.Printf("checkcounter: %d\n", checkCounter)
-					// fmt.Println("change ischeck to false white")
-					gs.isCheck = false
-					return nil
-				}
-			}
-		}
-	}
-
-	if player == "Black" {
-		for i := 0; i < 8; i++ {
-			for j := 0; j < 8; j++ {
-				if board[i][j] != "" {
-					if strings.Contains(strings.ToUpper(pieces), board[i][j]) {
-
-						toColKing := int(blackKingPositionCopy[0] - 'a')
-						toRowKing := 8 - int(blackKingPositionCopy[1]-'0')
-
-						fromByte1 := byte(97 + j)
-						fromByte2 := byte(8 - i)
-						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
-						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], "k", i, j, toColKing, toRowKing, board)
-						if err == nil {
-							fmt.Printf("check from string: %s\n", fromString)
-							fmt.Printf("check piece location: %s\n", board[i][j])
-							fmt.Printf("check kingposition: %s\n", blackKingPositionCopy)
-							checkCounter++
-						}
-
-					}
-				}
-				//the check counter is kinda unnecessary i think,
-				//can just if err != nil then return "your king is checked"
-				//and if i == 7 and j == 7 then isCheck false
-				if i == 7 && j == 7 && checkCounter != 0 {
-					return fmt.Errorf("your king is being check, move or block it")
-				}
-				if i == 7 && j == 7 && checkCounter == 0 {
-					// fmt.Printf("checkcounter: %d\n", checkCounter)
-					// fmt.Println("change ischeck to false")
-					gs.isCheck = false
-					return nil
-				}
-			}
-		}
-	}
 	// checkmate scenario if isCheck = true <- check all the possible king position if none then checkmate
 	// if isCheck == true {
 	// 	//logic to get possible move for king if nothing then
