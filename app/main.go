@@ -208,6 +208,7 @@ func main() {
 			fmt.Printf("%s\n", playerWin)
 			choice := afterCheckMate()
 			if choice == "e" {
+				fmt.Println("play again next time!")
 				break
 			} else if choice == "p" {
 				//reset board and all state
