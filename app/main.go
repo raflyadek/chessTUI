@@ -145,7 +145,8 @@ func main() {
 	state := newGameState()
 	//init the board
 	board := initBoard()
-
+	//map for fen, so player undo it just reference to this map
+	fenMap := make(map[int]string)
 	notation := "    a    b    c    d    e    f    g    h    "
 	//loop until checkmate or resign
 	for {
@@ -197,17 +198,35 @@ func main() {
 			}
 		}
 		player := state.playerMove()
-		playerWin := state.playerWin()
+		// playerWin := state.playerWin()
 		/*
 			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
 			board representation is above this, how do i use this variable? (done)
 			just create another function that return [8][8]string and use that as a new board
 		*/
 
+		fmt.Printf("Its %s move\n", player)
+		fmt.Printf("isCheck: %v\n", state.isCheck)
+		fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
+		//wait input
+		from, to := piecesMove()
+		flag, err := state.legalMove(from, to, board, state.moveCounter)
+
+		if flag == true {
+			board = state.applyMove(board, from, to)
+			// add counter if only the move is legal counter for move
+			// moveCounter++
+			state.moveCounter++
+		} else {
+			fmt.Printf("error: %s\n", err)
+			fmt.Println()
+		}
+
+		fen := printFen(board)
+		fenMap[state.moveCounter] = fen
 		if state.isCheckMate == true {
-			fen := printFen(board)
-			fmt.Printf("fen: %s\n", fen)
-			fmt.Printf("%s\n", playerWin)
+			fmt.Printf("fen: %v\n", fenMap)
+			fmt.Printf("%s win!\n", player)
 			choice, err := afterCheckMate()
 			if err != nil {
 				for {
@@ -231,22 +250,6 @@ func main() {
 		if state.isStaleMate == true {
 			fmt.Println("Stalemate, its draw")
 			break
-		}
-		fmt.Printf("Its %s move\n", player)
-		fmt.Printf("isCheck: %v\n", state.isCheck)
-		fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
-		//wait input
-		from, to := piecesMove()
-		flag, err := state.legalMove(from, to, board, state.moveCounter)
-
-		if flag == true {
-			board = state.applyMove(board, from, to)
-			// add counter if only the move is legal counter for move
-			// moveCounter++
-			state.moveCounter++
-		} else {
-			fmt.Printf("error: %s\n", err)
-			fmt.Println()
 		}
 	}
 }
@@ -1667,7 +1670,6 @@ func printFen(board [8][8]string) string {
 	fen := ""
 	counterEmptyBoard := 0
 	for i := 0; i < 8; i++ {
-		fmt.Println("here i   : ", i)
 		for j := 0; j < 8; j++ {
 			counterStr := strconv.Itoa(counterEmptyBoard)
 			if board[i][j] != "" {
