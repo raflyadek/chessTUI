@@ -210,7 +210,13 @@ func main() {
 			fmt.Printf("%s\n", playerWin)
 			choice, err := afterCheckMate()
 			if err != nil {
-				fmt.Println(err)
+				for {
+					fmt.Println(err)
+					choice, err = afterCheckMate()
+					if err == nil {
+						break
+					}
+				}
 			}
 			if choice == "e" {
 				fmt.Println("play again next time!")
