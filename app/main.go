@@ -1470,7 +1470,7 @@ outerLoop:
 			for k := 0; k < 8; k++ {
 				//any enemies that can check me then its gg
 				if player == "White" {
-					if strings.Contains(strings.ToUpper(pieces), board[j][k]) {
+					if board[j][k] != "" && strings.Contains(strings.ToUpper(pieces), board[j][k]) {
 						possibleSquareCol := int(possibleSquareKing[i][0] - 'a')
 						possibleSquareRow := 8 - int(possibleSquareKing[i][1]-'0')
 
@@ -1492,7 +1492,7 @@ outerLoop:
 					}
 				}
 				if player == "Black" {
-					if strings.Contains(strings.ToLower(pieces), board[j][k]) {
+					if board[j][k] != "" && strings.Contains(strings.ToLower(pieces), board[j][k]) {
 						possibleSquareCol := int(possibleSquareKing[i][0] - 'a')
 						possibleSquareRow := 8 - int(possibleSquareKing[i][1]-'0')
 
