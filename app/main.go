@@ -246,6 +246,10 @@ func main() {
 				state = newGameState()
 				continue
 			}
+			//choice == "u" for undo then just choose fenMap[state.moveCounter-1] and state.MoveCounter -= 1 and show the board
+			//so create a function for reverse the fen back to [8][8]string and use that board as a board = newUndoBoard
+			//and reset the state for isCehckMate = false only the rest is still i think? but for the castle i think we can create a new state
+			//to save when the castle become false, and turn to true if state.MoveCounter < castleMoveCounter and the same for enpassant,
 		}
 		if state.isStaleMate == true {
 			fmt.Println("Stalemate, its draw")
