@@ -1666,22 +1666,29 @@ func afterCheckMate() (string, error) {
 	if !strings.Contains(correctChoice, choice) {
 		return "", fmt.Errorf("select either p or e")
 	}
+	if choice == "" {
+		return "", fmt.Errorf("select either p or e")
+	}
 	fmt.Println()
 	return choice, nil
 }
 
 func printFen(board [8][8]string) string {
-	fen := ""
+	// fen := ""
 	counterEmptyBoard := 0
+	var fen strings.Builder
+	// counterStr := strconv.Itoa(counterEmptyBoard)
 	for i := 0; i < 8; i++ {
 		for j := 0; j < 8; j++ {
 			counterStr := strconv.Itoa(counterEmptyBoard)
 			if board[i][j] != "" {
 				if counterEmptyBoard != 0 {
-					fen += counterStr
+					// fen += counterStr
+					fen.WriteString(counterStr)
 					counterEmptyBoard = 0
 				}
-				fen += board[i][j]
+				// fen += board[i][j]
+				fen.WriteString((board[i][j]))
 			} else {
 				counterEmptyBoard++
 				// fmt.Println("here j: ", j)
@@ -1693,12 +1700,14 @@ func printFen(board [8][8]string) string {
 			if j == 7 {
 				if counterEmptyBoard != 0 {
 					//so lazy man lol
-					fen += counterStr2
+					// fen += counterStr2
+					fen.WriteString(counterStr2)
 				}
-				fen += "/"
+				// fen += "/"
+				fen.WriteString("/")
 				counterEmptyBoard = 0
 			}
 		}
 	}
-	return fen
+	return fen.String()
 }
