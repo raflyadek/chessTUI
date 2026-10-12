@@ -7,8 +7,9 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	tea "charm.land/bubbletea/v2"
 	// "charm.land/bubbles/v2/textarea"
-	// tea "charm.land/bubbletea/v2"
 )
 
 // var moveCounterCheckMate int = 0
@@ -44,7 +45,17 @@ func newGameState() *gameState {
 	}
 }
 
-// TODO: create the tui with the bubbletea
+// model for bubbletea
+type Model struct {
+	Board     [8][8]string
+	GameState gameState
+}
+
+type MoveMsg struct {
+	From string
+	To   string
+}
+
 func main() {
 	//in order to create chess i think we can use 2d array?
 	//first array is for rows
@@ -256,6 +267,22 @@ func main() {
 			break
 		}
 	}
+}
+
+// TODO: WIP bubbletea implementation
+// initialize the model for bubbletea
+func (m *Model) Init() tea.Cmd {
+	return nil
+}
+
+// it should replace our loop on the main that show the board
+func (m *Model) View() [8][8]string {
+	return [8][8]string{}
+}
+
+// update the view
+func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	return nil, nil
 }
 
 /*
