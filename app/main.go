@@ -45,10 +45,15 @@ func newGameState() *gameState {
 	}
 }
 
+// model is a struct that represent the state of the app
+// update is a method to update the model/current state
+// init is a method to initialize the model/state <- just return newGameState then
+// view is a method to build the ui based on model/current state
 // model for bubbletea
 type Model struct {
 	Board     [8][8]string
 	GameState gameState
+	Move      MoveMsg
 }
 
 type MoveMsg struct {
@@ -56,6 +61,22 @@ type MoveMsg struct {
 	To   string
 }
 
+// init
+func (m Model) Init() tea.Cmd {
+	return nil
+}
+
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	//if its a key press
+	case tea.KeyPressMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			return m, tea.Quit
+		}
+
+	}
+}
 func main() {
 	//in order to create chess i think we can use 2d array?
 	//first array is for rows
