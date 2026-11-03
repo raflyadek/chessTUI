@@ -52,7 +52,7 @@ func newGameState() *gameState {
 // model for bubbletea
 type Model struct {
 	Board     [8][8]string
-	GameState gameState
+	GameState *gameState
 	Move      MoveMsg
 }
 
@@ -66,6 +66,20 @@ func (m Model) Init() tea.Cmd {
 	return nil
 }
 
+func InitialModel() Model {
+	board := [8][8]string{}
+	newGame := newGameState()
+	move := MoveMsg{}
+
+	return Model{
+		Board:     board,
+		GameState: newGame,
+		Move:      move,
+	}
+
+}
+
+// update the model
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	//if its a key press
@@ -76,6 +90,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	}
+
+	return m, nil
+}
+
+// render the model
+func (m Model) View() tea.View {
+	return tea.NewView("")
 }
 func main() {
 	//in order to create chess i think we can use 2d array?
@@ -288,22 +309,6 @@ func main() {
 			break
 		}
 	}
-}
-
-// TODO: WIP bubbletea implementation
-// initialize the model for bubbletea
-func (m *Model) Init() tea.Cmd {
-	return nil
-}
-
-// it should replace our loop on the main that show the board
-func (m *Model) View() [8][8]string {
-	return [8][8]string{}
-}
-
-// update the view
-func (m *Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	return nil, nil
 }
 
 /*
