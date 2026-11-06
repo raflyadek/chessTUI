@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	// "charm.land/bubbles/v2/cursor"
 	// "charm.land/bubbles/v2/textarea"
@@ -77,8 +78,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				m.selectde[m.cursor] = struct{}{}
 			}
+			if m.quit {
+				return m, tea.Quit
+			}
 			if m.cursor == 1 {
 				m.quit = true
+				// return m, tea.Quit
+				// time.Sleep(5 * time.Second)
+				// return m, tea.Quit
 			}
 			m.choosen = true
 		}
@@ -89,7 +96,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m model) View() tea.View {
 	var s string
 	if m.quit {
-		return tea.NewView("see you later man!")
+		s += "see you brads"
+		time.Sleep(1 * time.Second)
+		for i := 1; i <= 5; i++ {
+			s = fmt.Sprintf("%d ", i)
+			time.Sleep(1 * time.Second)
+		}
+		s = "press enter"
 	}
 	if !m.choosen {
 		s = menuView(m)

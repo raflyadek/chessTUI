@@ -12,6 +12,9 @@ import (
 	// "charm.land/bubbles/v2/textarea"
 )
 
+//TODO: ui with bubbletea
+//TODO: multiplayer/ssh server
+
 // var moveCounterCheckMate int = 0
 
 type gameState struct {
