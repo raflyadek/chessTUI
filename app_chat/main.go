@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
+	// "time"
+
+	// "time"
 
 	// "charm.land/bubbles/v2/cursor"
 	// "charm.land/bubbles/v2/textarea"
@@ -23,6 +25,7 @@ func main() {
 }
 
 type model struct {
+	menu     bool
 	choosen  bool
 	quit     bool
 	board    [8][8]string
@@ -71,6 +74,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
 			}
+		case "backspace":
+			m.menu = true
+			m.choosen = false
+			delete(m.selectde, m.cursor)
 		case "enter", "space":
 			_, ok := m.selectde[m.cursor]
 			if ok {
@@ -97,12 +104,12 @@ func (m model) View() tea.View {
 	var s string
 	if m.quit {
 		s += "see you brads"
-		time.Sleep(1 * time.Second)
-		for i := 1; i <= 5; i++ {
-			s = fmt.Sprintf("%d ", i)
-			time.Sleep(1 * time.Second)
-		}
-		s = "press enter"
+		// time.Sleep(1 * time.Second)
+		// for i := 1; i <= 5; i++ {
+		// 	s = fmt.Sprintf("%d ", i)
+		// 	time.Sleep(1 * time.Second)
+		// }
+		// s = "press enter"
 	}
 	if !m.choosen {
 		s = menuView(m)
