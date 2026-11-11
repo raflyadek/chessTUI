@@ -1,0 +1,3 @@
+package game
+
+//delegate view
