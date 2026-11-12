@@ -2,6 +2,7 @@ package terminal
 
 import (
 	tea "charm.land/bubbletea/v2"
+	"github.com/raflyadek/chessTUI/internal/terminal/game"
 	"github.com/raflyadek/chessTUI/internal/terminal/menu"
 )
 
@@ -15,8 +16,8 @@ const (
 // root model
 type RootModel struct {
 	state stateView
-	//gameView game.GameModel
-	menu menu.MenuModel
+	game  game.GameModel
+	menu  menu.MenuModel
 }
 
 func (m RootModel) Init() tea.Cmd {
@@ -26,5 +27,6 @@ func (m RootModel) Init() tea.Cmd {
 func InitRootModel() RootModel {
 	return RootModel{
 		menu: menu.InitMenuModel(),
+		game: game.InitGameModel(),
 	}
 }

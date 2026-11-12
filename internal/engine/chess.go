@@ -104,7 +104,7 @@ import (
 	how do we know if this move is available for en passant and which square/pawn?
 */
 
-type gameState struct {
+type GameState struct {
 	moveCounter          int
 	blackCastle          bool
 	whiteCastle          bool
@@ -119,8 +119,8 @@ type gameState struct {
 	BlackKingPosition    string
 }
 
-func NewGameState() *gameState {
-	return &gameState{
+func NewGameState() *GameState {
+	return &GameState{
 		moveCounter:          0,
 		blackCastle:          true,
 		whiteCastle:          true,
@@ -135,7 +135,7 @@ func NewGameState() *gameState {
 	}
 }
 
-func PlayGame(state *gameState, board [8][8]string) error {
+func PlayGame(state *GameState, board [8][8]string) error {
 
 	//map for fen, so player undo it just reference to this map
 	fenMap := make(map[int]string)
@@ -289,7 +289,7 @@ func piecesMove() (from, to string) {
 /*
 apply move from input piecesMove()
 */
-func (gs *gameState) applyMove(board [8][8]string, from, to string) [8][8]string {
+func (gs *GameState) applyMove(board [8][8]string, from, to string) [8][8]string {
 	//from e2 to e3'
 	//fromCol take input index 0 for exmaple c and we substract it
 	//with a then we get index 2 because decimal number of c is 97 and a is 95
@@ -367,7 +367,7 @@ func (gs *gameState) applyMove(board [8][8]string, from, to string) [8][8]string
 /*
 when input with the right notation, it still return false
 */
-func (gs *gameState) legalMove(from, to string, board [8][8]string, moveCounter int) (bool, error) {
+func (gs *GameState) legalMove(from, to string, board [8][8]string, moveCounter int) (bool, error) {
 	notation := "abcdefgh"
 	pieces := "prnbqk"
 
@@ -511,7 +511,7 @@ func (gs *gameState) legalMove(from, to string, board [8][8]string, moveCounter 
 /*
 take turns white/black
 */
-func (gs *gameState) playerMove() string {
+func (gs *GameState) playerMove() string {
 	if gs.moveCounter%2 == 0 {
 		return "White"
 	} else {
@@ -519,7 +519,7 @@ func (gs *gameState) playerMove() string {
 	}
 }
 
-func (gs *gameState) playerWin() string {
+func (gs *GameState) playerWin() string {
 	if (gs.moveCounter+1)%2 == 0 {
 		return "Checkmate! White win"
 	} else {
@@ -537,7 +537,7 @@ is it better to make a single function that validate every piece
 ok, make a different function for different piece and later maybe we create one function
 to validate the from pieces, and if p then it goes to pawnRules() function, etc.
 */
-func (gs *gameState) piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+func (gs *GameState) piecesRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	switch pieceLocation {
 	case "p", "P":
 		err := gs.pawnRules(from, to, pieceLocation, pieceDestination, fromRow, fromCol, toCol, toRow, board)
@@ -578,7 +578,7 @@ func (gs *gameState) piecesRules(from, to, pieceLocation, pieceDestination strin
 /*
 pawn rules, its exactly what it sounds
 */
-func (gs *gameState) pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+func (gs *GameState) pawnRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	// differenceRowRaw := fromRow - toRow
 	// differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 	//check is any en passant available
@@ -865,7 +865,7 @@ func queenRules(from, to, pieceLocation, pieceDestination string, fromRow, fromC
 }
 
 // king rules
-func (gs *gameState) kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
+func (gs *GameState) kingRules(from, to, pieceLocation, pieceDestination string, fromRow, fromCol, toCol, toRow int, board [8][8]string) error {
 	//its kinda easy except for the castle
 
 	differenceColRaw := fromCol - toCol
@@ -920,7 +920,7 @@ func (gs *gameState) kingRules(from, to, pieceLocation, pieceDestination string,
 	return nil
 }
 
-func (gs *gameState) promotePawn() string {
+func (gs *GameState) promotePawn() string {
 	//promote
 	pieces := "rnbq"
 
@@ -962,7 +962,7 @@ or create another function to check every move if that move
 threaten the king or if that move open check the king and return
 string maybe -> "Check/Open Check"
 */
-func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCopy, blackKingPositionCopy string) error {
+func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whiteKingPositionCopy, blackKingPositionCopy string) error {
 
 	// check, checkmate and stalemate, open check first do we want to wrap these rules in one function? because for check
 	// we can set it on the after applyMove() for example whenever piece is move, after that move is applied we check if the
@@ -1148,7 +1148,7 @@ func (gs *gameState) checkMove(pieceDestination string, board [8][8]string, whit
 	return nil
 }
 
-func (gs *gameState) checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) bool {
+func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) bool {
 	pieces := "rnbqkp"
 	player := gs.playerMove()
 	possibleKingMove := 0
@@ -1530,7 +1530,7 @@ outerLoop:
 	return false
 }
 
-func (gs *gameState) pinPiece(board [8][8]string, pieces, player, squareFrom, squareTo string) bool {
+func (gs *GameState) pinPiece(board [8][8]string, pieces, player, squareFrom, squareTo string) bool {
 	squareFromCol := int(squareFrom[0] - 'a')
 	squareFromRow := 8 - int(squareFrom[1]-'0')
 	squareToCol := int(squareTo[0] - 'a')
@@ -1625,7 +1625,7 @@ we just need to transfer the whole board into fen and save it to map[moveCounter
 	if yes then enPassant = true and it saved col/row pawn that are eligible
 	white pawn must be at the exactly row 5/index 3
 */
-func (gs *gameState) moveBefore(fromRow, toCol, toRow int, pieceLocation string) (int, int, int) {
+func (gs *GameState) moveBefore(fromRow, toCol, toRow int, pieceLocation string) (int, int, int) {
 	differenceRowRaw := fromRow - toRow
 	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
 
@@ -1640,7 +1640,7 @@ func (gs *gameState) moveBefore(fromRow, toCol, toRow int, pieceLocation string)
 	return gs.enPassantCol, gs.enPassantRow, gs.enPassantMoveCounter
 }
 
-func (gs *gameState) moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [8][8]string) {
+func (gs *GameState) moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [8][8]string) {
 	//why it is update when the move is invalid like e8 to b8 but it update the state?
 	if gs.playerMove() == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
 		gs.blackCastle = false

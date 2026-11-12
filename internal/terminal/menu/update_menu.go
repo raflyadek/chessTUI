@@ -7,7 +7,7 @@ func (m MenuModel) Update(msg tea.Msg) (MenuModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		switch msg.String() {
-		case "q", "ctrl+c":
+		case "ctrl+c":
 			return m, tea.Quit
 		case "k", "up":
 			if m.cursor > 0 {
@@ -30,7 +30,14 @@ func (m MenuModel) Update(msg tea.Msg) (MenuModel, tea.Cmd) {
 			if m.cursor == 2 {
 				return m, tea.Quit
 			}
+			if m.cursor == 1 {
+				return m, func() tea.Msg {
+					return PlayGame{}
+				}
+			}
 		}
 	}
 	return m, nil
 }
+
+type PlayGame struct{}

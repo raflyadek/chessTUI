@@ -10,8 +10,8 @@ func (m RootModel) View() tea.View {
 	switch m.state {
 	case menuView:
 		s = m.menu.View()
-		// case gameView:
-		// 	s = m.game.View()
+	case gameView:
+		s = m.game.View()
 	}
 
 	return tea.NewView(s)
