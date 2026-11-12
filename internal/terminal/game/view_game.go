@@ -29,9 +29,9 @@ func (m GameModel) View() string {
 		//print notatin at the top before the loop begin
 		if i == 0 {
 			s.WriteString(notation)
-			s.WriteString("\n")
+			s.WriteString("\n\n")
 		}
-		fmt.Printf("%d ", numberNotation)
+		s.WriteString(fmt.Sprintf("%d ", numberNotation))
 		for j := 0; j < len(m.board[i]); j++ {
 			if m.board[i][j] == "" {
 				if (i+j)%2 == 0 {
