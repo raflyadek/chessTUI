@@ -362,7 +362,7 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 		from, to, err1 := piecesMoveTui(move)
 		flag, err := state.legalMove(from, to, board, state.moveCounter)
 		if err1 != nil {
-			flag = true
+			flag = false
 		}
 
 		if flag == true {
