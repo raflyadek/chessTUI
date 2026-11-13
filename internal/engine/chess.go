@@ -251,6 +251,123 @@ func PlayGame(state *GameState, board [8][8]string) error {
 	return nil
 }
 
+func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
+
+	//map for fen, so player undo it just reference to this map
+	fenMap := make(map[int]string)
+	notation := "    a    b    c    d    e    f    g    h    "
+	//loop until checkmate or resign
+	for {
+		numberNotation := 8
+		pieces := map[string]string{
+			"P": "♟︎",
+			"R": "♜",
+			"N": "♞",
+			"B": "♝",
+			"Q": "♛",
+			"K": "♚",
+			"p": "♙",
+			"r": "♖",
+			"n": "♘",
+			"b": "♗",
+			"q": "♕",
+			"k": "♔",
+		}
+		for i := 0; i < len(board); i++ {
+			//print notatin at the top before the loop begin
+			if i == 0 {
+				fmt.Println(notation)
+				fmt.Println()
+			}
+			fmt.Printf("%d ", numberNotation)
+			for j := 0; j < len(board); j++ {
+				if board[i][j] == "" {
+					if (i+j)%2 == 0 {
+						fmt.Print("  .  ")
+					} else {
+						fmt.Print("  ,  ")
+					}
+				} else {
+					fmt.Printf("  %s  ", pieces[board[i][j]])
+				}
+				//add number notation at the end of loop
+				if j == 7 {
+					fmt.Printf(" %d", numberNotation)
+					fmt.Println()
+					numberNotation--
+				}
+			}
+			//add new line after every row
+			fmt.Println()
+			//print notatin at the top after the loop for row end
+			if i == 7 {
+				fmt.Println(notation)
+				fmt.Println()
+			}
+		}
+		player := state.playerMove()
+		// playerWin := state.playerWin()
+		/*
+			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
+			board representation is above this, how do i use this variable? (done)
+			just create another function that return [8][8]string and use that as a new board
+		*/
+
+		fmt.Printf("Its %s move\n", player)
+		fmt.Printf("isCheck: %v\n", state.isCheck)
+		fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
+
+		//wait input
+		from, to := piecesMoveTui(move)
+		flag, err := state.legalMove(from, to, board, state.moveCounter)
+
+		if flag == true {
+			board = state.applyMove(board, from, to)
+			// add counter if only the move is legal counter for move
+			// moveCounter++
+			state.moveCounter++
+		} else {
+			fmt.Printf("error: %s\n", err)
+			fmt.Println()
+		}
+
+		fen := printFen(board)
+		fenMap[state.moveCounter] = fen
+		if state.isCheckMate == true {
+			fmt.Printf("fen: %v\n", fenMap)
+			fmt.Printf("%s win!\n", player)
+			choice, err := afterCheckMate()
+			if err != nil {
+				for {
+					fmt.Println(err)
+					choice, err = afterCheckMate()
+					if err == nil {
+						break
+					}
+				}
+			}
+			if choice == "e" {
+				fmt.Println("play again next time!")
+				break
+			} else if choice == "p" {
+				//reset board and all state
+				board = InitBoard()
+				state = NewGameState()
+				continue
+			}
+			//choice == "u" for undo then just choose fenMap[state.moveCounter-1] and state.MoveCounter -= 1 and show the board
+			//so create a function for reverse the fen back to [8][8]string and use that board as a board = newUndoBoard
+			//and reset the state for isCehckMate = false only the rest is still i think? but for the castle i think we can create a new state
+			//to save when the castle become false, and turn to true if state.MoveCounter < castleMoveCounter and the same for enpassant,
+		}
+		if state.isStaleMate == true {
+			fmt.Println("Stalemate, its draw")
+			break
+		}
+	}
+	return nil
+}
+
 /*
 initial board when play
 */
@@ -266,6 +383,17 @@ func InitBoard() [8][8]string {
 	board[0] = [8]string{"r", "n", "b", "q", "k", "b", "n", "r"}
 
 	return board
+}
+
+/*
+a function to convert []string from bubbletea runtime to string
+because bubbletea receive per event/message
+*/
+func piecesMoveTui(fromTUI []string) (from, to string) {
+	from = fromTUI[0] + fromTUI[1]
+	to = fromTUI[2] + fromTUI[3]
+
+	return from, to
 }
 
 /*
