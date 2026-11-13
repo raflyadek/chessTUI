@@ -318,8 +318,11 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 		fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
 
 		//wait input
-		from, to := piecesMoveTui(move)
+		from, to, err1 := piecesMoveTui(move)
 		flag, err := state.legalMove(from, to, board, state.moveCounter)
+		if err1 != nil {
+			flag = true
+		}
 
 		if flag == true {
 			board = state.applyMove(board, from, to)
@@ -389,11 +392,14 @@ func InitBoard() [8][8]string {
 a function to convert []string from bubbletea runtime to string
 because bubbletea receive per event/message
 */
-func piecesMoveTui(fromTUI []string) (from, to string) {
+func piecesMoveTui(fromTUI []string) (from, to string, err error) {
+	if len(fromTUI) > 4 {
+		return "", "", fmt.Errorf("move invalid")
+	}
 	from = fromTUI[0] + fromTUI[1]
 	to = fromTUI[2] + fromTUI[3]
 
-	return from, to
+	return from, to, nil
 }
 
 /*
