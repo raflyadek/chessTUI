@@ -139,6 +139,8 @@ func PlayGame(state *GameState, board [8][8]string) error {
 
 	//map for fen, so player undo it just reference to this map
 	fenMap := make(map[int]string)
+	stateMap := make(map[int]*GameState)
+
 	notation := "    a    b    c    d    e    f    g    h    "
 	//loop until checkmate or resign
 	for {
@@ -216,9 +218,23 @@ func PlayGame(state *GameState, board [8][8]string) error {
 
 		fen := printFen(board)
 		fenMap[state.moveCounter] = fen
+
+		// state
+		stateMap[state.moveCounter] = state.currentState()
 		if state.isCheckMate == true {
 			fmt.Printf("fen: %v\n", fenMap)
 			fmt.Printf("%s win!\n", player)
+			fmt.Printf("state: %v\n", stateMap)
+			for move, snapshot := range stateMap {
+				fmt.Printf(
+					"Move: %d | Check: %v | Checkmate: %v | Address: %p\n",
+					move,
+					snapshot.isCheck,
+					snapshot.isCheckMate,
+					snapshot,
+				)
+			}
+
 			choice, err := afterCheckMate()
 			if err != nil {
 				for {
@@ -229,15 +245,40 @@ func PlayGame(state *GameState, board [8][8]string) error {
 					}
 				}
 			}
-			if choice == "e" {
+			if strings.ToLower(choice) == "e" {
 				fmt.Println("play again next time!")
 				break
-			} else if choice == "p" {
+			} else if strings.ToLower(choice) == "p" {
 				//reset board and all state
 				board = InitBoard()
 				state = NewGameState()
 				continue
+			} else if strings.ToLower(choice) == "u" {
+				n, err := afterChoiceU()
+				if err != nil {
+					for {
+						fmt.Println(err)
+						n, err = afterChoiceU()
+						if err == nil {
+							break
+						}
+					}
+				}
+				fen, found := fenMap[n]
+				if !found {
+					fmt.Println("not a valid position/move")
+				}
+				//and we should delete the remaining map move when
+				board = fenToBoard(fen)
+				//state should be map to a move position also
+				valState, found := stateMap[n]
+				if !found {
+					fmt.Println("not a valid position/move")
+				}
+				state = valState
+				continue
 			}
+
 			//choice == "u" for undo then just choose fenMap[state.moveCounter-1] and state.MoveCounter -= 1 and show the board
 			//so create a function for reverse the fen back to [8][8]string and use that board as a board = newUndoBoard
 			//and reset the state for isCehckMate = false only the rest is still i think? but for the castle i think we can create a new state
@@ -349,15 +390,19 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 					}
 				}
 			}
-			if choice == "e" {
+			if strings.ToLower(choice) == "e" {
 				fmt.Println("play again next time!")
 				break
-			} else if choice == "p" {
+			} else if strings.ToLower(choice) == "p" {
 				//reset board and all state
 				board = InitBoard()
 				state = NewGameState()
 				continue
 			}
+			// } else if strings.ToLower(choice) == "u" {
+			// 	//position move
+			// 	board =
+			// }
 			//choice == "u" for undo then just choose fenMap[state.moveCounter-1] and state.MoveCounter -= 1 and show the board
 			//so create a function for reverse the fen back to [8][8]string and use that board as a board = newUndoBoard
 			//and reset the state for isCehckMate = false only the rest is still i think? but for the castle i think we can create a new state
@@ -1785,19 +1830,32 @@ func (gs *GameState) moveState(pieceLocation string, fromRow, toRow, fromCol, to
 }
 
 func afterCheckMate() (string, error) {
-	fmt.Print("do you want to play again (p) or exit (e)? ")
+	fmt.Print("do you want to play again (p) or exit (e) or play at certain move (u)? ")
 	reader := bufio.NewScanner(os.Stdin)
 	reader.Scan()
 	choice := reader.Text()
-	correctChoice := "pPeE"
+	correctChoice := "pPeEuU"
 	if !strings.Contains(correctChoice, choice) {
-		return "", fmt.Errorf("select either p or e")
+		return "", fmt.Errorf("select either p, e or u")
 	}
 	if choice == "" {
-		return "", fmt.Errorf("select either p or e")
+		return "", fmt.Errorf("select either p, e or u")
 	}
 	fmt.Println()
 	return choice, nil
+}
+
+func afterChoiceU() (int, error) {
+	fmt.Print("at what position you want to play? ")
+	reader := bufio.NewScanner(os.Stdin)
+	reader.Scan()
+	choice := reader.Text()
+
+	n, err := strconv.Atoi(choice)
+	if err != nil {
+		return 0, fmt.Errorf("thats not a number")
+	}
+	return n, nil
 }
 
 func printFen(board [8][8]string) string {
@@ -1837,4 +1895,31 @@ func printFen(board [8][8]string) string {
 		}
 	}
 	return fen.String()
+}
+
+func fenToBoard(fen string) [8][8]string {
+	board := [8][8]string{}
+	row := 0
+	pieces := "rnbqkp"
+	col := 0
+	for i := 0; i < len(fen); i++ {
+		if fen[i] == '/' {
+			row++
+			col = 0
+			continue
+		}
+		if strings.Contains(pieces, string(fen[i])) || strings.Contains(strings.ToUpper(pieces), string(fen[i])) {
+			board[row][col] = string(fen[i])
+			col++
+			continue
+		}
+		//if number
+		col += int(fen[i] - '0')
+	}
+	return board
+}
+
+func (gs *GameState) currentState() *GameState {
+	stateCopy := *gs
+	return &stateCopy
 }

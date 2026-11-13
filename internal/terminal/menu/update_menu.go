@@ -13,6 +13,7 @@ func (m MenuModel) Update(msg tea.Msg) (MenuModel, tea.Cmd) {
 			if m.cursor > 0 {
 				m.cursor--
 			}
+			tea.Sequence()
 		case "j", "down":
 			if m.cursor < len(m.choices)-1 {
 				m.cursor++
