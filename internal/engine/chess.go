@@ -257,19 +257,23 @@ func PlayGame(state *GameState, board [8][8]string) error {
 				n, err := afterChoiceU()
 				if err != nil {
 					for {
-						fmt.Println(err)
+						if err != nil {
+
+							fmt.Println(err)
+						}
 						n, err = afterChoiceU()
-						if err == nil {
+						fen, found := fenMap[n]
+						if !found {
+							fmt.Println("not a valid position/move")
+							fen, found = fenMap[n]
+						}
+						//and we should delete the remaining map move when
+						board = fenToBoard(fen)
+						if err == nil && found {
 							break
 						}
 					}
 				}
-				fen, found := fenMap[n]
-				if !found {
-					fmt.Println("not a valid position/move")
-				}
-				//and we should delete the remaining map move when
-				board = fenToBoard(fen)
 				//state should be map to a move position also
 				valState, found := stateMap[n]
 				if !found {
