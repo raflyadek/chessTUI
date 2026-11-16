@@ -225,15 +225,15 @@ func PlayGame(state *GameState, board [8][8]string) error {
 			fmt.Printf("fen: %v\n", fenMap)
 			fmt.Printf("%s win!\n", player)
 			fmt.Printf("state: %v\n", stateMap)
-			for move, snapshot := range stateMap {
-				fmt.Printf(
-					"Move: %d | Check: %v | Checkmate: %v | Address: %p\n",
-					move,
-					snapshot.isCheck,
-					snapshot.isCheckMate,
-					snapshot,
-				)
-			}
+			// for move, snapshot := range stateMap {
+			// 	fmt.Printf(
+			// 		"Move: %d | Check: %v | Checkmate: %v | Address: %p\n",
+			// 		move,
+			// 		snapshot.isCheck,
+			// 		snapshot.isCheckMate,
+			// 		snapshot,
+			// 	)
+			// }
 
 			choice, err := afterCheckMate()
 			if err != nil {
@@ -300,6 +300,7 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 
 	//map for fen, so player undo it just reference to this map
 	fenMap := make(map[int]string)
+	stateMap := make(map[int]*GameState)
 	notation := "    a    b    c    d    e    f    g    h    "
 	//loop until checkmate or resign
 	for {
@@ -381,6 +382,8 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 
 		fen := printFen(board)
 		fenMap[state.moveCounter] = fen
+
+		stateMap[state.moveCounter] = state.currentState()
 		if state.isCheckMate == true {
 			fmt.Printf("fen: %v\n", fenMap)
 			fmt.Printf("%s win!\n", player)
@@ -401,6 +404,34 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 				//reset board and all state
 				board = InitBoard()
 				state = NewGameState()
+				continue
+			} else if strings.ToLower(choice) == "u" {
+				n, err := afterChoiceU()
+				if err != nil {
+					for {
+						if err != nil {
+
+							fmt.Println(err)
+						}
+						n, err = afterChoiceU()
+						fen, found := fenMap[n]
+						if !found {
+							fmt.Println("not a valid position/move")
+							fen, found = fenMap[n]
+						}
+						//and we should delete the remaining map move when
+						board = fenToBoard(fen)
+						if err == nil && found {
+							break
+						}
+					}
+				}
+				//state should be map to a move position also
+				valState, found := stateMap[n]
+				if !found {
+					fmt.Println("not a valid position/move")
+				}
+				state = valState
 				continue
 			}
 			// } else if strings.ToLower(choice) == "u" {
