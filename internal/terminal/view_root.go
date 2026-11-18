@@ -13,6 +13,7 @@ func (m RootModel) View() tea.View {
 	case gameView:
 		s = m.game.View()
 	}
-
-	return tea.NewView(s)
+	v := tea.NewView(s)
+	v.AltScreen = true
+	return v
 }
