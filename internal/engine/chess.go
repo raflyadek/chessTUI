@@ -105,7 +105,7 @@ import (
 */
 
 type GameState struct {
-	moveCounter          int
+	MoveCounter          int
 	blackCastle          bool
 	whiteCastle          bool
 	enPassantMoveCounter int
@@ -121,7 +121,7 @@ type GameState struct {
 
 func NewGameState() *GameState {
 	return &GameState{
-		moveCounter:          0,
+		MoveCounter:          0,
 		blackCastle:          true,
 		whiteCastle:          true,
 		enPassantMoveCounter: 0,
@@ -204,23 +204,23 @@ func PlayGame(state *GameState, board [8][8]string) error {
 		fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
 		//wait input
 		from, to := piecesMove()
-		flag, err := state.legalMove(from, to, board, state.moveCounter)
+		flag, err := state.legalMove(from, to, board, state.MoveCounter)
 
 		if flag == true {
 			board = state.applyMove(board, from, to)
 			// add counter if only the move is legal counter for move
-			// moveCounter++
-			state.moveCounter++
+			// MoveCounter++
+			state.MoveCounter++
 		} else {
 			fmt.Printf("error: %s\n", err)
 			fmt.Println()
 		}
 
 		fen := printFen(board)
-		fenMap[state.moveCounter] = fen
+		fenMap[state.MoveCounter] = fen
 
 		// state
-		stateMap[state.moveCounter] = state.currentState()
+		stateMap[state.MoveCounter] = state.currentState()
 		if state.isCheckMate == true {
 			fmt.Printf("fen: %v\n", fenMap)
 			fmt.Printf("%s win!\n", player)
@@ -365,7 +365,7 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 
 		//wait input
 		from, to, err1 := piecesMoveTui(move)
-		flag, err := state.legalMove(from, to, board, state.moveCounter)
+		flag, err := state.legalMove(from, to, board, state.MoveCounter)
 		if err1 != nil {
 			flag = false
 		}
@@ -374,16 +374,16 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 			board = state.applyMove(board, from, to)
 			// add counter if only the move is legal counter for move
 			// moveCounter++
-			state.moveCounter++
+			state.MoveCounter++
 		} else {
 			fmt.Printf("error: %s\n", err)
 			fmt.Println()
 		}
 
 		fen := printFen(board)
-		fenMap[state.moveCounter] = fen
+		fenMap[state.MoveCounter] = fen
 
-		stateMap[state.moveCounter] = state.currentState()
+		stateMap[state.MoveCounter] = state.currentState()
 		if state.isCheckMate == true {
 			fmt.Printf("fen: %v\n", fenMap)
 			fmt.Printf("%s win!\n", player)
@@ -726,7 +726,7 @@ func (gs *GameState) legalMove(from, to string, board [8][8]string, moveCounter 
 take turns white/black
 */
 func (gs *GameState) playerMove() string {
-	if gs.moveCounter%2 == 0 {
+	if gs.MoveCounter%2 == 0 {
 		return "White"
 	} else {
 		return "Black"
@@ -734,7 +734,7 @@ func (gs *GameState) playerMove() string {
 }
 
 func (gs *GameState) playerWin() string {
-	if (gs.moveCounter+1)%2 == 0 {
+	if (gs.MoveCounter+1)%2 == 0 {
 		return "Checkmate! White win"
 	} else {
 		return "Checkmate! Black win"
@@ -802,7 +802,7 @@ func (gs *GameState) pawnRules(from, to, pieceLocation, pieceDestination string,
 	differenceRowRaw := fromRow - toRow
 	differenceColAbs := max(differenceColRaw, -differenceColRaw)
 	differenceRowAbs := max(differenceRowRaw, -differenceRowRaw)
-	if gs.moveCounter == gs.enPassantMoveCounter+1 {
+	if gs.MoveCounter == gs.enPassantMoveCounter+1 {
 		if fromCol != 0 && fromCol != 7 {
 			besidePawn := board[fromRow][fromCol+1]
 			besidePawn2 := board[fromRow][fromCol-1]
@@ -1847,9 +1847,9 @@ func (gs *GameState) moveBefore(fromRow, toCol, toRow int, pieceLocation string)
 	if (pieceLocation == "P" || pieceLocation == "p") && differenceRowAbs == 2 {
 		gs.enPassantCol = toCol
 		gs.enPassantRow = toRow
-		gs.enPassantMoveCounter = gs.moveCounter
+		gs.enPassantMoveCounter = gs.MoveCounter
 	}
-	//if there is a pawn move 2 square save the col and row and moveCounter
+	//if there is a pawn move 2 square save the col and row and MoveCounter
 	//wtf this return meant?? lol
 	return gs.enPassantCol, gs.enPassantRow, gs.enPassantMoveCounter
 }

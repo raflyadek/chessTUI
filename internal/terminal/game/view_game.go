@@ -5,9 +5,17 @@ import (
 	"strings"
 )
 
-//delegate view
+// delegate view
+var ()
 
 func (m GameModel) View() string {
+	board := m.boardRender()
+
+	return ""
+}
+
+// render board
+func (m GameModel) boardRender() string {
 	var s strings.Builder
 	notation := "    a    b    c    d    e    f    g    h    "
 	numberNotation := 8
@@ -60,13 +68,10 @@ func (m GameModel) View() string {
 	return s.String()
 }
 
-// render board
-func (m GameModel) boardRender() string {
-
-}
-
 // render clock
-func (m GameModel) clockRender() string {
+func (m GameModel) timerRender() string {
+	//timer active is from m.state.moveCounter
+	//if %2==0 then white timer is on
 
 }
 
