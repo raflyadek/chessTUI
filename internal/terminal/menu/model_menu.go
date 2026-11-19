@@ -11,6 +11,8 @@ type MenuModel struct {
 	cursor   int
 	selected map[int]struct{}
 	isQuit   bool
+	width    int
+	height   int
 }
 
 // init

@@ -59,3 +59,8 @@ func (m GameModel) View() string {
 	}
 	return s.String()
 }
+
+//render board
+//render clock
+//render move input
+//render history

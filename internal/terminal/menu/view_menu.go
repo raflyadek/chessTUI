@@ -3,6 +3,8 @@ package menu
 import (
 	"fmt"
 	"strings"
+
+	"charm.land/lipgloss/v2"
 )
 
 //delegate view
@@ -19,5 +21,6 @@ func (m MenuModel) View() string {
 		s.WriteString(fmt.Sprintf("%s [%s] \n", cursor, v))
 	}
 	s.WriteString("\nbawah")
+	lipgloss.NewStyle()
 	return s.String()
 }

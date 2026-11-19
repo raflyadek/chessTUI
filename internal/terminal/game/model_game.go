@@ -12,7 +12,9 @@ type GameModel struct {
 	//move not using piecesMove anymore
 	// from  [2]string
 	// to    [2]string
-	state *engine.GameState
+	state  *engine.GameState
+	width  int
+	height int
 }
 
 func (m GameModel) Init() tea.Cmd {
