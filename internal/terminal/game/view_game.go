@@ -3,6 +3,8 @@ package game
 import (
 	"fmt"
 	"strings"
+
+	"charm.land/lipgloss/v2"
 )
 
 // delegate view
@@ -10,8 +12,24 @@ var ()
 
 func (m GameModel) View() string {
 	board := m.boardRender()
+	blackTimer := m.blackTimerRender()
+	whiteTimer := m.whiteTimerRender()
+	moveInput := m.InputRender()
+	// player := m.state.PlayerMove()
 
-	return board
+	playerState := m.player
+	player := ""
+	if playerState == whitePlayer {
+		player = "whitE"
+	} else {
+		player = "Black"
+	}
+	s := m.err
+
+	from := "from " + m.from + "|"
+	to := "to " + m.to + "|"
+	input := "input " + m.input
+	return lipgloss.JoinVertical(lipgloss.Top, s, blackTimer, board, whiteTimer, input, from, to, player, moveInput)
 }
 
 // render board
@@ -69,16 +87,23 @@ func (m GameModel) boardRender() string {
 }
 
 // render clock
-func (m GameModel) timerRender() string {
+func (m GameModel) blackTimerRender() string {
 	//timer active is from m.state.moveCounter
 	//if %2==0 then white timer is on
-	return ""
+
+	s := m.blackTimer.View()
+	return s
+}
+
+func (m GameModel) whiteTimerRender() string {
+	s := m.whiteTimer.View()
+	return s
 }
 
 // render move input
 func (m GameModel) InputRender() string {
-
-	return ""
+	s := m.moveInput.View()
+	return s
 }
 
 // render history

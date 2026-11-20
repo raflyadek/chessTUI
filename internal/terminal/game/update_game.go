@@ -18,34 +18,57 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
-		case "backspace", "esc":
+		case "esc", "q":
 			return m, func() tea.Msg {
 				return BackToMenu{}
 			}
 		case "enter":
-			if m.state.PlayerMove() == "White" {
-				m.player = whitePlayer
-			} else {
-				m.player = blackPlayer
+			//TODO: create state where its a valid move before update the timer
+			move := m.moveInput.Value()
+			m.input = move
+			board, err := m.state.PlayGameTUI(m.board, move)
+			if err != nil {
+				m.err = err.Error()
+				return m, nil
 			}
-			// if m.state.MoveCounter%2 == 0 {
-			// 	m.player = whitePlayer
-			// } else {
-			// 	m.player = blackPlayer
-			// }
+			m.err = ""
+			m.board = board
+			// m.from = m.board[6][4]
+			// m.to = m.board[5][4]
+			m.moveInput.Reset()
+			cmd = m.switchPlayer()
+			return m, cmd
+		default:
+			m.moveInput, cmd = m.moveInput.Update(msg)
 		}
 	case timer.TickMsg:
-		switch m.player {
-		case whitePlayer:
+
+		if msg.ID == m.whiteTimer.ID() && m.player == whitePlayer {
 			m.whiteTimer, cmd = m.whiteTimer.Update(msg)
-		case blackPlayer:
+		} else if msg.ID == m.blackTimer.ID() && m.player == blackPlayer {
 			m.blackTimer, cmd = m.blackTimer.Update(msg)
-		}
+		} // cmd = tea.Batch(whiteCmd, blackCmd)
 	case timer.TimeoutMsg:
 		m.state.IsTimeOut = true
 
 	}
 	return m, cmd
+}
+
+// helper switch timer
+func (m *GameModel) switchPlayer() tea.Cmd {
+	switch m.player {
+	case whitePlayer:
+		m.player = blackPlayer
+		// m.blackTimer.Stop()
+		return m.blackTimer.Init()
+
+	case blackPlayer:
+		m.player = whitePlayer
+		return m.whiteTimer.Init()
+	}
+
+	return nil
 }
 
 // back to menu

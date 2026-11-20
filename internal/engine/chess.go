@@ -298,166 +298,134 @@ func PlayGame(state *GameState, board [8][8]string) error {
 	return nil
 }
 
-func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
+func (state *GameState) PlayGameTUI(board [8][8]string, move string) ([8][8]string, error) {
 
 	//map for fen, so player undo it just reference to this map
 	fenMap := make(map[int]string)
 	stateMap := make(map[int]*GameState)
-	notation := "    a    b    c    d    e    f    g    h    "
 	//loop until checkmate or resign
-	for {
-		numberNotation := 8
-		pieces := map[string]string{
-			"P": "♟︎",
-			"R": "♜",
-			"N": "♞",
-			"B": "♝",
-			"Q": "♛",
-			"K": "♚",
-			"p": "♙",
-			"r": "♖",
-			"n": "♘",
-			"b": "♗",
-			"q": "♕",
-			"k": "♔",
-		}
-		for i := 0; i < len(board); i++ {
-			//print notatin at the top before the loop begin
-			if i == 0 {
-				fmt.Println(notation)
-				fmt.Println()
-			}
-			fmt.Printf("%d ", numberNotation)
-			for j := 0; j < len(board); j++ {
-				if board[i][j] == "" {
-					if (i+j)%2 == 0 {
-						fmt.Print("  .  ")
-					} else {
-						fmt.Print("  ,  ")
-					}
-				} else {
-					fmt.Printf("  %s  ", pieces[board[i][j]])
+
+	// player := state.PlayerMove()
+	// playerWin := state.playerWin()
+	/*
+		blocker: if we put piecesMove here, the variable cannot be used to generate a move because
+		board representation is above this, how do i use this variable? (done)
+		just create another function that return [8][8]string and use that as a new board
+	*/
+
+	// fmt.Printf("Its %s move\n", player)
+	// fmt.Printf("isCheck: %v\n", state.isCheck)
+	// fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
+
+	//wait input
+	// from, to, err1 := piecesMoveTui(move)
+	if len(move) != 4 {
+		return board, fmt.Errorf("invalid move")
+	}
+	from := move[0:2]
+	to := move[2:4]
+	flag, err := state.legalMove(from, to, board, state.MoveCounter)
+	// if err1 != nil {
+	// 	flag = false
+	// }
+
+	// if state.IsTimeOut {
+	// 	if player == "White" {
+	// 		fmt.Println("Black win!")
+	// 	} else {
+	// 		fmt.Println("White win!")
+	// 	}
+	// }
+	if flag == true {
+		// fmt.Printf("Moving %s -> %s\n", from, to)
+		//
+		board = state.applyMove(board, from, to)
+		//
+		// fromRow := 8 - int(from[1]-'0')
+		// fromCol := int(from[0] - 'a')
+		// toRow := 8 - int(to[1]-'0')
+		// toCol := int(to[0] - 'a')
+		//
+		// fmt.Printf("Source after move: %q\n", board[fromRow][fromCol])
+		// fmt.Printf("Destination after move: %q\n", board[toRow][toCol])
+		// board = state.applyMove(board, from, to)
+		// add counter if only the move is legal counter for move
+		// moveCounter++
+		state.MoveCounter++
+	} else {
+		return board, err
+		// fmt.Println()
+	}
+
+	fen := printFen(board)
+	fenMap[state.MoveCounter] = fen
+
+	stateMap[state.MoveCounter] = state.currentState()
+	if state.isCheckMate == true {
+		// fmt.Printf("fen: %v\n", fenMap)
+		// fmt.Printf("%s win!\n", player)
+		choice, err := afterCheckMate()
+		if err != nil {
+			for {
+				fmt.Println(err)
+				choice, err = afterCheckMate()
+				if err == nil {
+					break
 				}
-				//add number notation at the end of loop
-				if j == 7 {
-					fmt.Printf(" %d", numberNotation)
-					fmt.Println()
-					numberNotation--
-				}
-			}
-			//add new line after every row
-			fmt.Println()
-			//print notatin at the top after the loop for row end
-			if i == 7 {
-				fmt.Println(notation)
-				fmt.Println()
 			}
 		}
-		player := state.PlayerMove()
-		// playerWin := state.playerWin()
-		/*
-			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
-			board representation is above this, how do i use this variable? (done)
-			just create another function that return [8][8]string and use that as a new board
-		*/
-
-		fmt.Printf("Its %s move\n", player)
-		fmt.Printf("isCheck: %v\n", state.isCheck)
-		fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
-
-		//wait input
-		from, to, err1 := piecesMoveTui(move)
-		flag, err := state.legalMove(from, to, board, state.MoveCounter)
-		if err1 != nil {
-			flag = false
-		}
-
-		if state.IsTimeOut {
-			if player == "White" {
-				fmt.Println("Black win!")
-			} else {
-				fmt.Println("White win!")
-			}
-		}
-		if flag == true {
-			board = state.applyMove(board, from, to)
-			// add counter if only the move is legal counter for move
-			// moveCounter++
-			state.MoveCounter++
-		} else {
-			fmt.Printf("error: %s\n", err)
-			fmt.Println()
-		}
-
-		fen := printFen(board)
-		fenMap[state.MoveCounter] = fen
-
-		stateMap[state.MoveCounter] = state.currentState()
-		if state.isCheckMate == true {
-			fmt.Printf("fen: %v\n", fenMap)
-			fmt.Printf("%s win!\n", player)
-			choice, err := afterCheckMate()
+		if strings.ToLower(choice) == "e" {
+			// fmt.Println("play again next time!")
+			// break
+		} else if strings.ToLower(choice) == "p" {
+			//reset board and all state
+			board = InitBoard()
+			state = NewGameState()
+			// continue
+		} else if strings.ToLower(choice) == "u" {
+			n, err := afterChoiceU()
 			if err != nil {
 				for {
-					fmt.Println(err)
-					choice, err = afterCheckMate()
-					if err == nil {
+					if err != nil {
+
+						fmt.Println(err)
+					}
+					n, err = afterChoiceU()
+					fen, found := fenMap[n]
+					if !found {
+						// fmt.Println("not a valid position/move")
+						fen, found = fenMap[n]
+					}
+					//and we should delete the remaining map move when
+					board = fenToBoard(fen)
+					if err == nil && found {
 						break
 					}
 				}
 			}
-			if strings.ToLower(choice) == "e" {
-				fmt.Println("play again next time!")
-				break
-			} else if strings.ToLower(choice) == "p" {
-				//reset board and all state
-				board = InitBoard()
-				state = NewGameState()
-				continue
-			} else if strings.ToLower(choice) == "u" {
-				n, err := afterChoiceU()
-				if err != nil {
-					for {
-						if err != nil {
-
-							fmt.Println(err)
-						}
-						n, err = afterChoiceU()
-						fen, found := fenMap[n]
-						if !found {
-							fmt.Println("not a valid position/move")
-							fen, found = fenMap[n]
-						}
-						//and we should delete the remaining map move when
-						board = fenToBoard(fen)
-						if err == nil && found {
-							break
-						}
-					}
-				}
-				//state should be map to a move position also
-				valState, found := stateMap[n]
-				if !found {
-					fmt.Println("not a valid position/move")
-				}
-				state = valState
-				continue
+			//state should be map to a move position also
+			valState, found := stateMap[n]
+			if !found {
+				fmt.Println()
+				// fmt.Println("not a valid position/move")
 			}
-			// } else if strings.ToLower(choice) == "u" {
-			// 	//position move
-			// 	board =
-			// }
-			//choice == "u" for undo then just choose fenMap[state.moveCounter-1] and state.MoveCounter -= 1 and show the board
-			//so create a function for reverse the fen back to [8][8]string and use that board as a board = newUndoBoard
-			//and reset the state for isCehckMate = false only the rest is still i think? but for the castle i think we can create a new state
-			//to save when the castle become false, and turn to true if state.MoveCounter < castleMoveCounter and the same for enpassant,
+			state = valState
+			// continue
 		}
-		if state.isStaleMate == true {
-			fmt.Println("Stalemate, its draw")
-			break
-		}
+		// } else if strings.ToLower(choice) == "u" {
+		// 	//position move
+		// 	board =
+		// }
+		//choice == "u" for undo then just choose fenMap[state.moveCounter-1] and state.MoveCounter -= 1 and show the board
+		//so create a function for reverse the fen back to [8][8]string and use that board as a board = newUndoBoard
+		//and reset the state for isCehckMate = false only the rest is still i think? but for the castle i think we can create a new state
+		//to save when the castle become false, and turn to true if state.MoveCounter < castleMoveCounter and the same for enpassant,
 	}
-	return nil
+	if state.isStaleMate == true {
+		fmt.Println("Stalemate, its draw")
+		// break
+	}
+	return board, nil
 }
 
 /*
@@ -481,16 +449,16 @@ func InitBoard() [8][8]string {
 a function to convert []string from bubbletea runtime to string
 because bubbletea receive per event/message
 */
-func piecesMoveTui(fromTUI []string) (from, to string, err error) {
-	if len(fromTUI) > 4 {
-		return "", "", fmt.Errorf("move invalid")
-	}
-	from = fromTUI[0] + fromTUI[1]
-	to = fromTUI[2] + fromTUI[3]
-
-	return from, to, nil
-}
-
+// func piecesMoveTui(fromTUI []string) (from, to string, err error) {
+// 	if len(fromTUI) > 4 {
+// 		return "", "", fmt.Errorf("move invalid")
+// 	}
+// 	from = fromTUI[0] + fromTUI[1]
+// 	to = fromTUI[2] + fromTUI[3]
+//
+// 	return from, to, nil
+// }
+//
 /*
 ignore all legal just pieces can move first
 already have a function to make sure its legal (check only the notation out of bounds or not)
@@ -525,6 +493,7 @@ func (gs *GameState) applyMove(board [8][8]string, from, to string) [8][8]string
 	toCol := int(to[0] - 'a')
 	toRow := 8 - int(to[1]-'0')
 
+	// fmt.Printf("fromcol: %d, fromrow: %d, tocol: %d, torow: %d\n", fromCol, fromRow, toCol, toRow)
 	pieceLocation := board[fromRow][fromCol]
 
 	board[toRow][toCol] = board[fromRow][fromCol]
@@ -568,13 +537,13 @@ func (gs *GameState) applyMove(board [8][8]string, from, to string) [8][8]string
 
 	// fmt.Printf("white king: %s, black king: %s\n", WhiteKingPosition, BlackKingPosition)
 	//en-passant pawn
-	if pieceLocation == "p" || pieceLocation == "P" {
-		gs.moveBefore(fromRow, toCol, toRow, pieceLocation)
-		if gs.isEnPassant == true {
-			board[gs.enPassantRow][gs.enPassantCol] = ""
-			gs.isEnPassant = false
-		}
-	}
+	// if pieceLocation == "p" || pieceLocation == "P" {
+	// 	gs.moveBefore(fromRow, toCol, toRow, pieceLocation)
+	// 	if gs.isEnPassant == true {
+	// 		board[gs.enPassantRow][gs.enPassantCol] = ""
+	// 		gs.isEnPassant = false
+	// 	}
+	// }
 
 	//but if another piece block the king??
 	// if pieceLocation == "k" || pieceLocation == "K" {
