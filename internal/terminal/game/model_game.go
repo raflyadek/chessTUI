@@ -42,7 +42,9 @@ func (m GameModel) Init() tea.Cmd {
 
 func InitGameModel() GameModel {
 	input := textinput.New()
-	input.Placeholder = "Pnter move (e.g. e2 e4)"
+	input.Placeholder = "Enter move (e.g. e2e4)"
+	//TODO:change width in the view
+	input.SetWidth(30)
 	input.Focus()
 	return GameModel{
 		board:      engine.InitBoard(),

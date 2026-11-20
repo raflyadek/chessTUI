@@ -29,6 +29,7 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 			board, err := m.state.PlayGameTUI(m.board, move)
 			if err != nil {
 				m.err = err.Error()
+				m.moveInput.Reset()
 				return m, nil
 			}
 			m.err = ""
