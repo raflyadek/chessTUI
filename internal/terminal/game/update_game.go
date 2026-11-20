@@ -23,11 +23,16 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 				return BackToMenu{}
 			}
 		case "enter":
-			if m.state.MoveCounter%2 == 0 {
+			if m.state.PlayerMove() == "White" {
 				m.player = whitePlayer
 			} else {
 				m.player = blackPlayer
 			}
+			// if m.state.MoveCounter%2 == 0 {
+			// 	m.player = whitePlayer
+			// } else {
+			// 	m.player = blackPlayer
+			// }
 		}
 	case timer.TickMsg:
 		switch m.player {
@@ -36,6 +41,9 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 		case blackPlayer:
 			m.blackTimer, cmd = m.blackTimer.Update(msg)
 		}
+	case timer.TimeoutMsg:
+		m.state.IsTimeOut = true
+
 	}
 	return m, cmd
 }

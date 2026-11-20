@@ -115,7 +115,7 @@ type GameState struct {
 	isCheck              bool
 	isCheckMate          bool
 	isStaleMate          bool
-	isTimeOut            bool
+	IsTimeOut            bool
 	WhiteKingPosition    string
 	BlackKingPosition    string
 }
@@ -131,7 +131,7 @@ func NewGameState() *GameState {
 		isEnPassant:          false,
 		isCheck:              false,
 		isStaleMate:          false,
-		isTimeOut:            false,
+		IsTimeOut:            false,
 		WhiteKingPosition:    "e1",
 		BlackKingPosition:    "e8",
 	}
@@ -193,7 +193,7 @@ func PlayGame(state *GameState, board [8][8]string) error {
 				fmt.Println()
 			}
 		}
-		player := state.playerMove()
+		player := state.PlayerMove()
 		// playerWin := state.playerWin()
 		/*
 			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
@@ -353,7 +353,7 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 				fmt.Println()
 			}
 		}
-		player := state.playerMove()
+		player := state.PlayerMove()
 		// playerWin := state.playerWin()
 		/*
 			blocker: if we put piecesMove here, the variable cannot be used to generate a move because
@@ -372,6 +372,13 @@ func PlayGameTUI(state *GameState, board [8][8]string, move []string) error {
 			flag = false
 		}
 
+		if state.IsTimeOut {
+			if player == "White" {
+				fmt.Println("Black win!")
+			} else {
+				fmt.Println("White win!")
+			}
+		}
 		if flag == true {
 			board = state.applyMove(board, from, to)
 			// add counter if only the move is legal counter for move
@@ -642,7 +649,7 @@ func (gs *GameState) legalMove(from, to string, board [8][8]string, moveCounter 
 	}
 
 	// if its white turn then its only can move the upper case pieces
-	player := gs.playerMove()
+	player := gs.PlayerMove()
 	if player == "White" {
 		if !strings.Contains(strings.ToUpper(pieces), pieceLocation) {
 			return false, fmt.Errorf("cant move black piece when its white turn")
@@ -727,7 +734,7 @@ func (gs *GameState) legalMove(from, to string, board [8][8]string, moveCounter 
 /*
 take turns white/black
 */
-func (gs *GameState) playerMove() string {
+func (gs *GameState) PlayerMove() string {
 	if gs.MoveCounter%2 == 0 {
 		return "White"
 	} else {
@@ -1142,7 +1149,7 @@ func (gs *GameState) promotePawn() string {
 
 	var piecesPromote string
 
-	if gs.playerMove() == "White" {
+	if gs.PlayerMove() == "White" {
 		piecesPromote = "(R/N/B/Q)"
 	} else {
 		piecesPromote = "(r/n/b/q)"
@@ -1156,7 +1163,7 @@ func (gs *GameState) promotePawn() string {
 		reader.Scan()
 		promote = reader.Text()
 
-		if gs.playerMove() == "White" {
+		if gs.PlayerMove() == "White" {
 			if !strings.Contains(strings.ToUpper(pieces), promote) {
 				fmt.Println("select the right pieces")
 			} else {
@@ -1206,7 +1213,7 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 	//check our own king position
 
 	//should we create this function return something so we can exit early?
-	player := gs.playerMove()
+	player := gs.PlayerMove()
 	checkCounter := 0
 	checkFrom := make([]string, 0)
 	checkPiece := make([]string, 0)
@@ -1366,7 +1373,7 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 
 func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []string, board [8][8]string) bool {
 	pieces := "rnbqkp"
-	player := gs.playerMove()
+	player := gs.PlayerMove()
 	possibleKingMove := 0
 	possibleSquareKing := make([]string, 0)
 	squareUntilCheck := make([]string, 0)
@@ -1858,10 +1865,10 @@ func (gs *GameState) moveBefore(fromRow, toCol, toRow int, pieceLocation string)
 
 func (gs *GameState) moveState(pieceLocation string, fromRow, toRow, fromCol, toCol int, board [8][8]string) {
 	//why it is update when the move is invalid like e8 to b8 but it update the state?
-	if gs.playerMove() == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
+	if gs.PlayerMove() == "Black" && (board[0][4] != "k" || board[0][0] != "r" || board[0][7] != "r") {
 		gs.blackCastle = false
 	}
-	if gs.playerMove() == "White" && (board[7][4] != "K" || board[7][0] != "R" || board[7][7] != "R") {
+	if gs.PlayerMove() == "White" && (board[7][4] != "K" || board[7][0] != "R" || board[7][7] != "R") {
 		gs.whiteCastle = false
 	}
 }
