@@ -1,6 +1,9 @@
 package game
 
-import tea "charm.land/bubbletea/v2"
+import (
+	"charm.land/bubbles/v2/timer"
+	tea "charm.land/bubbletea/v2"
+)
 
 //update delegate
 
@@ -26,6 +29,7 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 				m.player = blackPlayer
 			}
 		}
+	case timer.TickMsg:
 		switch m.player {
 		case whitePlayer:
 			m.whiteTimer, cmd = m.whiteTimer.Update(msg)
@@ -36,5 +40,5 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 	return m, cmd
 }
 
-//back to menu
+// back to menu
 type BackToMenu struct{}

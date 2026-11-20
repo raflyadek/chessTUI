@@ -115,6 +115,7 @@ type GameState struct {
 	isCheck              bool
 	isCheckMate          bool
 	isStaleMate          bool
+	isTimeOut            bool
 	WhiteKingPosition    string
 	BlackKingPosition    string
 }
@@ -130,6 +131,7 @@ func NewGameState() *GameState {
 		isEnPassant:          false,
 		isCheck:              false,
 		isStaleMate:          false,
+		isTimeOut:            false,
 		WhiteKingPosition:    "e1",
 		BlackKingPosition:    "e8",
 	}

@@ -11,7 +11,7 @@ var ()
 func (m GameModel) View() string {
 	board := m.boardRender()
 
-	return ""
+	return board
 }
 
 // render board
@@ -72,15 +72,17 @@ func (m GameModel) boardRender() string {
 func (m GameModel) timerRender() string {
 	//timer active is from m.state.moveCounter
 	//if %2==0 then white timer is on
-
+	return ""
 }
 
 // render move input
 func (m GameModel) InputRender() string {
 
+	return ""
 }
 
 // render history
 func (m GameModel) historyRender() string {
 
+	return ""
 }
