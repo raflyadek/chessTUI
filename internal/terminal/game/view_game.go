@@ -24,13 +24,14 @@ func (m GameModel) View() string {
 	} else {
 		player = "Black"
 	}
-	s := m.err
+	// s := m.err
 
 	from := "from " + m.from + "|"
 	to := "to " + m.to + "|"
 	input := "input " + m.input
+	checkmate := m.checkmatee
 	history := m.historyRender()
-	return lipgloss.JoinVertical(lipgloss.Top, s, blackTimer, board, whiteTimer, input, from, to, player, moveInput, history)
+	return lipgloss.JoinVertical(lipgloss.Top, checkmate, blackTimer, board, whiteTimer, input, from, to, player, moveInput, history)
 }
 
 // render board

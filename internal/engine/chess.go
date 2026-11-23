@@ -364,54 +364,54 @@ func (state *GameState) PlayGameTUI(board [8][8]string, move string) ([8][8]stri
 	if state.IsCheckMate == true {
 		// fmt.Printf("fen: %v\n", fenMap)
 		// fmt.Printf("%s win!\n", player)
-		choice, err := afterCheckMate()
-		if err != nil {
-			for {
-				fmt.Println(err)
-				choice, err = afterCheckMate()
-				if err == nil {
-					break
-				}
-			}
-		}
-		if strings.ToLower(choice) == "e" {
-			// fmt.Println("play again next time!")
-			// break
-		} else if strings.ToLower(choice) == "p" {
-			//reset board and all state
-			board = InitBoard()
-			state = NewGameState()
-			// continue
-		} else if strings.ToLower(choice) == "u" {
-			n, err := afterChoiceU()
-			if err != nil {
-				for {
-					if err != nil {
-
-						fmt.Println(err)
-					}
-					n, err = afterChoiceU()
-					fen, found := fenMap[n]
-					if !found {
-						// fmt.Println("not a valid position/move")
-						fen, found = fenMap[n]
-					}
-					//and we should delete the remaining map move when
-					board = fenToBoard(fen)
-					if err == nil && found {
-						break
-					}
-				}
-			}
-			//state should be map to a move position also
-			valState, found := stateMap[n]
-			if !found {
-				fmt.Println()
-				// fmt.Println("not a valid position/move")
-			}
-			state = valState
-			// continue
-		}
+		// choice, err := afterCheckMate()
+		// if err != nil {
+		// 	for {
+		// 		// fmt.Println(err)
+		// 		choice, err = afterCheckMate()
+		// 		if err == nil {
+		// 			break
+		// 		}
+		// 	}
+		// }
+		// if strings.ToLower(choice) == "e" {
+		// 	// fmt.Println("play again next time!")
+		// 	// break
+		// } else if strings.ToLower(choice) == "p" {
+		// 	//reset board and all state
+		// 	board = InitBoard()
+		// 	state = NewGameState()
+		// 	// continue
+		// } else if strings.ToLower(choice) == "u" {
+		// 	n, err := afterChoiceU()
+		// 	if err != nil {
+		// 		for {
+		// 			if err != nil {
+		//
+		// 				fmt.Println(err)
+		// 			}
+		// 			n, err = afterChoiceU()
+		// 			fen, found := fenMap[n]
+		// 			if !found {
+		// 				// fmt.Println("not a valid position/move")
+		// 				fen, found = fenMap[n]
+		// 			}
+		// 			//and we should delete the remaining map move when
+		// 			board = fenToBoard(fen)
+		// 			if err == nil && found {
+		// 				break
+		// 			}
+		// 		}
+		// 	}
+		// 	//state should be map to a move position also
+		// 	valState, found := stateMap[n]
+		// 	if !found {
+		// 		// fmt.Println()
+		// 		// fmt.Println("not a valid position/move")
+		// 	}
+		// 	state = valState
+		// 	// continue
+		// }
 		// } else if strings.ToLower(choice) == "u" {
 		// 	//position move
 		// 	board =
@@ -422,7 +422,7 @@ func (state *GameState) PlayGameTUI(board [8][8]string, move string) ([8][8]stri
 		//to save when the castle become false, and turn to true if state.MoveCounter < castleMoveCounter and the same for enpassant,
 	}
 	if state.isStaleMate == true {
-		fmt.Println("Stalemate, its draw")
+		// fmt.Println("Stalemate, its draw")
 		// break
 	}
 	return board, nil
@@ -1074,14 +1074,14 @@ func (gs *GameState) kingRules(from, to, pieceLocation, pieceDestination string,
 	//move +1 on vertical / horizontal / diaognal
 	if gs.blackCastle == false && pieceLocation == "k" {
 		if (differenceRowAbs > 1 || differenceColAbs > 1) && differenceColAbs != differenceRowAbs {
-			fmt.Printf("difrowabs: %d, difrowcol: %d", differenceRowAbs, differenceColAbs)
+			// fmt.Printf("difrowabs: %d, difrowcol: %d", differenceRowAbs, differenceColAbs)
 			return fmt.Errorf("king only move 1 square")
 		}
 	}
 
 	if gs.whiteCastle == false && pieceLocation == "K" {
 		if (differenceRowAbs > 1 || differenceColAbs > 1) && differenceColAbs != differenceRowAbs {
-			fmt.Printf("difrowabs: %d, difrowcol: %d", differenceRowAbs, differenceColAbs)
+			// fmt.Printf("difrowabs: %d, difrowcol: %d", differenceRowAbs, differenceColAbs)
 			return fmt.Errorf("king only move 1 square")
 		}
 	}
@@ -1203,9 +1203,9 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := gs.piecesRules(fromString, whiteKingPositionCopy, board[i][j], "K", i, j, toColKing, toRowKing, board)
 						if err == nil {
-							fmt.Printf("check from string: %s\n", fromString)
-							fmt.Printf("check piece location: %s\n", board[i][j])
-							fmt.Printf("check kingposition: %s\n", whiteKingPositionCopy)
+							// fmt.Printf("check from string: %s\n", fromString)
+							// fmt.Printf("check piece location: %s\n", board[i][j])
+							// fmt.Printf("check kingposition: %s\n", whiteKingPositionCopy)
 							checkCounter++
 						}
 					}
@@ -1236,9 +1236,9 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], "k", i, j, toColKing, toRowKing, board)
 						if err == nil {
-							fmt.Printf("check from string: %s\n", fromString)
-							fmt.Printf("check piece location: %s\n", board[i][j])
-							fmt.Printf("check kingposition: %s\n", blackKingPositionCopy)
+							// fmt.Printf("check from string: %s\n", fromString)
+							// fmt.Printf("check piece location: %s\n", board[i][j])
+							// fmt.Printf("check kingposition: %s\n", blackKingPositionCopy)
 							checkCounter++
 						}
 
@@ -1274,7 +1274,7 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fromString := string(fromByte1) + fmt.Sprintf("%d", fromByte2)
 						err := gs.piecesRules(fromString, blackKingPositionCopy, board[i][j], "k", i, j, toColKing, toRowKing, board)
 						if err == nil {
-							fmt.Println("check from white")
+							// fmt.Println("check from white")
 							checkFrom = append(checkFrom, fromString)
 							checkPiece = append(checkPiece, board[i][j])
 							checkCounter++
@@ -1284,9 +1284,9 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 						//true then the next is false, so the logic always return false even just 1 != nil
 					}
 					if i == 7 && j == 7 && checkCounter != 0 {
-						fmt.Printf("to: %s\n", blackKingPositionCopy)
-						fmt.Printf("checkFrom: %v\n", checkFrom)
-						fmt.Printf("checkPieces: %v\n", checkPiece)
+						// fmt.Printf("to: %s\n", blackKingPositionCopy)
+						// fmt.Printf("checkFrom: %v\n", checkFrom)
+						// fmt.Printf("checkPieces: %v\n", checkPiece)
 						gs.IsCheck = true
 						if checkMate := gs.checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
 							gs.IsCheckMate = true
@@ -1315,9 +1315,9 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 						}
 					}
 					if i == 7 && j == 7 && checkCounter != 0 {
-						fmt.Printf("to: %s\n", whiteKingPositionCopy)
-						fmt.Printf("checkFrom: %v\n", checkFrom)
-						fmt.Printf("checkPieces: %v\n", checkPiece)
+						// fmt.Printf("to: %s\n", whiteKingPositionCopy)
+						// fmt.Printf("checkFrom: %v\n", checkFrom)
+						// fmt.Printf("checkPieces: %v\n", checkPiece)
 						gs.IsCheck = true
 						if checkMate := gs.checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
 							gs.IsCheckMate = true
@@ -1404,7 +1404,7 @@ func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 		}
 	}
 
-	fmt.Printf("possible king square: %v\n", possibleSquareKing)
+	// fmt.Printf("possible king square: %v\n", possibleSquareKing)
 	//if checkCounter > 1 then dont bother to search piece who can eat or block
 	//it just move the king then if only 1 we search the piece who can eat or block its
 	//if checkcounter == 1 search piece who can eat it
@@ -1424,7 +1424,7 @@ func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 							err := gs.piecesRules(fromString, checkFrom[0], board[i][j], checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
 							if err == nil {
 								pieceWhoCanEat = append(pieceWhoCanEat, board[i][j])
-								fmt.Printf("piece who can eat: %s, len: %d\n", board[i][j], len(pieceWhoCanEat))
+								// fmt.Printf("piece who can eat: %s, len: %d\n", board[i][j], len(pieceWhoCanEat))
 								// pieceWhoCanEat++
 								// return false
 							}
@@ -1451,7 +1451,7 @@ func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 							err := gs.piecesRules(fromString, checkFrom[0], board[i][j], checkPieces[0], i, j, pieceCheckCol, pieceCheckRow, board)
 							if err == nil {
 								pieceWhoCanEat = append(pieceWhoCanEat, board[i][j])
-								fmt.Printf("piece who can eat: %s\n", board[i][j])
+								// fmt.Printf("piece who can eat: %s\n", board[i][j])
 								// pieceWhoCanEat++
 							}
 							if i == 7 && j == 7 && len(pieceWhoCanEat) == 0 {
@@ -1540,7 +1540,7 @@ func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 					rowInt := int(checkFrom[0][1]) - int(gs.WhiteKingPosition[1])
 					rowIntAbs := max(rowInt, -rowInt)
 					differentSquare = rowIntAbs
-					fmt.Printf("rowint: %d, rowintabs: %d, diffsquare: %d", rowInt, rowIntAbs, differentSquare)
+					// fmt.Printf("rowint: %d, rowintabs: %d, diffsquare: %d", rowInt, rowIntAbs, differentSquare)
 					if checkFrom[0][1] > gs.WhiteKingPosition[1] {
 						rowByte := byte(int(checkFrom[0][1]) - i)
 						squareString := string(checkFrom[0][0]) + string(rowByte)
@@ -1568,7 +1568,7 @@ func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 				}
 				//diagonal
 				if checkFrom[0][0] != gs.WhiteKingPosition[0] && checkFrom[0][1] != gs.WhiteKingPosition[1] {
-					fmt.Println("here diagonal")
+					// fmt.Println("here diagonal")
 					rowInt := int(checkFrom[0][1]) - int(gs.WhiteKingPosition[1])
 					rowIntAbs := max(rowInt, -rowInt)
 					differentSquare = rowIntAbs
@@ -1599,7 +1599,7 @@ func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 				}
 			}
 		}
-		fmt.Printf("square until king: %v\n", squareUntilCheck)
+		// fmt.Printf("square until king: %v\n", squareUntilCheck)
 
 		//block the path
 		//but after that can block immediately check if its open check or no
@@ -1616,7 +1616,7 @@ func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 							fromString := string(fromByte1) + string(fromByte2)
 							err := gs.piecesRules(fromString, squareUntilCheck[i], board[j][k], "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
-								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
+								// fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
 								isPin := gs.pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
 								if isPin == true {
 									continue
@@ -1635,7 +1635,7 @@ func (gs *GameState) checkMateState(checkCounter int, checkFrom, checkPieces []s
 							fromString := string(fromByte1) + string(fromByte2)
 							err := gs.piecesRules(fromString, squareUntilCheck[i], board[j][k], "", j, k, squareCheckCol, squareCheckRow, board)
 							if err == nil {
-								fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
+								// fmt.Printf("block fromstring: %s and from pieces: %s and to square: %s\n", fromString, board[j][k], squareUntilCheck[i])
 								isPin := gs.pinPiece(board, pieces, player, fromString, squareUntilCheck[i])
 								if isPin == true {
 									continue
@@ -1672,14 +1672,14 @@ outerLoop:
 						board[possibleSquareRow][possibleSquareCol] = ""
 						err := gs.piecesRules(fromString, possibleSquareKing[i], board[j][k], "k", j, k, possibleSquareCol, possibleSquareRow, board)
 						if err == nil {
-							fmt.Printf("attack possible square king: %s, from string: %s, from pieces: %s\n", possibleSquareKing[i], fromString, board[j][k])
+							// fmt.Printf("attack possible square king: %s, from string: %s, from pieces: %s\n", possibleSquareKing[i], fromString, board[j][k])
 							//delete 1 index is index, index+1, like slice :0 <- get index 0 only
 							// possibleSquareKing = slices.Delete(possibleSquareKing, i, i+1)
 							possibleKingMove--
 							//reset the loop after we find who can check that square
 							continue outerLoop
 						} else {
-							fmt.Println("whatts the error?", err)
+							// fmt.Println("whatts the error?", err)
 						}
 					}
 				}
@@ -1694,7 +1694,7 @@ outerLoop:
 						board[possibleSquareRow][possibleSquareCol] = ""
 						err := gs.piecesRules(fromString, possibleSquareKing[i], board[j][k], "K", j, k, possibleSquareCol, possibleSquareRow, board)
 						if err == nil {
-							fmt.Printf("attack possible square king: %s, from strings: %s, from pieces: %s\n", possibleSquareKing[i], fromString, board[j][k])
+							// fmt.Printf("attack possible square king: %s, from strings: %s, from pieces: %s\n", possibleSquareKing[i], fromString, board[j][k])
 							possibleKingMove--
 							continue outerLoop
 						}
@@ -1715,7 +1715,7 @@ outerLoop:
 	//OR we can get all legal move for king, saved that to a variable and later used that each move
 	//to calculate if there is any possible move for king to escape
 
-	fmt.Printf("possbilekingmove: %d => %v \n", possibleKingMove, possibleSquareKing)
+	// fmt.Printf("possbilekingmove: %d => %v \n", possibleKingMove, possibleSquareKing)
 	if possibleKingMove == 0 {
 		return true
 	}
@@ -1947,29 +1947,6 @@ func (gs *GameState) HistoryMoveHelper(move string, board [8][8]string) string {
 
 	pieceLocation := board[fromRow][fromCol]
 	pieceDestination := board[toRow][toCol]
-
-	//check & eat
-	if gs.IsCheck && pieceDestination != "" {
-		if pieceLocation == "p" || pieceLocation == "P" {
-			destination = move[0:1] + "x" + destination + "+"
-			return destination
-		} else {
-			destination = pieceLocation + "x" + destination + "+"
-			return destination
-		}
-	}
-	//check not eat
-
-	if gs.IsCheck && pieceDestination == "" {
-		if pieceLocation == "p" || pieceLocation == "P" {
-			destination = move[0:1] + destination + "+"
-			return destination
-		} else {
-			destination = pieceLocation + destination + "+"
-			return destination
-		}
-	}
-
 	//checkmate & eat
 	if gs.IsCheckMate && pieceDestination != "" {
 		if pieceDestination == "p" || pieceDestination == "P" {
@@ -1982,12 +1959,33 @@ func (gs *GameState) HistoryMoveHelper(move string, board [8][8]string) string {
 	}
 
 	//checkmate not eat
-	if gs.IsCheckMate && pieceDestination != "" {
+	if gs.IsCheckMate && pieceDestination == "" {
 		if pieceDestination == "p" || pieceDestination == "P" {
 			destination = move[0:1] + destination + "#"
 			return destination
 		} else {
 			destination = pieceLocation + destination + "#"
+			return destination
+		}
+	}
+
+	//check & eat
+	if gs.IsCheck && pieceDestination != "" {
+		if pieceLocation == "p" || pieceLocation == "P" {
+			destination = move[0:1] + "x" + destination + "+"
+			return destination
+		} else {
+			destination = pieceLocation + "x" + destination + "+"
+			return destination
+		}
+	}
+	//check not eat
+	if gs.IsCheck && pieceDestination == "" {
+		if pieceLocation == "p" || pieceLocation == "P" {
+			destination = move[0:1] + destination + "+"
+			return destination
+		} else {
+			destination = pieceLocation + destination + "+"
 			return destination
 		}
 	}
@@ -2002,7 +2000,7 @@ func (gs *GameState) HistoryMoveHelper(move string, board [8][8]string) string {
 			return destination
 		}
 	} else {
-		if pieceLocation != "p" || pieceLocation != "P" {
+		if pieceLocation != "p" && pieceLocation != "P" {
 			destination = pieceLocation + destination
 			return destination
 		}

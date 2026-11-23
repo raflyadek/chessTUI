@@ -35,6 +35,11 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 			//add history
 			history := m.state.HistoryMoveHelper(move, m.board)
 			m.historyMove = append(m.historyMove, history)
+			if m.state.IsCheckMate {
+				m.checkmatee = "checkmateee"
+			} else {
+				m.checkmatee = "not checkmate??"
+			}
 
 			m.err = ""
 			m.board = board
