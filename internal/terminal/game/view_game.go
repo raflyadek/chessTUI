@@ -5,16 +5,82 @@ import (
 	"strings"
 
 	"charm.land/lipgloss/v2"
+	"github.com/raflyadek/chessTUI/internal/terminal/style"
 )
 
+type Layout struct {
+	BoardWidth   int
+	BoardHeight  int
+	SidebarWidth int
+	TotalWidth   int
+	TotalHeight  int
+}
+
+func (m GameModel) calculateLayout() Layout {
+	boardWidth := 48  // adjust to your actual rendered board width
+	boardHeight := 30 // adjust to your actual rendered board height
+	sidebarWidth := 26
+
+	return Layout{
+		BoardWidth:   boardWidth,
+		BoardHeight:  boardHeight,
+		SidebarWidth: sidebarWidth,
+		TotalWidth:   boardWidth + sidebarWidth + 2,
+		TotalHeight:  boardHeight + 10,
+	}
+}
+
 // delegate view
-var ()
 
 func (m GameModel) View() string {
+	// layout := m.calculateLayout()
+
 	board := m.boardRender()
-	blackTimer := m.blackTimerRender()
-	whiteTimer := m.whiteTimerRender()
-	moveInput := m.InputRender()
+	boardWidth := lipgloss.Width(board)
+	//TODO:if its flipped
+
+	blackTimer := m.clockRender(
+		blackPlayer,
+		m.blackTimerRender(),
+		boardWidth,
+	)
+	whiteTimer := m.clockRender(
+		whitePlayer,
+		m.whiteTimerRender(),
+		boardWidth,
+	)
+	sidebar := m.sidebarRender()
+	footer := m.footerRender()
+	boardColumn := lipgloss.JoinVertical(
+		lipgloss.Left,
+		blackTimer,
+		board,
+		whiteTimer,
+	)
+	main := lipgloss.JoinHorizontal(
+		lipgloss.Top,
+		boardColumn,
+		sidebar,
+	)
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		main,
+		footer,
+	)
+
+	// return lipgloss.JoinVertical(
+	// 	lipgloss.Left,
+	// 	main,
+	// 	footer,
+	// )
+	return lipgloss.Place(
+		m.width,
+		m.height,
+		lipgloss.Center,
+		lipgloss.Center,
+		content,
+	)
+	// moveInput := m.InputRender()
 	// player := m.state.PlayerMove()
 
 	// playerState := m.player
@@ -30,15 +96,23 @@ func (m GameModel) View() string {
 	// to := "to " + m.to + "|"
 	// input := "input " + m.input
 	// checkmate := m.checkmatee
-	history := m.historyRender()
-	return lipgloss.JoinVertical(lipgloss.Top, blackTimer, board, whiteTimer, moveInput, history)
+	// history := m.historyRender()
+	// return lipgloss.JoinVertical(lipgloss.Top, blackTimer, board, whiteTimer, moveInput, history)
 }
 
 // render board
 func (m GameModel) boardRender() string {
-	var s strings.Builder
-	notation := "    a    b    c    d    e    f    g    h    "
-	numberNotation := 8
+	var rows []string
+
+	rankStyle := lipgloss.NewStyle().
+		Foreground(style.SecondaryStyle.GetForeground()).
+		Width(2).
+		Align(lipgloss.Right)
+
+	fileStyle := lipgloss.NewStyle().
+		Foreground(style.SecondaryStyle.GetForeground()).
+		Width(5).
+		Align(lipgloss.Center)
 	pieces := map[string]string{
 		"P": "♟︎",
 		"R": "♜",
@@ -53,45 +127,84 @@ func (m GameModel) boardRender() string {
 		"q": "♕",
 		"k": "♔",
 	}
-	for i := 0; i < len(m.board); i++ {
-		//print notatin at the top before the loop begin
-		if i == 0 {
-			s.WriteString(notation)
-			s.WriteString("\n\n")
-		}
-		s.WriteString(fmt.Sprintf("%d ", numberNotation))
-		for j := 0; j < len(m.board[i]); j++ {
-			if m.board[i][j] == "" {
-				if (i+j)%2 == 0 {
-					s.WriteString("  .  ")
-				} else {
-					s.WriteString("  ,  ")
-				}
-			} else {
-				s.WriteString(fmt.Sprintf("  %s  ", pieces[m.board[i][j]]))
-			}
-			//add number notation at the end of loop
-			if j == 7 {
-				s.WriteString(fmt.Sprintf(" %d\n", numberNotation))
-				numberNotation--
-			}
-		}
-		//add new line after every row
-		s.WriteString("\n")
-		//print notatin at the top after the loop for row end
+	var files []string
+	files = append(files, "  ")
 
-		if i == 7 {
-			s.WriteString(notation)
-			s.WriteString("\n")
-		}
+	for j := 0; j < 8; j++ {
+		files = append(files, fileStyle.Render(
+			string(rune('a'+j)),
+		))
 	}
-	return s.String()
+
+	rows = append(rows, lipgloss.JoinHorizontal(
+		lipgloss.Top, files...,
+	))
+
+	for i := 0; i < len(m.board); i++ {
+		var cells []string
+		cells = append(cells, rankStyle.Render(
+			fmt.Sprintf("%d", 8-i),
+		))
+		for j := 0; j < len(m.board[i]); j++ {
+			piece := m.board[i][j]
+			content := " "
+			if piece != "" {
+				content = pieces[piece]
+			}
+			styles := style.LightSquareStyle
+			if (i+j)%2 == 0 {
+				styles = style.DarkSquareStyle
+			}
+			cells = append(cells, styles.Render(content))
+		}
+		cells = append(cells, rankStyle.Render(
+			fmt.Sprintf("%d", 8-i),
+		))
+		rows = append(rows, lipgloss.JoinHorizontal(
+			lipgloss.Top, cells...,
+		))
+
+	}
+	rows = append(rows, lipgloss.JoinHorizontal(
+		lipgloss.Top, files...,
+	))
+
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		rows...,
+	)
+}
+
+func (m GameModel) sidebarRender() string {
+	historyTitle := style.SectionTitleStyle.Render("HISTORY MOVE")
+	history := m.historyRender()
+
+	content := lipgloss.JoinVertical(
+		lipgloss.Left,
+		historyTitle,
+		strings.Repeat("-", 24),
+		history,
+	)
+	return style.PanelStyle.Width(26).Height(30).Render(content)
+}
+
+func (m GameModel) footerRender() string {
+	input := style.InputStyle.Render(
+		m.InputRender(),
+	)
+
+	help := style.SecondaryStyle.Render(
+		"Enter: Submit\t|\tEsc: Menu\t|\tCtrl+C: Quit",
+	)
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		input,
+		help,
+	)
 }
 
 // render clock
 func (m GameModel) blackTimerRender() string {
-	//timer active is from m.state.moveCounter
-	//if %2==0 then white timer is on
 
 	s := m.blackTimer.View()
 	return s
@@ -104,15 +217,50 @@ func (m GameModel) whiteTimerRender() string {
 
 // render move input
 func (m GameModel) InputRender() string {
-	return lipgloss.NewStyle().
-		Border(lipgloss.RoundedBorder()).
-		Padding(0, 1).
-		Width(30).
-		Render(m.moveInput.View())
+	return m.moveInput.View()
 }
 
 // render history
 func (m GameModel) historyRender() string {
-	history := strings.Join(m.historyMove, "\n")
-	return history
+	var s strings.Builder
+
+	for i := 0; i < len(m.historyMove); i += 2 {
+		moveNumber := (i / 2) + 1
+
+		whiteMove := m.historyMove[i]
+		blackMove := ""
+
+		if i+1 < len(m.historyMove) {
+			blackMove = m.historyMove[i+1]
+		}
+
+		fmt.Fprintf(&s, "%d. %-6s %s\n",
+			moveNumber,
+			whiteMove,
+			blackMove,
+		)
+	}
+
+	return strings.TrimRight(s.String(), "\n")
+
+}
+
+// helper for timer
+func (m GameModel) clockRender(
+	player activePlayer,
+	timer string,
+	boardWidth int,
+) string {
+	indicator := "  "
+
+	if m.player == player {
+		indicator = "▶ "
+	}
+
+	content := indicator + timer
+
+	return lipgloss.NewStyle().
+		Width(boardWidth).
+		Align(lipgloss.Right).
+		Render(content)
 }

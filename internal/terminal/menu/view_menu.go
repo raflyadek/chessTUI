@@ -3,7 +3,7 @@ package menu
 import (
 	"charm.land/lipgloss/v2"
 	"fmt"
-	"github.com/raflyadek/chessTUI/internal/style"
+	"github.com/raflyadek/chessTUI/internal/terminal/style"
 	"strings"
 )
 
@@ -38,13 +38,13 @@ func (m MenuModel) headerRender() string {
 
 func (m MenuModel) footerRender() string {
 	footerContent := fmt.Sprintf("%s %s\t%s\t%s\t%s\t%s\t%s",
-		AccentHighlights.Render("k"),
-		AccentHighlights.Render("j"),
-		PrimaryText.Render("Navigate"),
-		AccentHighlights.Render("Enter"),
-		PrimaryText.Render("Select"),
-		AccentHighlights.Render("q"),
-		PrimaryText.Render("Quit"))
+		style.AccentHighlights.Render("k"),
+		style.AccentHighlights.Render("j"),
+		style.PrimaryText.Render("Navigate"),
+		style.AccentHighlights.Render("Enter"),
+		style.PrimaryText.Render("Select"),
+		style.AccentHighlights.Render("q"),
+		style.PrimaryText.Render("Quit"))
 	footer := lipgloss.NewStyle().
 		Align(lipgloss.Center).
 		Width(m.width).
@@ -58,9 +58,9 @@ func (m MenuModel) contentRender(header, footer string) string {
 	var choices []string
 	for i, v := range m.choices {
 		if m.cursor == i {
-			choices = append(choices, SelectedStyle.Render("> "+v))
+			choices = append(choices, style.SelectedStyle.Render("> "+v))
 		} else {
-			choices = append(choices, NormalStyle.Render(" "+v))
+			choices = append(choices, style.NormalStyle.Render(" "+v))
 		}
 	}
 	content := lipgloss.NewStyle().
