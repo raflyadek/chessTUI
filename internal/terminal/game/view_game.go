@@ -8,28 +8,6 @@ import (
 	"github.com/raflyadek/chessTUI/internal/terminal/style"
 )
 
-type Layout struct {
-	BoardWidth   int
-	BoardHeight  int
-	SidebarWidth int
-	TotalWidth   int
-	TotalHeight  int
-}
-
-func (m GameModel) calculateLayout() Layout {
-	boardWidth := 48  // adjust to your actual rendered board width
-	boardHeight := 30 // adjust to your actual rendered board height
-	sidebarWidth := 26
-
-	return Layout{
-		BoardWidth:   boardWidth,
-		BoardHeight:  boardHeight,
-		SidebarWidth: sidebarWidth,
-		TotalWidth:   boardWidth + sidebarWidth + 2,
-		TotalHeight:  boardHeight + 10,
-	}
-}
-
 // delegate view
 
 func (m GameModel) View() string {
@@ -37,6 +15,7 @@ func (m GameModel) View() string {
 
 	board := m.boardRender()
 	boardWidth := lipgloss.Width(board)
+	boardHeight := lipgloss.Height(board)
 	//TODO:if its flipped
 
 	blackTimer := m.clockRender(
@@ -49,13 +28,14 @@ func (m GameModel) View() string {
 		m.whiteTimerRender(),
 		boardWidth,
 	)
-	sidebar := m.sidebarRender()
+	sidebar := m.sidebarRender(boardHeight)
 	footer := m.footerRender()
 	boardColumn := lipgloss.JoinVertical(
 		lipgloss.Left,
 		blackTimer,
 		board,
 		whiteTimer,
+		footer,
 	)
 	main := lipgloss.JoinHorizontal(
 		lipgloss.Top,
@@ -65,14 +45,8 @@ func (m GameModel) View() string {
 	content := lipgloss.JoinVertical(
 		lipgloss.Left,
 		main,
-		footer,
 	)
 
-	// return lipgloss.JoinVertical(
-	// 	lipgloss.Left,
-	// 	main,
-	// 	footer,
-	// )
 	return lipgloss.Place(
 		m.width,
 		m.height,
@@ -80,24 +54,6 @@ func (m GameModel) View() string {
 		lipgloss.Center,
 		content,
 	)
-	// moveInput := m.InputRender()
-	// player := m.state.PlayerMove()
-
-	// playerState := m.player
-	// player := ""
-	// if playerState == whitePlayer {
-	// 	player = "whitE"
-	// } else {
-	// 	player = "Black"
-	// }
-	// s := m.err
-
-	// from := "from " + m.from + "|"
-	// to := "to " + m.to + "|"
-	// input := "input " + m.input
-	// checkmate := m.checkmatee
-	// history := m.historyRender()
-	// return lipgloss.JoinVertical(lipgloss.Top, blackTimer, board, whiteTimer, moveInput, history)
 }
 
 // render board
@@ -136,9 +92,9 @@ func (m GameModel) boardRender() string {
 		))
 	}
 
-	rows = append(rows, lipgloss.JoinHorizontal(
-		lipgloss.Top, files...,
-	))
+	// rows = append(rows, lipgloss.JoinHorizontal(
+	// 	lipgloss.Top, files...,
+	// ))
 
 	for i := 0; i < len(m.board); i++ {
 		var cells []string
@@ -157,9 +113,9 @@ func (m GameModel) boardRender() string {
 			}
 			cells = append(cells, styles.Render(content))
 		}
-		cells = append(cells, rankStyle.Render(
-			fmt.Sprintf("%d", 8-i),
-		))
+		// cells = append(cells, rankStyle.Render(
+		// 	fmt.Sprintf("%d", 8-i),
+		// ))
 		rows = append(rows, lipgloss.JoinHorizontal(
 			lipgloss.Top, cells...,
 		))
@@ -175,7 +131,7 @@ func (m GameModel) boardRender() string {
 	)
 }
 
-func (m GameModel) sidebarRender() string {
+func (m GameModel) sidebarRender(boardHeight int) string {
 	historyTitle := style.SectionTitleStyle.Render("HISTORY MOVE")
 	history := m.historyRender()
 
@@ -185,7 +141,7 @@ func (m GameModel) sidebarRender() string {
 		strings.Repeat("-", 24),
 		history,
 	)
-	return style.PanelStyle.Width(26).Height(30).Render(content)
+	return style.PanelStyle.Width(26).Height(boardHeight).Render(content)
 }
 
 func (m GameModel) footerRender() string {
@@ -194,7 +150,7 @@ func (m GameModel) footerRender() string {
 	)
 
 	help := style.SecondaryStyle.Render(
-		"Enter: Submit\t|\tEsc: Menu\t|\tCtrl+C: Quit",
+		"Enter: Submit  |  Esc: Menu  |  Ctrl+C: Quit",
 	)
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
