@@ -20,7 +20,7 @@ var (
 			Foreground(lipgloss.Color("#B08B5B")).
 			Padding(0, 1)
 
-	PrimaryText = lipgloss.NewStyle().
+	primaryText = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#E7D5B5"))
 
 	secondaryText = lipgloss.NewStyle().
@@ -61,11 +61,11 @@ func (m MenuModel) footerRender() string {
 	footerContent := fmt.Sprintf("%s %s\t%s\t%s\t%s\t%s\t%s",
 		accentHighlights.Render("k"),
 		accentHighlights.Render("j"),
-		PrimaryText.Render("Navigate"),
+		primaryText.Render("Navigate"),
 		accentHighlights.Render("Enter"),
-		PrimaryText.Render("Select"),
+		primaryText.Render("Select"),
 		accentHighlights.Render("q"),
-		PrimaryText.Render("Quit"))
+		primaryText.Render("Quit"))
 	footer := lipgloss.NewStyle().
 		Align(lipgloss.Center).
 		Width(m.width).

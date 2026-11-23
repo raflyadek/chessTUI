@@ -17,21 +17,21 @@ func (m GameModel) View() string {
 	moveInput := m.InputRender()
 	// player := m.state.PlayerMove()
 
-	playerState := m.player
-	player := ""
-	if playerState == whitePlayer {
-		player = "whitE"
-	} else {
-		player = "Black"
-	}
+	// playerState := m.player
+	// player := ""
+	// if playerState == whitePlayer {
+	// 	player = "whitE"
+	// } else {
+	// 	player = "Black"
+	// }
 	// s := m.err
 
-	from := "from " + m.from + "|"
-	to := "to " + m.to + "|"
-	input := "input " + m.input
-	checkmate := m.checkmatee
+	// from := "from " + m.from + "|"
+	// to := "to " + m.to + "|"
+	// input := "input " + m.input
+	// checkmate := m.checkmatee
 	history := m.historyRender()
-	return lipgloss.JoinVertical(lipgloss.Top, checkmate, blackTimer, board, whiteTimer, input, from, to, player, moveInput, history)
+	return lipgloss.JoinVertical(lipgloss.Top, blackTimer, board, whiteTimer, moveInput, history)
 }
 
 // render board
@@ -104,8 +104,11 @@ func (m GameModel) whiteTimerRender() string {
 
 // render move input
 func (m GameModel) InputRender() string {
-	s := m.moveInput.View()
-	return s
+	return lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		Padding(0, 1).
+		Width(30).
+		Render(m.moveInput.View())
 }
 
 // render history

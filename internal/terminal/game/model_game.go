@@ -28,14 +28,14 @@ type GameModel struct {
 	//move not using piecesMove anymore
 	// from  [2]string
 	// to    [2]string
-	state      *engine.GameState
-	width      int
-	height     int
-	err        string
-	from       string
-	to         string
-	checkmatee string
-	input      string
+	state  *engine.GameState
+	width  int
+	height int
+	err    string
+	// from       string
+	// to         string
+	// checkmatee string
+	// input      string
 }
 
 func (m GameModel) Init() tea.Cmd {
