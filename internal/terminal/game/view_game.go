@@ -29,7 +29,7 @@ func (m GameModel) View() string {
 		boardWidth,
 	)
 	sidebar := m.sidebarRender(boardHeight)
-	footer := m.footerRender()
+	footer := m.footerRender(boardWidth)
 	boardColumn := lipgloss.JoinVertical(
 		lipgloss.Left,
 		blackTimer,
@@ -144,8 +144,8 @@ func (m GameModel) sidebarRender(boardHeight int) string {
 	return style.PanelStyle.Width(26).Height(boardHeight).Render(content)
 }
 
-func (m GameModel) footerRender() string {
-	input := style.InputStyle.Render(
+func (m GameModel) footerRender(boardWidth int) string {
+	input := style.InputStyle.Width(boardWidth).Render(
 		m.InputRender(),
 	)
 
