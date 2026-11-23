@@ -1,34 +1,13 @@
 package menu
 
 import (
-	"fmt"
-	"strings"
-
 	"charm.land/lipgloss/v2"
+	"fmt"
+	"github.com/raflyadek/chessTUI/internal/style"
+	"strings"
 )
 
 //delegate view
-
-var (
-	selectedStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#B08B5B")).
-			Background(lipgloss.Color("#493627")).
-			Bold(true).
-			Padding(0, 1)
-
-	normalStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#B08B5B")).
-			Padding(0, 1)
-
-	primaryText = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#E7D5B5"))
-
-	secondaryText = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#8C7964"))
-
-	accentHighlights = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#B08B5B"))
-)
 
 // view is if m.selected == 1 then y view or j view
 func (m MenuModel) View() string {
@@ -59,13 +38,13 @@ func (m MenuModel) headerRender() string {
 
 func (m MenuModel) footerRender() string {
 	footerContent := fmt.Sprintf("%s %s\t%s\t%s\t%s\t%s\t%s",
-		accentHighlights.Render("k"),
-		accentHighlights.Render("j"),
-		primaryText.Render("Navigate"),
-		accentHighlights.Render("Enter"),
-		primaryText.Render("Select"),
-		accentHighlights.Render("q"),
-		primaryText.Render("Quit"))
+		AccentHighlights.Render("k"),
+		AccentHighlights.Render("j"),
+		PrimaryText.Render("Navigate"),
+		AccentHighlights.Render("Enter"),
+		PrimaryText.Render("Select"),
+		AccentHighlights.Render("q"),
+		PrimaryText.Render("Quit"))
 	footer := lipgloss.NewStyle().
 		Align(lipgloss.Center).
 		Width(m.width).
@@ -79,9 +58,9 @@ func (m MenuModel) contentRender(header, footer string) string {
 	var choices []string
 	for i, v := range m.choices {
 		if m.cursor == i {
-			choices = append(choices, selectedStyle.Render("> "+v))
+			choices = append(choices, SelectedStyle.Render("> "+v))
 		} else {
-			choices = append(choices, normalStyle.Render(" "+v))
+			choices = append(choices, NormalStyle.Render(" "+v))
 		}
 	}
 	content := lipgloss.NewStyle().
