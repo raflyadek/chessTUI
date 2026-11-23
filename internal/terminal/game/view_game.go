@@ -29,7 +29,8 @@ func (m GameModel) View() string {
 	from := "from " + m.from + "|"
 	to := "to " + m.to + "|"
 	input := "input " + m.input
-	return lipgloss.JoinVertical(lipgloss.Top, s, blackTimer, board, whiteTimer, input, from, to, player, moveInput)
+	history := m.historyRender()
+	return lipgloss.JoinVertical(lipgloss.Top, s, blackTimer, board, whiteTimer, input, from, to, player, moveInput, history)
 }
 
 // render board
@@ -108,6 +109,6 @@ func (m GameModel) InputRender() string {
 
 // render history
 func (m GameModel) historyRender() string {
-
-	return ""
+	history := strings.Join(m.historyMove, "\n")
+	return history
 }

@@ -32,6 +32,10 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 				m.moveInput.Reset()
 				return m, nil
 			}
+			//add history
+			history := m.state.HistoryMoveHelper(move, m.board)
+			m.historyMove = append(m.historyMove, history)
+
 			m.err = ""
 			m.board = board
 			// m.from = m.board[6][4]

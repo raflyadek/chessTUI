@@ -112,8 +112,8 @@ type GameState struct {
 	enPassantRow         int
 	enPassantCol         int
 	isEnPassant          bool
-	isCheck              bool
-	isCheckMate          bool
+	IsCheck              bool
+	IsCheckMate          bool
 	isStaleMate          bool
 	IsTimeOut            bool
 	WhiteKingPosition    string
@@ -129,7 +129,7 @@ func NewGameState() *GameState {
 		enPassantRow:         0,
 		enPassantCol:         0,
 		isEnPassant:          false,
-		isCheck:              false,
+		IsCheck:              false,
 		isStaleMate:          false,
 		IsTimeOut:            false,
 		WhiteKingPosition:    "e1",
@@ -202,8 +202,8 @@ func PlayGame(state *GameState, board [8][8]string) error {
 		*/
 
 		fmt.Printf("Its %s move\n", player)
-		fmt.Printf("isCheck: %v\n", state.isCheck)
-		fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
+		fmt.Printf("IsCheck: %v\n", state.IsCheck)
+		fmt.Printf("IsCheckMate: %v\n", state.IsCheckMate)
 		//wait input
 		from, to := piecesMove()
 		flag, err := state.legalMove(from, to, board, state.MoveCounter)
@@ -223,7 +223,7 @@ func PlayGame(state *GameState, board [8][8]string) error {
 
 		// state
 		stateMap[state.MoveCounter] = state.currentState()
-		if state.isCheckMate == true {
+		if state.IsCheckMate == true {
 			fmt.Printf("fen: %v\n", fenMap)
 			fmt.Printf("%s win!\n", player)
 			fmt.Printf("state: %v\n", stateMap)
@@ -231,8 +231,8 @@ func PlayGame(state *GameState, board [8][8]string) error {
 			// 	fmt.Printf(
 			// 		"Move: %d | Check: %v | Checkmate: %v | Address: %p\n",
 			// 		move,
-			// 		snapshot.isCheck,
-			// 		snapshot.isCheckMate,
+			// 		snapshot.IsCheck,
+			// 		snapshot.IsCheckMate,
 			// 		snapshot,
 			// 	)
 			// }
@@ -314,8 +314,8 @@ func (state *GameState) PlayGameTUI(board [8][8]string, move string) ([8][8]stri
 	*/
 
 	// fmt.Printf("Its %s move\n", player)
-	// fmt.Printf("isCheck: %v\n", state.isCheck)
-	// fmt.Printf("isCheckMate: %v\n", state.isCheckMate)
+	// fmt.Printf("IsCheck: %v\n", state.IsCheck)
+	// fmt.Printf("IsCheckMate: %v\n", state.IsCheckMate)
 
 	//wait input
 	// from, to, err1 := piecesMoveTui(move)
@@ -361,7 +361,7 @@ func (state *GameState) PlayGameTUI(board [8][8]string, move string) ([8][8]stri
 	fenMap[state.MoveCounter] = fen
 
 	stateMap[state.MoveCounter] = state.currentState()
-	if state.isCheckMate == true {
+	if state.IsCheckMate == true {
 		// fmt.Printf("fen: %v\n", fenMap)
 		// fmt.Printf("%s win!\n", player)
 		choice, err := afterCheckMate()
@@ -547,11 +547,11 @@ func (gs *GameState) applyMove(board [8][8]string, from, to string) [8][8]string
 
 	//but if another piece block the king??
 	// if pieceLocation == "k" || pieceLocation == "K" {
-	// 	isCheck = false
+	// 	IsCheck = false
 	// }
 
 	//check
-	//how do we put the if isCheck == true <- then when try to run another piece/not block
+	//how do we put the if IsCheck == true <- then when try to run another piece/not block
 	//it is not update the board??
 	return board
 }
@@ -671,7 +671,7 @@ func (gs *GameState) legalMove(from, to string, board [8][8]string, moveCounter 
 	// after all condition pased then return true
 	//check
 	//but if another piece block the king??
-	// if isCheck == true && pieceLocation != "k" && pieceLocation != "K" {
+	// if IsCheck == true && pieceLocation != "k" && pieceLocation != "K" {
 	// 	return false, fmt.Errorf("you are being checked, move your king")
 	// }
 	//after test passes, we check the king condition
@@ -1176,9 +1176,9 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 	pieces := "rnbqkp"
 
 	//the issue here is when we check with white, and black king move/blocked with another piece
-	//it doesnt update the isCheck state, so when that happen the state is still true until the white move
+	//it doesnt update the IsCheck state, so when that happen the state is still true until the white move
 	//i think it suppose, we check our own king, when we move, is there any threat to our king or no,
-	//OR with this current logic, when the isCheck true, then if isCheck = true, do the same thing but
+	//OR with this current logic, when the IsCheck true, then if IsCheck = true, do the same thing but
 	//check our own king position
 
 	//should we create this function return something so we can exit early?
@@ -1216,7 +1216,7 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 				if i == 7 && j == 7 && checkCounter == 0 {
 					// fmt.Printf("checkcounter: %d\n", checkCounter)
 					// fmt.Println("change ischeck to false white")
-					gs.isCheck = false
+					gs.IsCheck = false
 				}
 			}
 		}
@@ -1246,14 +1246,14 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 				}
 				//the check counter is kinda unnecessary i think,
 				//can just if err != nil then return "your king is checked"
-				//and if i == 7 and j == 7 then isCheck false
+				//and if i == 7 and j == 7 then IsCheck false
 				if i == 7 && j == 7 && checkCounter != 0 {
 					return fmt.Errorf("your king is being check, move or block it")
 				}
 				if i == 7 && j == 7 && checkCounter == 0 {
 					// fmt.Printf("checkcounter: %d\n", checkCounter)
 					// fmt.Println("change ischeck to false")
-					gs.isCheck = false
+					gs.IsCheck = false
 				}
 			}
 		}
@@ -1287,9 +1287,9 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fmt.Printf("to: %s\n", blackKingPositionCopy)
 						fmt.Printf("checkFrom: %v\n", checkFrom)
 						fmt.Printf("checkPieces: %v\n", checkPiece)
-						gs.isCheck = true
+						gs.IsCheck = true
 						if checkMate := gs.checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
-							gs.isCheckMate = true
+							gs.IsCheckMate = true
 						}
 						return nil
 					}
@@ -1318,9 +1318,9 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 						fmt.Printf("to: %s\n", whiteKingPositionCopy)
 						fmt.Printf("checkFrom: %v\n", checkFrom)
 						fmt.Printf("checkPieces: %v\n", checkPiece)
-						gs.isCheck = true
+						gs.IsCheck = true
 						if checkMate := gs.checkMateState(checkCounter, checkFrom, checkPiece, board); checkMate {
-							gs.isCheckMate = true
+							gs.IsCheckMate = true
 						}
 						return nil
 					}
@@ -1329,8 +1329,8 @@ func (gs *GameState) checkMove(pieceDestination string, board [8][8]string, whit
 		}
 	}
 
-	// checkmate scenario if isCheck = true <- check all the possible king position if none then checkmate
-	// if isCheck == true {
+	// checkmate scenario if IsCheck = true <- check all the possible king position if none then checkmate
+	// if IsCheck == true {
 	// 	//logic to get possible move for king if nothing then
 	// 	//checkmate scenario
 	// }
@@ -1704,7 +1704,7 @@ outerLoop:
 		}
 	}
 
-	//so whenever isCheck change to true, then check if its only check or checkMate
+	//so whenever IsCheck change to true, then check if its only check or checkMate
 	//we can do that with immidiately check possible move king, if king is in e1 being check
 	//then check if f1,f2,e2,d1,d2 is being check too or no?, then we can create
 	//white king position copy and changed that copy value +1/-1 on col and row
@@ -1758,7 +1758,7 @@ func (gs *GameState) pinPiece(board [8][8]string, pieces, player, squareFrom, sq
 				if i == 7 && j == 7 && checkCounter == 0 {
 					// fmt.Printf("checkcounter: %d\n", checkCounter)
 					// fmt.Println("change ischeck to false white")
-					// isCheck = false
+					// IsCheck = false
 					return false
 				}
 			}
@@ -1789,7 +1789,7 @@ func (gs *GameState) pinPiece(board [8][8]string, pieces, player, squareFrom, sq
 				}
 				//the check counter is kinda unnecessary i think,
 				//can just if err != nil then return "your king is checked"
-				//and if i == 7 and j == 7 then isCheck false
+				//and if i == 7 and j == 7 then IsCheck false
 				if i == 7 && j == 7 && checkCounter != 0 {
 					return true
 				}
@@ -1935,4 +1935,79 @@ func fenToBoard(fen string) [8][8]string {
 func (gs *GameState) currentState() *GameState {
 	stateCopy := *gs
 	return &stateCopy
+}
+
+func (gs *GameState) HistoryMoveHelper(move string, board [8][8]string) string {
+
+	fromCol := int(move[0] - 'a')
+	fromRow := 8 - int(move[1]-'0')
+	toCol := int(move[2] - 'a')
+	toRow := 8 - int(move[3]-'0')
+	destination := move[2:4]
+
+	pieceLocation := board[fromRow][fromCol]
+	pieceDestination := board[toRow][toCol]
+
+	//check & eat
+	if gs.IsCheck && pieceDestination != "" {
+		if pieceLocation == "p" || pieceLocation == "P" {
+			destination = move[0:1] + "x" + destination + "+"
+			return destination
+		} else {
+			destination = pieceLocation + "x" + destination + "+"
+			return destination
+		}
+	}
+	//check not eat
+
+	if gs.IsCheck && pieceDestination == "" {
+		if pieceLocation == "p" || pieceLocation == "P" {
+			destination = move[0:1] + destination + "+"
+			return destination
+		} else {
+			destination = pieceLocation + destination + "+"
+			return destination
+		}
+	}
+
+	//checkmate & eat
+	if gs.IsCheckMate && pieceDestination != "" {
+		if pieceDestination == "p" || pieceDestination == "P" {
+			destination = move[0:1] + "x" + destination + "#"
+			return destination
+		} else {
+			destination = pieceLocation + "x" + destination + "#"
+			return destination
+		}
+	}
+
+	//checkmate not eat
+	if gs.IsCheckMate && pieceDestination != "" {
+		if pieceDestination == "p" || pieceDestination == "P" {
+			destination = move[0:1] + destination + "#"
+			return destination
+		} else {
+			destination = pieceLocation + destination + "#"
+			return destination
+		}
+	}
+
+	//eat
+	if pieceDestination != "" {
+		if pieceLocation == "p" || pieceLocation == "P" {
+			destination = move[0:1] + "x" + destination
+			return destination
+		} else {
+			destination = pieceLocation + "x" + destination
+			return destination
+		}
+	} else {
+		if pieceLocation != "p" || pieceLocation != "P" {
+			destination = pieceLocation + destination
+			return destination
+		}
+	}
+
+	// only destination for pawn
+	return destination
 }

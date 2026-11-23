@@ -19,11 +19,12 @@ const (
 )
 
 type GameModel struct {
-	board      [8][8]string
-	blackTimer timer.Model
-	whiteTimer timer.Model
-	player     activePlayer
-	moveInput  textinput.Model
+	board       [8][8]string
+	blackTimer  timer.Model
+	whiteTimer  timer.Model
+	player      activePlayer
+	moveInput   textinput.Model
+	historyMove []string
 	//move not using piecesMove anymore
 	// from  [2]string
 	// to    [2]string
