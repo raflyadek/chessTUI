@@ -31,7 +31,7 @@ func (m MenuModel) headerRender() string {
 		Align(lipgloss.Center).
 		Width(m.width).
 		Bold(true).
-		Foreground(lipgloss.Color("#E8C88A")).
+		Foreground(style.White).
 		Render(headerContent)
 	return header
 }

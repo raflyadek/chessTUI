@@ -6,23 +6,24 @@ import (
 
 var (
 	SelectedStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#B08B5B")).
-			Background(lipgloss.Color("#493627")).
+			Foreground(White).
+			Background(Black).
 			Bold(true).
 			Padding(0, 1)
 
 	NormalStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#B08B5B")).
+			Foreground(White).
 			Padding(0, 1)
 
 	PrimaryText = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#E7D5B5"))
+			Foreground(Grey)
 
 	SecondaryText = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#8C7964"))
+			Foreground(White)
 
 	AccentHighlights = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#B08B5B"))
+				Foreground(Grey).
+				Bold(true)
 )
 
 var (
@@ -84,8 +85,8 @@ var (
 
 	DarkSquareStyle = lipgloss.NewStyle().
 			Background(DarkSquare).
-			Foreground(White).
-			Width(5).
-			Height(3).
-			Align(lipgloss.Center, lipgloss.Center)
+		// Foreground(White).
+		Width(5).
+		Height(3).
+		Align(lipgloss.Center, lipgloss.Center)
 )
