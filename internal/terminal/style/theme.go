@@ -89,4 +89,7 @@ var (
 		Width(5).
 		Height(3).
 		Align(lipgloss.Center, lipgloss.Center)
+
+	WhitePieceColor = lipgloss.Color("#FFFFFF")
+	BlackPieceColor = lipgloss.Color("#141414")
 )

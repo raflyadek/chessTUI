@@ -25,6 +25,7 @@ type GameModel struct {
 	player      activePlayer
 	moveInput   textinput.Model
 	historyMove []string
+	flipped     bool
 	//move not using piecesMove anymore
 	// from  [2]string
 	// to    [2]string

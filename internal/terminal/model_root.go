@@ -15,9 +15,11 @@ const (
 
 // root model
 type RootModel struct {
-	state stateView
-	game  game.GameModel
-	menu  menu.MenuModel
+	width  int
+	height int
+	state  stateView
+	game   game.GameModel
+	menu   menu.MenuModel
 }
 
 func (m RootModel) Init() tea.Cmd {

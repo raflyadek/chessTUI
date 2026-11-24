@@ -11,7 +11,14 @@ import (
 func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch msg.(type) {
+	switch msg := msg.(type) {
+	case tea.WindowSizeMsg:
+		m.width = msg.Width
+		m.height = msg.Height
+		var gameCmd, menuCmd tea.Cmd
+		m.game, gameCmd = m.game.Update(msg)
+		m.menu, menuCmd = m.menu.Update(msg)
+		return m, tea.Batch(gameCmd, menuCmd)
 	case game.BackToMenu:
 		m.state = menuView
 		return m, nil
@@ -19,6 +26,16 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		//reset game model with every open game mnu
 		m.game = game.InitGameModel()
 		m.state = gameView
+		initCmd := m.game.Init()
+		if m.width > 0 && m.height > 0 {
+
+			var sizeCmd tea.Cmd
+			m.game, sizeCmd = m.game.Update(tea.WindowSizeMsg{
+				Width:  m.width,
+				Height: m.height,
+			})
+			return m, tea.Batch(initCmd, sizeCmd)
+		}
 		return m, m.game.Init()
 	}
 	//delegate msg from active state
