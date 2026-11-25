@@ -8,84 +8,6 @@ import (
 	"github.com/raflyadek/chessTUI/internal/terminal/style"
 )
 
-type boardLayout struct {
-	cellWidth    int
-	cellHeight   int
-	sidebarWidth int
-	stacked      bool // true on narrow terminals: put sidebar below board
-}
-
-func (m GameModel) calculateLayout() boardLayout {
-	w := m.width
-	h := m.height
-	if w <= 0 {
-		w = 120
-	}
-	if h <= 0 {
-		h = 36
-	}
-
-	const (
-		rankColWidth   = 2
-		sidebarInnerW  = 24
-		sidebarChromeW = 4 // border (2) + padding (2)
-		verticalChrome = 8 // clocks + file labels + input + help line + margins
-		minCellW       = 4
-		maxCellW       = 10
-		minCellH       = 2
-		maxCellH       = 5
-	)
-
-	stacked := w < 76
-
-	var sidebarWidth, availBoardW int
-	if stacked {
-		sidebarWidth = max(20, w-sidebarChromeW-4)
-		availBoardW = w - rankColWidth - 4
-	} else {
-		sidebarWidth = sidebarInnerW
-		availBoardW = w - rankColWidth - (sidebarWidth + sidebarChromeW) - 4
-	}
-
-	availBoardH := max(8, h-verticalChrome)
-	if stacked {
-		availBoardH = max(8, (h-verticalChrome)-12)
-	}
-
-	// Each square has 8 columns and 8 rows
-	maxWPerCell := max(1, availBoardW/8)
-	maxHPerCell := max(1, availBoardH/8)
-
-	// Terminal cells are ~1:2 (width:height), so cellW ≈ 2 * cellH looks square.
-	// Pick the largest balanced pair that fits in BOTH width and height budgets.
-	cellH := clamp(min(maxHPerCell, maxWPerCell/2), minCellH, maxCellH)
-	cellW := clamp(min(maxWPerCell, cellH*2), minCellW, maxCellW)
-
-	// If height is generous (like h=51) but width is tight (like w=78),
-	// keep cellH at least 3 as long as maxHPerCell >= 3, and let cellW use what's available.
-	if maxHPerCell >= 3 && cellH < 3 {
-		cellH = 3
-		cellW = clamp(maxWPerCell, minCellW, maxCellW)
-	}
-
-	return boardLayout{
-		cellWidth:    cellW,
-		cellHeight:   cellH,
-		sidebarWidth: sidebarWidth,
-		stacked:      stacked,
-	}
-}
-
-func clamp(v, lo, hi int) int {
-	if v < lo {
-		return lo
-	}
-	if v > hi {
-		return hi
-	}
-	return v
-}
-
 // delegate view
 
 func (m GameModel) View() string {
@@ -401,7 +323,7 @@ var largePieces = map[string][]string{
 	},
 	"N": {
 		" ▄██▄  ",
-		" ███▌ ",
+		" ███▌  ",
 		"  ▐█▌  ",
 		" ▄███▄ ",
 	},
@@ -478,4 +400,82 @@ func (m GameModel) renderSquareArt(
 	}
 
 	return lipgloss.JoinVertical(lipgloss.Left, lines...)
+}
+
+type boardLayout struct {
+	cellWidth    int
+	cellHeight   int
+	sidebarWidth int
+	stacked      bool // true on narrow terminals: put sidebar below board
+}
+
+func (m GameModel) calculateLayout() boardLayout {
+	w := m.width
+	h := m.height
+	if w <= 0 {
+		w = 120
+	}
+	if h <= 0 {
+		h = 36
+	}
+
+	const (
+		rankColWidth   = 2
+		sidebarInnerW  = 24
+		sidebarChromeW = 4 // border (2) + padding (2)
+		verticalChrome = 8 // clocks + file labels + input + help line + margins
+		minCellW       = 4
+		maxCellW       = 10
+		minCellH       = 2
+		maxCellH       = 5
+	)
+
+	stacked := w < 76
+
+	var sidebarWidth, availBoardW int
+	if stacked {
+		sidebarWidth = max(20, w-sidebarChromeW-4)
+		availBoardW = w - rankColWidth - 4
+	} else {
+		sidebarWidth = sidebarInnerW
+		availBoardW = w - rankColWidth - (sidebarWidth + sidebarChromeW) - 4
+	}
+
+	availBoardH := max(8, h-verticalChrome)
+	if stacked {
+		availBoardH = max(8, (h-verticalChrome)-12)
+	}
+
+	// Each square has 8 columns and 8 rows
+	maxWPerCell := max(1, availBoardW/8)
+	maxHPerCell := max(1, availBoardH/8)
+
+	// Terminal cells are ~1:2 (width:height), so cellW ≈ 2 * cellH looks square.
+	// Pick the largest balanced pair that fits in BOTH width and height budgets.
+	cellH := clamp(min(maxHPerCell, maxWPerCell/2), minCellH, maxCellH)
+	cellW := clamp(min(maxWPerCell, cellH*2), minCellW, maxCellW)
+
+	// If height is generous (like h=51) but width is tight (like w=78),
+	// keep cellH at least 3 as long as maxHPerCell >= 3, and let cellW use what's available.
+	if maxHPerCell >= 3 && cellH < 3 {
+		cellH = 3
+		cellW = clamp(maxWPerCell, minCellW, maxCellW)
+	}
+
+	return boardLayout{
+		cellWidth:    cellW,
+		cellHeight:   cellH,
+		sidebarWidth: sidebarWidth,
+		stacked:      stacked,
+	}
+}
+
+func clamp(v, lo, hi int) int {
+	if v < lo {
+		return lo
+	}
+	if v > hi {
+		return hi
+	}
+	return v
 }
