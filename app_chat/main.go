@@ -9,6 +9,7 @@ import (
 )
 
 func main() {
+	//ssh
 	p := tea.NewProgram(terminal.InitRootModel())
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Oof: %v\n", err)
