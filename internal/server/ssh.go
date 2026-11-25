@@ -23,6 +23,8 @@ func InitServer(host string, port int) {
 		ssh.PublicKeyAuth(func(ssh.Context, ssh.PublicKey) bool { return true }),
 		ssh.PasswordAuth(func(ssh.Context, string) bool { return false }),
 		wish.WithMiddleware(
+			//middleware for chess tui
+			//engine.chessTui
 			logging.Middleware(),
 		),
 		wish.WithIdleTimeout(1*time.Hour),
