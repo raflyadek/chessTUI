@@ -15,7 +15,7 @@ func (m SettingModel) View() string {
 	var body string
 	switch m.step {
 	case stepChooseAction:
-		opts := []string{"Create Room", "Join Room"}
+		opts := []string{"Create Room (Local)", "Create Room (Online)", "Join Room"}
 		var lines []string
 		lines = append(lines, style.SectionTitleStyle.Render("PLAY WITH FRIENDS (ONLINE)"))
 		for i, opt := range opts {
