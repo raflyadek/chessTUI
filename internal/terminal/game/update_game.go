@@ -3,6 +3,7 @@ package game
 import (
 	"charm.land/bubbles/v2/timer"
 	tea "charm.land/bubbletea/v2"
+	"github.com/raflyadek/chessTUI/internal/middleware"
 )
 
 //update delegate
@@ -11,6 +12,17 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 	//from to, move generator
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
+	case middleware.MoveUpdatedMsg:
+		m.board = msg.Board
+		m.currentTurn = msg.Next
+		m.historyMove = msg.History
+		m.err = ""
+		return m, waitForRoomEvent(m.player2.Events)
+
+	case middleware.OpponentDisconnectedMsg:
+		m.opponentOut = true
+		m.err = "Opponent disconnected from the match"
+		return m, nil
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
@@ -22,9 +34,24 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 			return m, func() tea.Msg {
 				return BackToMenu{}
 			}
+		case "ctrl+f":
+			m.flipped = !m.flipped
+			return m, nil
 		case "enter":
-			m.flipped = true
 			move := m.moveInput.Value()
+			// Online SSH multiplayer path
+			if m.online && m.room != nil {
+				if m.opponentOut {
+					m.err = "Match ended: opponent disconnected"
+					return m, nil
+				}
+				if err := m.room.SubmitMove(m.mySide, move); err != nil {
+					m.err = err.Error()
+				}
+				return m, nil
+			}
+
+			// local play path
 			// m.input = move
 			board, err := m.state.PlayGameTUI(m.board, move)
 			if err != nil {

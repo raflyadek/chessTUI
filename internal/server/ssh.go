@@ -10,12 +10,16 @@ import (
 	"syscall"
 	"time"
 
+	tea "charm.land/bubbletea/v2"
 	"charm.land/ssh"
 	"charm.land/wish/v2"
+	wishbm "charm.land/wish/v2/bubbletea"
 	"charm.land/wish/v2/logging"
+	"github.com/raflyadek/chessTUI/internal/middleware"
+	"github.com/raflyadek/chessTUI/internal/terminal"
 )
 
-func InitServer(host string, port int) {
+func InitServer(host string, port int, lobby *middleware.Lobby) {
 	server, err := wish.NewServer(
 		wish.WithAddress(fmt.Sprintf("%s:%d", host, port)),
 		wish.WithHostKeyPath(".ssh/id_ed25519"),
@@ -24,7 +28,9 @@ func InitServer(host string, port int) {
 		ssh.PasswordAuth(func(ssh.Context, string) bool { return false }),
 		wish.WithMiddleware(
 			//middleware for chess tui
-			//engine.chessTui
+			wishbm.Middleware(func(s ssh.Session) (tea.Model, []tea.ProgramOption) {
+				return terminal.InitRootModelWithLobby(lobby, s.User(), port), nil
+			}),
 			logging.Middleware(),
 		),
 		wish.WithIdleTimeout(1*time.Hour),

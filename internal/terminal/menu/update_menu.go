@@ -2,7 +2,7 @@ package menu
 
 import tea "charm.land/bubbletea/v2"
 
-//update delegate
+// update delegate
 func (m MenuModel) Update(msg tea.Msg) (MenuModel, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
@@ -36,7 +36,7 @@ func (m MenuModel) Update(msg tea.Msg) (MenuModel, tea.Cmd) {
 			}
 			if m.cursor == 1 {
 				return m, func() tea.Msg {
-					return PlayGame{}
+					return SettingGame{}
 				}
 			}
 		}
@@ -44,4 +44,5 @@ func (m MenuModel) Update(msg tea.Msg) (MenuModel, tea.Cmd) {
 	return m, nil
 }
 
+type SettingGame struct{}
 type PlayGame struct{}

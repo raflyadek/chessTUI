@@ -5,8 +5,6 @@ import (
 	"github.com/raflyadek/chessTUI/internal/terminal/style"
 )
 
-//root view
-
 func (m RootModel) View() tea.View {
 	var s string
 
@@ -16,11 +14,11 @@ func (m RootModel) View() tea.View {
 	case gameView:
 		s = m.game.View()
 	case settingView:
-
+		s = m.setting.View()
 	}
+
 	v := tea.NewView(s)
 	v.AltScreen = true
 	v.BackgroundColor = style.Black
-	// v.BackgroundColor = color.RGBA{R: 17, G: 17, B: 132, A: 1}
 	return v
 }
