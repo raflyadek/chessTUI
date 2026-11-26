@@ -261,3 +261,69 @@ func generateRoomCode() string {
 	}
 	return string(b)
 }
+
+func (l *Lobby) JoinAvailableRoom(guestName string) (*Room, *Player, Side, bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	for _, room := range l.rooms {
+		room.mu.Lock()
+		var assigned Side
+		if room.White == nil && room.Black != nil {
+			assigned = SideWhite
+		} else if room.Black == nil && room.White != nil {
+			assigned = SideBlack
+		} else {
+			room.mu.Unlock()
+			continue
+		}
+
+		guest := &Player{
+			Name:   guestName,
+			Side:   assigned,
+			Events: make(chan tea.Msg, 16),
+		}
+
+		if assigned == SideWhite {
+			room.White = guest
+		} else {
+			room.Black = guest
+		}
+		room.Started = true
+		// Notify the host player waiting in SettingModel
+		var host *Player
+		if assigned == SideWhite && room.Black != nil {
+			host = room.Black
+		} else if assigned == SideBlack && room.White != nil {
+			host = room.White
+		}
+		board := room.Board
+		tf := room.TimeFormat
+		room.mu.Unlock()
+
+		if host != nil {
+			select {
+			case host.Events <- MatchStartedMsg{
+				RoomID: room.ID,
+				// Opponent:   guest,
+				Assigned:   room.HostSide,
+				TimeFormat: tf,
+				Board:      board,
+			}:
+			default:
+			}
+		}
+
+		return room, guest, assigned, true
+	}
+
+	return nil, nil, "", false
+}
+
+func (l *Lobby) GetRoom(code string) (*Room, bool) {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+
+	room, ok := l.rooms[strings.ToUpper(strings.TrimSpace(code))]
+	return room, ok
+}

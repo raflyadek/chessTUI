@@ -58,3 +58,8 @@ func InitRootModelWithLobby(
 		setting: setting.InitSettingModel(lobby, playerName, sshPort, engine.InitBoard(), engine.NewGameState().PlayGameTUI),
 	}
 }
+
+func (m RootModel) WithStartHost(fn func() error) RootModel {
+	m.setting = m.setting.WithStartHost(fn)
+	return m
+}

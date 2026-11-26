@@ -39,6 +39,8 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 			return m, nil
 		case "enter":
 			move := m.moveInput.Value()
+			m.moveInput.Reset()
+
 			// Online SSH multiplayer path
 			if m.online && m.room != nil {
 				if m.opponentOut {
@@ -72,7 +74,6 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 			m.board = board
 			// m.from = m.board[6][4]
 			// m.to = m.board[5][4]
-			m.moveInput.Reset()
 			cmd = m.switchPlayer()
 			return m, cmd
 		default:

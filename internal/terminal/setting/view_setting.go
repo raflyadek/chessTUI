@@ -17,7 +17,7 @@ func (m SettingModel) View() string {
 	case stepChooseAction:
 		opts := []string{"Create Room", "Join Room"}
 		var lines []string
-		lines = append(lines, style.SectionTitleStyle.Render("PLAY WITH FRIENDS (LAN)"))
+		lines = append(lines, style.SectionTitleStyle.Render("PLAY WITH FRIENDS (ONLINE)"))
 		for i, opt := range opts {
 			prefix := "  "
 			st := style.NormalStyle
@@ -61,7 +61,7 @@ func (m SettingModel) View() string {
 		sshCmd := fmt.Sprintf("ssh %s -p %d", lanIP, m.sshPort)
 		lines := []string{
 			style.SectionTitleStyle.Render("WAITING FOR FRIEND..."),
-			fmt.Sprintf("Room Code : %s", style.HeaderStyle.Render(m.room.ID)),
+			// fmt.Sprintf("Room Code : %s", style.HeaderStyle.Render(m.room.ID)),
 			fmt.Sprintf("Your Side : %s", strings.ToUpper(string(m.player.Side))),
 			fmt.Sprintf("Format    : %s", m.room.TimeFormat.Label),
 			"",

@@ -39,10 +39,11 @@ type SettingModel struct {
 	applyMoveFn  func([8][8]string, string) ([8][8]string, error)
 
 	// Cursor & selections
-	actionIdx int // 0 = Create Room, 1 = Join Room
-	fieldIdx  int // 0 = Side, 1 = Time Format, 2 = Start Waiting
-	sideIdx   int // 0 = White, 1 = Black, 2 = Random
-	timeIdx   int
+	actionIdx   int // 0 = Create Room, 1 = Join Room
+	fieldIdx    int // 0 = Side, 1 = Time Format, 2 = Start Waiting
+	sideIdx     int // 0 = White, 1 = Black, 2 = Random
+	timeIdx     int
+	startHostFn func() error
 
 	roomInput textinput.Model
 	room      *middleware.Room
@@ -71,6 +72,12 @@ func InitSettingModel(
 		applyMoveFn:  applyFn,
 		roomInput:    ti,
 	}
+}
+
+// Add `startHostFn func() error` field to SettingModel struct
+func (m SettingModel) WithStartHost(fn func() error) SettingModel {
+	m.startHostFn = fn
+	return m
 }
 
 func (m SettingModel) Init() tea.Cmd {

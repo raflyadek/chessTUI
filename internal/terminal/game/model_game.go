@@ -60,7 +60,7 @@ func waitForRoomEvent(ch <-chan tea.Msg) tea.Cmd {
 func InitGameModel() GameModel {
 	input := textinput.New()
 	input.Placeholder = "Enter move (e.g. e2e4)"
-	// input.SetWidth(30)
+	input.SetWidth(30)
 	input.Focus()
 	return GameModel{
 		board:      engine.InitBoard(),

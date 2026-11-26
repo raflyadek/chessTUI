@@ -1,6 +1,7 @@
 package setting
 
 import (
+	"fmt"
 	"strings"
 
 	"charm.land/bubbles/v2/textinput"
@@ -16,9 +17,13 @@ func (m SettingModel) Update(msg tea.Msg) (SettingModel, tea.Cmd) {
 		return m, nil
 
 	case middleware.MatchStartedMsg:
+		room, ok := m.lobby.GetRoom(msg.RoomID)
+		if !ok {
+			room = m.room
+		}
 		return m, func() tea.Msg {
 			return StartOnlineGameMsg{
-				Room:       m.room,
+				Room:       room,
 				Player:     m.player,
 				Assigned:   msg.Assigned,
 				TimeFormat: msg.TimeFormat,
@@ -98,6 +103,15 @@ func (m SettingModel) updateCreateConfig(key string) (SettingModel, tea.Cmd) {
 			m.fieldIdx++
 			return m, nil
 		}
+
+		//start ssh server local on demand
+		if m.startHostFn != nil {
+			if err := m.startHostFn(); err != nil {
+				m.errMsg = fmt.Sprintf("Failed to start SSH host: %v", err)
+				return m, nil
+			}
+		}
+
 		room, player := m.lobby.CreateRoom(
 			m.playerName,
 			sides[m.sideIdx],
