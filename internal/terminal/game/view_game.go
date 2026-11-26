@@ -11,11 +11,11 @@ import (
 // delegate view
 
 func (m GameModel) View() string {
+	//if its still menu
 	layout := m.calculateLayout()
 	board := m.boardRender(layout.cellWidth, layout.cellHeight)
 	boardWidth := lipgloss.Width(board)
 	boardHeight := lipgloss.Height(board)
-	//TODO:if its flipped
 
 	blackTimer := m.clockRender(
 		blackPlayer,

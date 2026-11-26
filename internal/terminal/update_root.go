@@ -4,6 +4,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"github.com/raflyadek/chessTUI/internal/terminal/game"
 	"github.com/raflyadek/chessTUI/internal/terminal/menu"
+	"github.com/raflyadek/chessTUI/internal/terminal/setting"
 )
 
 //root update
@@ -36,6 +37,8 @@ func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			})
 			return m, tea.Batch(initCmd, sizeCmd)
 		}
+	case setting.SettingGame:
+		m.state = settingView
 		return m, m.game.Init()
 	}
 	//delegate msg from active state

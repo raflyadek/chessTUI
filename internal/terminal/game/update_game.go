@@ -24,7 +24,6 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 			}
 		case "enter":
 			m.flipped = true
-			//TODO: create state where its a valid move before update the timer
 			move := m.moveInput.Value()
 			// m.input = move
 			board, err := m.state.PlayGameTUI(m.board, move)

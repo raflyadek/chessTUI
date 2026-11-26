@@ -15,6 +15,8 @@ func (m RootModel) View() tea.View {
 		s = m.menu.View()
 	case gameView:
 		s = m.game.View()
+	case settingView:
+
 	}
 	v := tea.NewView(s)
 	v.AltScreen = true

@@ -13,9 +13,6 @@ var (
 	port = "3000"
 )
 
-// TODO:
-// create a room, player and gameMiddleware when user choose
-// "play with a friend" menu and just use the view on game menu later
 func main() {
 	//ssh
 	p := tea.NewProgram(terminal.InitRootModel())

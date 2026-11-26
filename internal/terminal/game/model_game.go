@@ -26,17 +26,12 @@ type GameModel struct {
 	moveInput   textinput.Model
 	historyMove []string
 	flipped     bool
-	//move not using piecesMove anymore
-	// from  [2]string
-	// to    [2]string
-	state  *engine.GameState
-	width  int
-	height int
-	err    string
-	// from       string
-	// to         string
-	// checkmatee string
-	// input      string
+	isLocal     bool
+	isLan       bool
+	state       *engine.GameState
+	width       int
+	height      int
+	err         string
 }
 
 func (m GameModel) Init() tea.Cmd {
@@ -46,8 +41,7 @@ func (m GameModel) Init() tea.Cmd {
 func InitGameModel() GameModel {
 	input := textinput.New()
 	input.Placeholder = "Enter move (e.g. e2e4)"
-	//TODO:change width in the view
-	input.SetWidth(30)
+	// input.SetWidth(30)
 	input.Focus()
 	return GameModel{
 		board:      engine.InitBoard(),

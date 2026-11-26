@@ -11,6 +11,7 @@ type stateView int
 const (
 	menuView stateView = iota
 	gameView
+	settingView
 )
 
 // root model
