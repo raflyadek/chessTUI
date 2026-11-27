@@ -41,7 +41,7 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 			move := m.moveInput.Value()
 			m.moveInput.Reset()
 
-			// Online SSH multiplayer path
+			// Online/local SSH multiplayer path
 			if m.online && m.room != nil {
 				if m.opponentOut {
 					m.err = "Match ended: opponent disconnected"

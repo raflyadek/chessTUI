@@ -15,10 +15,10 @@ func (m SettingModel) View() string {
 	var body string
 	switch m.step {
 	case stepChooseAction:
-		opts := []string{"Create Room (Local)", "Create Room (Online)", "Join Room"}
 		var lines []string
-		lines = append(lines, style.SectionTitleStyle.Render("PLAY WITH FRIENDS (ONLINE)"))
-		for i, opt := range opts {
+
+		lines = append(lines, style.SectionTitleStyle.Render("PLAY WITH FRIENDS"))
+		for i, opt := range m.opts {
 			prefix := "  "
 			st := style.NormalStyle
 			if i == m.actionIdx {
@@ -59,17 +59,34 @@ func (m SettingModel) View() string {
 	case stepWaiting:
 		lanIP := localIPv4()
 		sshCmd := fmt.Sprintf("ssh %s -p %d", lanIP, m.sshPort)
-		lines := []string{
-			style.SectionTitleStyle.Render("WAITING FOR FRIEND..."),
-			// fmt.Sprintf("Room Code : %s", style.HeaderStyle.Render(m.room.ID)),
-			fmt.Sprintf("Your Side : %s", strings.ToUpper(string(m.player.Side))),
-			fmt.Sprintf("Format    : %s", m.room.TimeFormat.Label),
-			"",
-			style.SecondaryStyle.Render("Ask your friend on the same network to run:"),
-			style.HeaderStyle.Render(sshCmd),
-			style.SecondaryStyle.Render("Then choose Play With Friends -> Join Room and enter the code."),
-			"",
-			style.SecondaryStyle.Render("Esc: Cancel Room"),
+		lines := []string{}
+		switch m.isOnline {
+		case true:
+			lines = append(lines,
+				style.SectionTitleStyle.Render("WAITING FOR FRIEND..."),
+				fmt.Sprintf("Room Code : %s", style.HeaderStyle.Render(m.room.ID)),
+				fmt.Sprintf("Your Side : %s", strings.ToUpper(string(m.player.Side))),
+				fmt.Sprintf("Format    : %s", m.room.TimeFormat.Label),
+				"",
+				style.SecondaryStyle.Render("Ask your friend to join the server"),
+				// style.HeaderStyle.Render(sshCmd),
+				style.SecondaryStyle.Render("Then choose Play With Friends -> Join Room and enter the code."),
+				"",
+				style.SecondaryStyle.Render("Esc: Cancel Room"),
+			)
+		case false:
+			lines = append(lines,
+				style.SectionTitleStyle.Render("WAITING FOR FRIEND..."),
+				// fmt.Sprintf("Room Code : %s", style.HeaderStyle.Render(m.room.ID)),
+				fmt.Sprintf("Your Side : %s", strings.ToUpper(string(m.player.Side))),
+				fmt.Sprintf("Format    : %s", m.room.TimeFormat.Label),
+				"",
+				style.SecondaryStyle.Render("Ask your friend on the same network to run:"),
+				style.HeaderStyle.Render(sshCmd),
+				// style.SecondaryStyle.Render("Then choose Play With Friends -> Join Room and enter the code."),
+				"",
+				style.SecondaryStyle.Render("Esc: Cancel Room"),
+			)
 		}
 		body = lipgloss.JoinVertical(lipgloss.Left, lines...)
 	}

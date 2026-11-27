@@ -11,6 +11,7 @@ import (
 	"charm.land/ssh"
 	"charm.land/wish/v2"
 	wishbm "charm.land/wish/v2/bubbletea"
+	"charm.land/wish/v2/logging"
 	"github.com/raflyadek/chessTUI/internal/middleware"
 	"github.com/raflyadek/chessTUI/internal/terminal"
 	friend "github.com/raflyadek/chessTUI/internal/terminal/guest"
@@ -63,7 +64,7 @@ func (h *SSHHost) Start() error {
 				}
 				return friend.InitBoardOnlyModel(room, guest, assigned, room.TimeFormat, room.Board), nil
 			}),
-			// logging.Middleware(),
+			logging.Middleware(),
 		),
 		wish.WithIdleTimeout(1*time.Hour),
 	)

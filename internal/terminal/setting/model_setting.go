@@ -39,11 +39,13 @@ type SettingModel struct {
 	applyMoveFn  func([8][8]string, string) ([8][8]string, error)
 
 	// Cursor & selections
-	actionIdx   int // 0 = Create Room, 1 = Join Room
+	actionIdx   int // 0 = Create Room(local), 1 = Create Room(Online), 2 = Join Room
 	fieldIdx    int // 0 = Side, 1 = Time Format, 2 = Start Waiting
 	sideIdx     int // 0 = White, 1 = Black, 2 = Random
 	timeIdx     int
 	startHostFn func() error
+	opts        []string
+	isOnline    bool
 
 	roomInput textinput.Model
 	room      *middleware.Room
@@ -61,6 +63,7 @@ func InitSettingModel(
 	ti := textinput.New()
 	ti.Placeholder = "e.g. 5UJ8S"
 	ti.CharLimit = 5
+	opts := []string{"Create Room (Local)", "Create Room (Online)", "Join Room"}
 	ti.SetWidth(16)
 
 	return SettingModel{
@@ -71,6 +74,7 @@ func InitSettingModel(
 		initialBoard: initialBoard,
 		applyMoveFn:  applyFn,
 		roomInput:    ti,
+		opts:         opts,
 	}
 }
 

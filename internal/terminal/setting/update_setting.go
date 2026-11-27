@@ -61,14 +61,21 @@ func (m SettingModel) Update(msg tea.Msg) (SettingModel, tea.Cmd) {
 
 func (m SettingModel) updateChooseAction(key string) (SettingModel, tea.Cmd) {
 	switch key {
-	case "j", "down", "k", "up":
-		m.actionIdx = 1 - m.actionIdx
+	case "j", "down":
+		m.actionIdx = (m.actionIdx + 1) % len(m.opts)
+	case "k", "up":
+		m.actionIdx = (m.actionIdx - 1 + len(m.opts)) % len(m.opts)
 	case "enter":
 		m.errMsg = ""
 		if m.actionIdx == 0 {
 			m.step = stepCreateConfig
 			m.fieldIdx = 0
-		} else {
+		} else if m.actionIdx == 1 {
+			//TODO:create new step for online??
+			m.step = stepCreateConfig
+			m.fieldIdx = 0
+			m.isOnline = true
+		} else if m.actionIdx == 2 {
 			m.step = stepJoinInput
 			m.roomInput.Reset()
 			m.roomInput.Focus()
@@ -99,7 +106,7 @@ func (m SettingModel) updateCreateConfig(key string) (SettingModel, tea.Cmd) {
 			m.timeIdx = (m.timeIdx + 1) % len(middleware.TimePresets)
 		}
 	case "enter":
-		if m.fieldIdx < 2 {
+		if m.fieldIdx < 3 {
 			m.fieldIdx++
 			return m, nil
 		}
