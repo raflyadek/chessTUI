@@ -49,6 +49,8 @@ var (
 
 	SecondaryStyle = lipgloss.NewStyle().
 			Foreground(Grey)
+	ErrorStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Red)
 
 	PanelStyle = lipgloss.NewStyle().
 			Border(lipgloss.NormalBorder()).

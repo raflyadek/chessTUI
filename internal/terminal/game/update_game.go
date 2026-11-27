@@ -50,11 +50,11 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 				if err := m.room.SubmitMove(m.mySide, move); err != nil {
 					m.err = err.Error()
 				}
-				return m, nil
+				cmd = m.switchPlayer()
+				return m, cmd
 			}
 
 			// local play path
-			// m.input = move
 			board, err := m.state.PlayGameTUI(m.board, move)
 			if err != nil {
 				m.err = err.Error()
@@ -72,8 +72,6 @@ func (m GameModel) Update(msg tea.Msg) (GameModel, tea.Cmd) {
 
 			m.err = ""
 			m.board = board
-			// m.from = m.board[6][4]
-			// m.to = m.board[5][4]
 			cmd = m.switchPlayer()
 			return m, cmd
 		default:

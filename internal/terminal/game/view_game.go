@@ -170,6 +170,17 @@ func (m GameModel) footerRender(boardWidth int) string {
 	help := style.SecondaryStyle.Width(boardWidth).Render(
 		"Enter: Submit  |  Esc: Menu  |  Ctrl+C: Quit",
 	)
+	err := style.ErrorStyle.Width(boardWidth).Render(
+		m.err,
+	)
+	if m.err != "" {
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			input,
+			err,
+			help,
+		)
+	}
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		input,

@@ -1,6 +1,11 @@
 package main
 
 import (
+	// "fmt"
+	// "os"
+
+	// tea "charm.land/bubbletea/v2"
+	"flag"
 	"fmt"
 	"os"
 
@@ -8,6 +13,7 @@ import (
 	"github.com/raflyadek/chessTUI/internal/middleware"
 	"github.com/raflyadek/chessTUI/internal/server"
 	"github.com/raflyadek/chessTUI/internal/terminal"
+	// "github.com/raflyadek/chessTUI/internal/terminal"
 )
 
 var (
@@ -16,6 +22,25 @@ var (
 )
 
 func main() {
+	runServer := flag.Bool("server", false, "Run SSH server")
+	flag.Parse()
+
+	if *runServer {
+		RunServer(host, port)
+	} else {
+		RunClient(host, port)
+	}
+	// p := tea.NewProgram(terminal.InitRootModel())
+	// if _, err := p.Run(); err != nil {
+	// 	fmt.Fprintf(os.Stderr, "Oof: %v\n", err)
+	// }
+}
+
+func RunServer(host string, port int) {
+	server.InitServer(host, port, middleware.NewLobby())
+}
+
+func RunClient(host string, port int) {
 	//ssh
 	lobby := middleware.NewLobby()
 	sshHost := server.NewSSHHost(host, port, lobby)
@@ -32,9 +57,4 @@ func main() {
 		fmt.Fprintf(os.Stderr, "Oof: %v\n", err)
 		os.Exit(1)
 	}
-	// server.InitServer(host, port, middleware.NewLobby())
-	// p := tea.NewProgram(terminal.InitRootModel())
-	// if _, err := p.Run(); err != nil {
-	// 	fmt.Fprintf(os.Stderr, "Oof: %v\n", err)
-	// }
 }
