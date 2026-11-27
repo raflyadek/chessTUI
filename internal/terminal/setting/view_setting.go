@@ -60,8 +60,8 @@ func (m SettingModel) View() string {
 		lanIP := localIPv4()
 		sshCmd := fmt.Sprintf("ssh %s -p %d", lanIP, m.sshPort)
 		lines := []string{}
-		switch m.isOnline {
-		case true:
+		switch m.waiting {
+		case waitingOnline:
 			lines = append(lines,
 				style.SectionTitleStyle.Render("WAITING FOR FRIEND..."),
 				fmt.Sprintf("Room Code : %s", style.HeaderStyle.Render(m.room.ID)),
@@ -74,7 +74,7 @@ func (m SettingModel) View() string {
 				"",
 				style.SecondaryStyle.Render("Esc: Cancel Room"),
 			)
-		case false:
+		case waitingLocal:
 			lines = append(lines,
 				style.SectionTitleStyle.Render("WAITING FOR FRIEND..."),
 				// fmt.Sprintf("Room Code : %s", style.HeaderStyle.Render(m.room.ID)),

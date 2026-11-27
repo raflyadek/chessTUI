@@ -15,6 +15,13 @@ const (
 	stepWaiting                  // Host waiting for friend
 )
 
+type waiting int
+
+const (
+	waitingLocal waiting = iota
+	waitingOnline
+)
+
 // Emitted when a room is ready and both players are paired
 type StartOnlineGameMsg struct {
 	Room       *middleware.Room
@@ -27,9 +34,10 @@ type StartOnlineGameMsg struct {
 type BackToMenuMsg struct{}
 
 type SettingModel struct {
-	width  int
-	height int
-	step   step
+	width   int
+	height  int
+	step    step
+	waiting waiting
 
 	// Shared lobby & engine hook
 	lobby        *middleware.Lobby

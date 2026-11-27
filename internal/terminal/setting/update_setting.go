@@ -69,10 +69,12 @@ func (m SettingModel) updateChooseAction(key string) (SettingModel, tea.Cmd) {
 		m.errMsg = ""
 		if m.actionIdx == 0 {
 			m.step = stepCreateConfig
+			m.waiting = waitingLocal
 			m.fieldIdx = 0
 		} else if m.actionIdx == 1 {
 			//TODO:create new step for online??
 			m.step = stepCreateConfig
+			m.waiting = waitingOnline
 			m.fieldIdx = 0
 			m.isOnline = true
 		} else if m.actionIdx == 2 {
