@@ -6,6 +6,6 @@ func main() {
 	//init game state
 	state := engine.NewGameState()
 	//init the board
-	board := engine.InitBoard()
+	board := state.InitBoard()
 	engine.PlayGame(state, board)
 }

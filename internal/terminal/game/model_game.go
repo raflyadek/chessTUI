@@ -62,9 +62,10 @@ func InitGameModel() GameModel {
 	input.Placeholder = "Enter move (e.g. e2e4)"
 	input.SetWidth(30)
 	input.Focus()
+	state := engine.NewGameState()
 	return GameModel{
-		board:      engine.InitBoard(),
-		state:      engine.NewGameState(),
+		board:      state.InitBoard(),
+		state:      state,
 		whiteTimer: timer.New(defaultTime),
 		blackTimer: timer.New(defaultTime),
 		moveInput:  input,

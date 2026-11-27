@@ -2,7 +2,6 @@ package terminal
 
 import (
 	tea "charm.land/bubbletea/v2"
-	"github.com/raflyadek/chessTUI/internal/engine"
 	"github.com/raflyadek/chessTUI/internal/middleware"
 	"github.com/raflyadek/chessTUI/internal/terminal/game"
 	"github.com/raflyadek/chessTUI/internal/terminal/menu"
@@ -55,7 +54,7 @@ func InitRootModelWithLobby(
 		lobby:   lobby,
 		game:    g,
 		menu:    menu.InitMenuModel(),
-		setting: setting.InitSettingModel(lobby, playerName, sshPort, engine.InitBoard(), engine.NewGameState().PlayGameTUI),
+		setting: setting.InitSettingModel(lobby, playerName, sshPort, g.GetBoard(), g.GetPlayGame()),
 	}
 }
 

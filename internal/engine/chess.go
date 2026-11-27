@@ -252,7 +252,7 @@ func PlayGame(state *GameState, board [8][8]string) error {
 				break
 			} else if strings.ToLower(choice) == "p" {
 				//reset board and all state
-				board = InitBoard()
+				board = state.InitBoard()
 				state = NewGameState()
 				continue
 			} else if strings.ToLower(choice) == "u" {
@@ -431,7 +431,7 @@ func (state *GameState) PlayGameTUI(board [8][8]string, move string) ([8][8]stri
 /*
 initial board when play
 */
-func InitBoard() [8][8]string {
+func (gs *GameState) InitBoard() [8][8]string {
 	board := [8][8]string{}
 
 	//white

@@ -109,3 +109,11 @@ func (m *GameModel) switchPlayer() tea.Cmd {
 
 // back to menu
 type BackToMenu struct{}
+
+func (m *GameModel) GetBoard() [8][8]string {
+	return m.state.InitBoard()
+}
+
+func (m *GameModel) GetPlayGame() func([8][8]string, string) ([8][8]string, error) {
+	return m.state.PlayGameTUI
+}
